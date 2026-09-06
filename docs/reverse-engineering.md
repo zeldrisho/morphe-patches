@@ -22,20 +22,25 @@ Keep per-app work outside this repo (e.g. a sibling `analysis/<app>/` folder wit
 
 ## Tools
 
-| Tool | Purpose | Install |
+> Install columns reflect THIS dev box (Fedora WSL + Homebrew + uv + Android SDK in
+> `~/Android/Sdk`). Debian/Ubuntu equivalents are in parentheses where they differ.
+
+| Tool | Purpose | Install (this box) |
 | ---- | ------- | ------- |
-| `aapt` | Package, version, SDK levels from an APK | `apt install aapt` |
+| `aapt2`/`aapt` | Package, version, SDK levels from an APK | Android SDK build-tools: `android sdk install build-tools/36.1.0` → `~/Android/Sdk/build-tools/36.1.0/` (on PATH via `fish_add_path`) |
 | `apkid` | Obfuscator / packer / anti-debug / anti-VM detection | `uvx apkid` |
-| `jadx` | APK → Java source | `apt install jadx` |
-| `baksmali` | DEX → smali bytecode | `apt install libsmali-java` |
-| `apktool` | Decode / rebuild resources (rarely needed — prefer `bytecodePatch`) | `apt install apktool` |
-| `rg` | Fast search over decompiled output | `apt install ripgrep` |
-| `strings` | DEX string extraction (`apk-recon.sh` stack signals) | `apt install binutils` |
-| `python3` | Kotlin name-recovery mapping (`recover-kotlin-names.sh`) | preinstalled |
-| `kaggle` | Remote-decompile uploads (large APKs only) | `pipx install kaggle` |
-| `adb` | Install patched APK on device | `apt install adb` |
-| `frida-tools` | Dynamic confirmation (§3.6): list processes, inject hooks | `pipx install frida-tools` + device-matched `frida-server` |
-| `objection` | One-command pinning/root bypass triage (§3.6) | `pipx install objection` |
+| `jadx` | APK → Java source | `brew install jadx` (Debian: `apt install jadx`) |
+| `baksmali` | DEX → smali bytecode | not installed here — `apktool d` covers smali extraction (Debian: `apt install libsmali-java`) |
+| `apktool` | Decode / rebuild resources (rarely needed — prefer `bytecodePatch`) | `brew install apktool` (Debian: `apt install apktool`) |
+| `rg` | Fast search over decompiled output | `dnf install ripgrep` |
+| `strings` | DEX string extraction (`apk-recon.sh` stack signals) | not installed here (`dnf install binutils`) |
+| `python3` | Kotlin name-recovery mapping (`recover-kotlin-names.sh`) | brew (preinstalled) |
+| `kaggle` | Remote-decompile uploads (large APKs only) | `uvx kaggle` / `pipx install kaggle` |
+| `adb` | Install patched APK on device | Android SDK platform-tools: `android sdk install platform-tools` → `~/Android/Sdk/platform-tools/adb` (dnf `android-tools` was uninstalled on this box) |
+| `frida-tools` | Dynamic confirmation (§3.6): list processes, inject hooks | `uv tool install frida-tools` (gives `frida`, `frida-ps` in `~/.local/bin`; needs `frida-server`/gadget on device) |
+| `objection` | One-command pinning/root bypass triage (§3.6) | `pipx install objection` / `uvx objection` |
+| `morphe-cli` | Apply `.mpp` bundles, list patches, install patched APK | `~/.local/bin/morphe-cli` (jar `~/.local/bin/morphe-cli.jar` + wrapper; `scripts/repatch.sh` default) |
+| `android` (android-cli) | SDK install/list/info (`android sdk install …`) | Homebrew cask `android-cli`; SDK root `~/Android/Sdk` (`ANDROID_HOME` in fish) |
 
 `scripts/apk-recon.sh` wraps the recon step (Phase-0 triage: framework, HTTP/DI/billing
 stack signals via DEX strings, obfuscation estimate, split-aware native libs, recommended
