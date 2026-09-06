@@ -105,6 +105,8 @@ method.indexOfFirstInstructionOrThrow(Opcode.RETURN)
 ```
 
 For per-billing-system and per-ad-SDK starting points, see `bypass-patterns.md`.
+For confirming a target runs before freezing the fingerprint, see
+`reverse-engineering.md` §3.6 (Frida log → smali quote → fingerprint).
 
 ## Key imports
 

@@ -34,6 +34,8 @@ Keep per-app work outside this repo (e.g. a sibling `analysis/<app>/` folder wit
 | `python3` | Kotlin name-recovery mapping (`recover-kotlin-names.sh`) | preinstalled |
 | `kaggle` | Remote-decompile uploads (large APKs only) | `pipx install kaggle` |
 | `adb` | Install patched APK on device | `apt install adb` |
+| `frida-tools` | Dynamic confirmation (§3.6): list processes, inject hooks | `pipx install frida-tools` + device-matched `frida-server` |
+| `objection` | One-command pinning/root bypass triage (§3.6) | `pipx install objection` |
 
 `scripts/apk-recon.sh` wraps the recon step (Phase-0 triage: framework, HTTP/DI/billing
 stack signals via DEX strings, obfuscation estimate, split-aware native libs, recommended
@@ -147,7 +149,53 @@ path literals themselves — R8 never obfuscates string contents:
 rg -o '"(/[A-Za-z0-9_{}.\-]+(/[A-Za-z0-9_{}.\-]+)+/?)"' analysis/<app>/decompiled -g '*.java'
 ```
 
-### Smali verification (mandatory)
+### 3.6 Dynamic confirmation (Frida — SHOULD for runtime gates)
+
+Static locates, dynamic confirms. For runtime gates (pinning, root, signature,
+request signing) SHOULD confirm the candidate actually runs before freezing a
+fingerprint; for pure static string gates it stays optional. Pattern: log-first
+static→dynamic loop — observe parameters + return values, mutate second.
+
+Prerequisites: USB debugging on, target device visible via `adb`, `frida-server`
+matching the device ABI running; stop with `Ctrl-C` / `adb kill-server` (no device
+state is modified by the hooks below).
+
+```bash
+adb devices && frida-ps -U                 # device + target process visible
+frida -U -f com.target.app -l hook.js --no-pause   # spawn early, don't attach late
+```
+
+Minimal hooks (log first, mutate only after you see traffic):
+
+```javascript
+function bytesToHex(b) { return Array.from(new Uint8Array(b)).map(x => ('0' + (x & 0xFF).toString(16)).slice(-2)).join(''); }
+// AES key / IV capture
+Java.perform(function() {
+  Java.use("javax.crypto.spec.SecretKeySpec").$init.overload('[B', 'java.lang.String')
+    .implementation = function(k, a) { console.log("[key] " + a + " " + bytesToHex(k)); return this.$init(k, a); };
+  Java.use("javax.crypto.Cipher").doFinal.overload('[B')
+    .implementation = function(b) { console.log("[cipher] in=" + bytesToHex(b)); var r = this.doFinal(b); console.log("[cipher] out=" + bytesToHex(r)); return r; };
+});
+// OkHttp request / response (skip if okhttp3.* absent — R8-relocated; use TrustManager hooks instead)
+Java.perform(function() {
+  Java.use("okhttp3.RealCall").execute.implementation = function() {
+    console.log("[http] " + this.request().method() + " " + this.request().url().toString());
+    var r = this.execute(); console.log("[http] code=" + r.code()); return r;
+  };
+});
+// Pinning triage: try one-click first, hand-roll only on failure (same command as below)
+```
+
+Order: `objection --gadget com.target.app explore -s "android sslpinning disable"` → generic unpinning script
+(`CertificatePinner.check` + `TrustManagerImpl.verifyChain` +
+`HostnameVerifier.verify`) → hand-written hook for the app's exact class found in
+§3. If the app exits on inject, suspect anti-Frida (port/file self-check) — switch
+to `frida-gadget`/Zygisk rather than grinding more static patterns. Log the
+confirmed class/method/args into `notes/<topic>.md` alongside the smali quote;
+a fingerprint with static smali + one dynamic observation outlives refactors that
+kill static-only guesses.
+
+### 3.7 Smali verification (mandatory — always, even with dynamic confirmation)
 
 Never trust jadx output alone — it mis-decompiles obfuscated code. For every candidate:
 
@@ -164,8 +212,9 @@ Never trust jadx output alone — it mis-decompiles obfuscated code. For every c
 
 Covered in `fingerprint-guide.md` and `development.md`. The handoff from hunting is:
 
-- Fully qualified class + exact smali method signature.
+- Fully qualified class + exact smali method signature (§3.7, mandatory).
 - Ordered instruction sequence (invoke calls / const-strings).
+- Dynamic confirmation for runtime gates (Frida log of class/method/args, §3.6, SHOULD); static-only is draft status.
 - Suggested bypass (`returnEarly(true)`, instruction override, etc.).
 
 ## 5. Test

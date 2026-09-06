@@ -58,6 +58,23 @@ return raw signature bytes (`new-array` + `fill-array-data`) → manifest-swappe
 `Application` subclass intercepting checks → `PackageInfo.CREATOR` replacement so
 every SDK reader sees the spoofed signature. Pick the shallowest level that works.
 
+### Dynamic confirmation (Frida — which hook proves which protection)
+
+Static hunt finds candidates; a 2-minute Frida run decides the patch shape.
+
+| Protection | Confirm with | Patch implication |
+| ---------- | ------------ | ----------------- |
+| SSL pinning, OkHttp 3/4 `CertificatePinner` | `objection --gadget com.target.app explore -s "android sslpinning disable"`, else hook `CertificatePinner.check(String, List)` → log host | `check` returns void: bypass with `return-void`; if only some hosts fail, both OkHttp **and** `HttpsURLConnection` paths exist — hook `checkServerTrusted` + `HostnameVerifier.verify` too |
+| SSL pinning, Conscrypt `TrustManagerImpl` | Hook `verifyChain` → log host; Burp shows cert errors until bypassed | `verifyChain` returns the chain: bypass by returning the untrusted chain as-is (passthrough, **not** `return-void`); note the AOSP version — impl signature moves across API levels |
+| Root (`isRooted`/`RootBeer`/su paths) | Hook `File.exists` + `Runtime.exec(String)` → log blocked path/cmd | Force `false` on each Java check **and** hide su paths; one bypass rarely covers all SDKs |
+| Emulator / debug | Spoof `Build.*` fields, hook `Debug.isDebuggerConnected` → `false` | Test-only bypass; ship only if the check blocks patched-app launch |
+| HMAC / request signing | Hook `SecretKeySpec.$init` (algo+key) + `Mac.doFinal` (input→tag) | Decides bulk-string vs interceptor approach: static secret → replace `const-string`; derived key → hook builder/interceptor |
+| WebView-gated flow | Hook `loadUrl` / `evaluateJavascript` → log URL (first 200 chars) | Often a URL allowlist — patch the gate, not the renderer |
+
+Rule: log parameters + return values first, mutate second. A confirmed
+`class.method(args)` triple goes into the hunt notes next to the smali quote
+(`reverse-engineering.md` §3.6) and becomes the fingerprint anchor.
+
 ## Analytics and Firebase
 
 Cheapest first: manifest `meta-data` flags (`firebase_analytics_collection_deactivated`,
