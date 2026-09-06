@@ -11,8 +11,7 @@
 | ---- | ------- |
 | `patches/src/main/kotlin/` | Patch + fingerprint sources (`app/template/patches/`, `util/PatchListGenerator.kt`) |
 | `extensions/extension/` | Companion extension source, outputs `extensions/extension.mpe` |
-| `docs/` | Contributor guides |
-| `.github/` | `workflows/release.yml`, `workflows/open_pull_request.yml`, `scripts/generate_patches_readme.py` |
+| `scripts/` | Helper scripts (`apk-recon.sh`, `extract-smali.sh`, `remote-decompile.sh`) |
 
 ## Commands
 
@@ -21,7 +20,6 @@
 | Build patches bundle | `./gradlew buildAndroid` → `patches/build/libs/patches-*.mpp` |
 | Regenerate patch list | `./gradlew generatePatchesList` → `patches-list.json` |
 | Verify without release | `./gradlew :patches:buildAndroid clean --no-daemon` |
-| Install release tooling | `vp install` |
 
 ## Key Conventions
 
@@ -39,6 +37,11 @@
 | User setup / patch list | `README.md` |
 | Development setup | `docs/development.md` |
 | Patch/extension structure | `docs/architecture.md` |
+| Finding targets (recon→hunt) | `docs/reverse-engineering.md` |
+| Writing fingerprints | `docs/fingerprint-guide.md` |
+| Writing/building patches | `docs/patch-development.md` |
+| Smali, obfuscation, match debugging | `docs/bytecode-reference.md` |
+| Bypass techniques per system | `docs/bypass-patterns.md` |
 | Release process | `docs/release.md` |
 | Project name restriction | `NOTICE` |
 | Release pipeline config | `.releaserc` |
