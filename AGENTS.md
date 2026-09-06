@@ -11,7 +11,7 @@
 | ---- | ------- |
 | `patches/src/main/kotlin/` | Patch + fingerprint sources (`app/template/patches/`, `util/PatchListGenerator.kt`) |
 | `extensions/extension/` | Companion extension source, outputs `extensions/extension.mpe` |
-| `scripts/` | Helper scripts (`apk-recon.sh`, `extract-smali.sh`, `remote-decompile.sh`) |
+| `scripts/` | Helper scripts (`apk-recon.sh`, `extract-smali.sh`, `remote-decompile.sh`, `hunt-signals.sh`, `recover-kotlin-names.sh`) |
 
 ## Commands
 
