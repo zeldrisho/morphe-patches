@@ -40,6 +40,7 @@
 | Finding targets (recon→hunt) | `docs/reverse-engineering.md` |
 | Writing fingerprints | `docs/fingerprint-guide.md` |
 | Writing/building patches | `docs/patch-development.md` |
+| Incident-driven rules (signing, TV/ABI, unpatchable) | `docs/lessons-learned.md` |
 | Smali, obfuscation, match debugging | `docs/bytecode-reference.md` |
 | Bypass techniques per system | `docs/bypass-patterns.md` |
 | Release process | `docs/release.md` |

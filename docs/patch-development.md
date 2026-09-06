@@ -28,11 +28,22 @@ patches/src/main/kotlin/app/template/patches/<app>/
 ```
 
 - Shared targets go in `shared/Constants.kt` (see `architecture.md` for the fields).
+- Pin **exact** `AppTarget` versions you fingerprinted and tested — never ship
+  `version = null` as the only target. Rationale: Morphe Manager rejects a null
+  ("any") version (the whole source fails to load), and R8-obfuscated bytecode
+  patches only verifiably resolve on the fingerprinted version; pinning makes
+  staleness explicit instead of silently matching the wrong code. Prefer versions
+  available on well-known APK mirrors (see `Constants.kt` comments).
 - Internal-only helpers stay unnamed (`bytecodePatch { ... }` without `name`) and are
   wired in via `dependsOn(...)` — see `example/InternalPatch.kt`.
 - Complex runtime logic goes in `extensions/extension/src/main/java/` and is linked with
   `extendWith("extensions/extension.mpe")` (when to use it: below).
-- Prefer exact `AppTarget` versions available on well-known APK mirrors over `version = null`.
+- Prefer exact `AppTarget` versions available on well-known APK mirrors over `version = null` (see above — null breaks Manager loading).
+- Every user-visible patch needs an honest `description`: state what it does AND
+  its limits (e.g. "client-side IMA ads only; server-stitched SSAI on live streams
+  may remain", "UI only — content stays server + Widevine gated", "rename may
+  break Google/OAuth sign-in"). If the target is server-gated with no client gate
+  (see `lessons-learned.md`), don't ship a fake unlock — document it as a limitation.
 
 ## Writing a patch
 
@@ -102,6 +113,25 @@ resourcePatch {
 Extension methods called from patched bytecode must be `public static`; mark them
 `@SuppressWarnings("unused")` since nothing references them at compile time.
 Settings are best read once at class-load time (`static final`) for performance.
+
+### Defensive extension convention
+
+Extensions run inside someone else's app on versions you never tested — a layout
+change must degrade to a no-op, never a crash. Follow these rules (proven pattern:
+a backup-screen launcher that surfaces a hidden activity via an injected row):
+
+- Resolve everything by **name at runtime** (`Class.forName`,
+  `Resources.getIdentifier`) — never hardcode resource IDs or reference obfuscated
+  app classes directly, so the code survives R8 renames.
+- Hook early entry points (e.g. `onCreate`) but defer view work with
+  `decorView.post(...)` so the layout exists when you touch it.
+- Dedupe injected views with a tag (`findViewWithTag`) so repeat calls are safe.
+- Wrap **every** call in `try/catch (Throwable)` — including the posted `Runnable`
+  body — so any drift silently skips the feature instead of crashing the host.
+- Clone the sibling's `LayoutParams` and match the host widget type (e.g. reuse the
+  app's own row class) so injected UI looks native.
+- Keep the app's own machinery unmodified; only add the entry point (e.g. open the
+  hidden activity via explicit `Intent.setClassName`).
 
 ```kotlin
 val myPatch = bytecodePatch(name = "My Feature") {
