@@ -56,3 +56,31 @@ Read this before writing a bypass, re-signing a build, or touching release confi
 | `gradlew` must be tracked executable (`git update-index --chmod=+x gradlew`); `core.fileMode=false` checkouts silently commit it non-executable. | CI died with exit 126 "Permission denied", so no release was ever cut. |
 | The Manager serves the `.mpp` from the GitHub RELEASE named in `patches-bundle.json` — pushing source does nothing until a versioned release is cut. | New patches "not showing in Morphe" while the release stayed stale. |
 | Keep unrelated pending work OUT of commits touching shared generated files: restore the other subsystem to HEAD, regenerate, commit, then re-apply. | A pending revert leaked into unrelated commits via `patches-list.json`. |
+
+## Feed / list-based removal (ads, promoted items)
+
+| Rule | Why |
+| ---- | --- |
+| "Labels/tags disappeared but the content is still there" is the signature of RELABELING (neutralizing a classification predicate), not removal. Removing means filtering the item out of the visible list; relabeling only hides chrome. | An ad patch that forced the app's isAd predicate false stripped the "Sponsored" tag but left the ad post in the feed (the user-visible bug). |
+| In feed-style apps find the single merge/insertion funnel the fetched list passes through and filter there (gap-free, cache stays clean); don't chase per-item render hooks. | Runtime probes showed the feed's only ad signal was one isAd predicate and every page merged through one cache method; no ad-specific construction/insert hook existed. |
+| Same-named classes can exist in several dex copies with only ONE active at runtime (legacy/longtail duplicates) — confirm which copy actually runs (entry log markers, counts) before anchoring a fingerprint. | A whole "spool coordinator" layer matched smali perfectly yet never fired; the live copy lived in another dex. |
+| When injecting into an unknown list type, don't mutate in place with `Iterator.remove()`: immutable/copy lists throw `UnsupportedOperationException` — swallow it and it silently does nothing. Return a filtered COPY and overwrite the parameter register. | Filter found the ad unit ("DED true") but removed 0 because the list was immutable and the exception was swallowed. |
+| Overwriting a suspend/coroutine method's parameter register at entry is safe because producers copy params to locals immediately (param registers aren't preserved across suspension); compute the reg as `registerCount - (params+1) + index`. | Original code did `move-object v3, pN` right after entry, so a replaced pN flowed into the rest of the method. |
+
+## Runtime confirmation on non-rooted devices
+
+| Rule | Why |
+| ---- | --- |
+| For runtime flow questions, inject `Log.i(tag, site)` entry markers via a throwaway bytecode patch and read `adb logcat -s <tag>`; avoid frida-gadget on non-rooted phones unless you must. | Gadget CLI attach fought "Failed to spawn: connection closed" and accepted only one connection per app start; logcat-canaries needed no root and no extra tooling. |
+| Wireless adb needs no root for install/logcat/uiautomator; the pairing port differs from the connect port on the Wireless-debugging screen. | Repeated "connection refused" until the main listener port was used; adb also drops the listener on phone lock/timeout. |
+| When you can't view screenshots (headless/vision-less model), read the screen as text: `uiautomator dump` + grep for labels/content-desc (e.g. an "Ad" tag) to confirm what's rendered. | A screenshot was unreadable by the agent; UI-dump text confirmed the ad was a normal post with an "Ad" tag. |
+| Frida-gadget embed needs the `.so` in the target's native dir AND a load trigger; morphe snippet injection only accepts registers v0-v15 — keep scratch registers low. | v17 in an injected snippet was rejected ("must be between v0 and v15"). |
+
+## Build / tooling environment
+
+| Rule | Why |
+| ---- | --- |
+| These patch repos need the Android SDK locally even for the Kotlin bundle (the companion extension dex step) — `android-cli` (`android sdk install platforms/android-N build-tools/N`) in WSL is enough; no AVD/system images needed. | `:patches:buildAndroid` failed with "SDK location not found" until `platforms` + `build-tools` were installed. |
+| Tool-source docs drift: install lines must match THIS box (Fedora WSL): base tools via `dnf` (`uv`, `rg`), `java`/`jadx`/`apktool` via `brew`, `frida-tools` via `uv tool install`, `adb` + `aapt` from the Android SDK (`platform-tools`, `build-tools/*/aapt2`) managed by `android-cli`, `morphe-cli` jar+wrapper in `~/.local/bin`; `apt`-style lines only apply on Debian/Ubuntu. | Running documented `apt install adb` here did nothing — adb lives in `~/Android/Sdk/platform-tools`, `aapt` in `~/Android/Sdk/build-tools/*`, and `dnf`/`brew`/`uv` are the package managers. |
+| The Morphe Gradle plugin (`app.morphe.patches`) resolves from GitHub Packages, which requires credentials even for public packages: `gpr.user`/`gpr.key` in `~/.gradle/gradle.properties` (or `GITHUB_ACTOR`/`GITHUB_TOKEN` env). | Local build failed "plugin not found" until the token was configured. |
+| Same version NAME from different mirrors can have different versionCodes (APKPure vs APKMirror) — the smali may still match, but re-verify; fingerprints pin to the code path, not the marketing version. | Pinned `434.0.0.41.74`; tested APKMirror 510406926 while the plan documented 510406907. |
