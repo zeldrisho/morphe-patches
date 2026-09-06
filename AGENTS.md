@@ -11,7 +11,7 @@
 | ---- | ------- |
 | `patches/src/main/kotlin/` | Patch + fingerprint sources (`app/template/patches/`, `util/PatchListGenerator.kt`) |
 | `extensions/extension/` | Companion extension source, outputs `extensions/extension.mpe` |
-| `scripts/` | Helper scripts (`apk-recon.sh`, `extract-smali.sh`, `remote-decompile.sh`, `hunt-signals.sh`, `recover-kotlin-names.sh`) |
+| `scripts/` | Helper scripts (`apk-recon.sh`, `extract-smali.sh`, `remote-decompile.sh`, `hunt-signals.sh`, `recover-kotlin-names.sh`, `repatch.sh`) |
 
 ## Commands
 
@@ -20,6 +20,7 @@
 | Build patches bundle | `./gradlew buildAndroid` → `patches/build/libs/patches-*.mpp` |
 | Regenerate patch list | `./gradlew generatePatchesList` → `patches-list.json` |
 | Verify without release | `./gradlew :patches:buildAndroid clean --no-daemon` |
+| Re-patch + sign an APK | `scripts/repatch.sh <app.apk\|apkm> [out.apk]` (`APP_NAME`, `PACKAGE_NAME`, `MPP`/`GITHUB_REPO`, `KEYSTORE`, `MORPHE_CLI` env overrides) |
 
 ## Key Conventions
 
