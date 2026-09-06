@@ -128,3 +128,9 @@ node_modules/
 # Ignore IDEA files
 .idea/
 local.properties
+
+# Per-app reverse-engineering work (APK, smali, decompiled)
+analysis/
+
+# Local build copy of the extension dex used by morphe-cli extendWith
+/extensions/extension.mpe
