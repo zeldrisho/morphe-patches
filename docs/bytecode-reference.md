@@ -119,6 +119,9 @@ When a fingerprint stops matching, work through this order:
 Incremental technique: start from `returnType` alone, add access flags, then params,
 then filters one by one until the match is unique — you'll find the lying field fast.
 
+Evidence bar: a release patch SHOULD have two independent confirmations — static smali quote + one dynamic
+observation (`reverse-engineering.md` §3.6 Frida log). Static-only is draft status: fine for a work-in-progress, not for a release patch.
+
 Also remember: `instructionMatches` requires `filters`; `strings` matches
 method-level (not class-level) content — use `classFingerprint` when you need the
 class first.
