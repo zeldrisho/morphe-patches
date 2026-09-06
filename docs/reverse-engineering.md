@@ -28,8 +28,11 @@ Keep per-app work outside this repo (e.g. a sibling `analysis/<app>/` folder wit
 | `apkid` | Obfuscator / packer / anti-debug / anti-VM detection | `uvx apkid` |
 | `jadx` | APK → Java source | `apt install jadx` |
 | `baksmali` | DEX → smali bytecode | `apt install libsmali-java` |
-| `apktool` | Decode / rebuild resources | `apt install apktool` |
+| `apktool` | Decode / rebuild resources (rarely needed — prefer `bytecodePatch`) | `apt install apktool` |
 | `rg` | Fast search over decompiled output | `apt install ripgrep` |
+| `strings` | DEX string extraction (`apk-recon.sh` stack signals) | `apt install binutils` |
+| `python3` | Kotlin name-recovery mapping (`recover-kotlin-names.sh`) | preinstalled |
+| `kaggle` | Remote-decompile uploads (large APKs only) | `pipx install kaggle` |
 | `adb` | Install patched APK on device | `apt install adb` |
 
 `scripts/apk-recon.sh` wraps the recon step (Phase-0 triage: framework, HTTP/DI/billing
@@ -96,7 +99,9 @@ break testing of everything else. Start with a one-pass triage:
 scripts/hunt-signals.sh analysis/<app>/decompiled [--files]
 ```
 
-Then work the buckets below (highest signal first):
+Then work the buckets below (highest signal first). These patterns are embedded
+in `scripts/hunt-signals.sh` above — the script is the canonical copy; when a
+pattern changes, update both places:
 
 0. **BuildConfig sweep** (almost never obfuscated — base URLs, flavors, keys):
    `rg 'BASE_URL|API_URL|FLAVOR|API_KEY' -g 'BuildConfig.java' analysis/<app>/decompiled`
@@ -140,13 +145,6 @@ path literals themselves — R8 never obfuscates string contents:
 
 ```bash
 rg -o '"(/[A-Za-z0-9_{}.\-]+(/[A-Za-z0-9_{}.\-]+)+/?)"' analysis/<app>/decompiled -g '*.java'
-```
-
-Example:
-
-```bash
-rg 'revenuecat|adapty|BillingClient' analysis/<app>/decompiled -g '*.java' -l
-rg 'isPro|isPremium|isSubscribed' analysis/<app>/decompiled -g '*.java' -l
 ```
 
 ### Smali verification (mandatory)

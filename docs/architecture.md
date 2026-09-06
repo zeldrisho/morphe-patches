@@ -1,5 +1,13 @@
 # Architecture
 
+Personal Morphe patch bundle: small, reviewable bytecode patches that unlock
+features or strip ads, distributed as a versioned `.mpp` bundle.
+
+Goals: fingerprints that survive app updates (SDK anchors, never obfuscated
+names), one concern per patch, everything reproducible from
+`./gradlew buildAndroid`. Non-goal: server-side bypasses — client-side only
+(see `patch-development.md` § Known limitations).
+
 ## Modules
 
 | Module | Entry | Output |
@@ -9,6 +17,38 @@
 
 Plugin `app.morphe.patches` (see `settings.gradle.kts`, `gradle/libs.versions.toml`) builds both.
 `patchListGeneratorClasspath` keeps `gson` available to the generator without bundling it.
+
+## Patch flow (APK → device)
+
+```
+original APK ──▶ jadx + baksmali ──▶ target (class + method + instruction seq)
+   (analysis/, outside repo)            smali is source of truth, never jadx alone
+                                           │
+                 Fingerprint (named object: SDK/string/opcode anchors)
+               + bytecodePatch { execute { ... } }  (.kt sources, per-app folders)
+                                           │ ./gradlew buildAndroid
+                                           ▼
+                 patches-*.mpp ──▶ Morphe Desktop ──▶ patched APK ──▶ adb install
+```
+
+## Decisions
+
+- **`bytecodePatch` first.** No resource decoding → fastest builds and smallest
+  match surface. `resourcePatch` only for manifest/`res/values` gates
+  (see `patch-development.md` § Patch types).
+- **Fingerprints beside patches, per-app folders.** A folder is self-contained:
+  `Fingerprints.kt` + `*Patch.kt`. Shared targets live in `shared/Constants.kt`.
+- **Named `Fingerprint` objects, SDK-anchored.** Match failures print the name;
+  anchors are SDK calls/strings/opcodes because R8 renames everything else
+  (see `fingerprint-guide.md`, `bytecode-reference.md`).
+- **Inline smali vs extension split.** Trivial overrides stay inline; anything
+  needing settings, branching, or Android APIs goes in the Java extension and is
+  called via one `invoke-static` (see `patch-development.md` § Extensions).
+- **Exact `AppTarget` versions over `version = null`.** Fingerprints drift with app
+  updates; pinning versions makes staleness explicit instead of silently matching
+  the wrong code.
+- **Analysis stays out of the repo.** Only `.kt` sources live here; per-app
+  `apk/`, `decompiled/`, `smali/`, `notes/` live in a sibling `analysis/` folder.
 
 ## Patch anatomy
 

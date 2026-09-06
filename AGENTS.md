@@ -43,6 +43,4 @@
 | Smali, obfuscation, match debugging | `docs/bytecode-reference.md` |
 | Bypass techniques per system | `docs/bypass-patterns.md` |
 | Release process | `docs/release.md` |
-| Project name restriction | `NOTICE` |
-| Release pipeline config | `.releaserc` |
 | Patcher API / fingerprinting | `https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md` |
