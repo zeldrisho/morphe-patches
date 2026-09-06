@@ -1,7 +1,9 @@
 #!/bin/bash
-# apk-recon.sh — identify an APK and emit a recon report.
-# Usage: scripts/apk-recon.sh <file.apk|apkm|xapk> [output.md]
-# Requires: aapt, unzip, rg (optional), apkid via uvx (optional).
+# apk-recon.sh — identify an APK and emit a recon report (Phase-0 triage).
+# Usage: scripts/apk-recon.sh <file.apk|apkm|xapk|apks> [output.md]
+# Requires: aapt, unzip, strings; optional: rg (fallback: grep), apkid via uvx.
+# Phase-0 triage approach (DEX-string stack signals, framework priority,
+# obfuscation estimate) adapted from SimoneAvogadro/android-reverse-engineering-skill (Apache-2.0).
 set -e
 
 APK="${1:?Usage: scripts/apk-recon.sh <apk-file> [output.md]}"
@@ -10,6 +12,15 @@ OUT="${2:-recon.md}"
 if [ ! -f "$APK" ]; then
   echo "❌ Not found: $APK" >&2
   exit 1
+fi
+
+# rg if available, else grep -E (callers use RG var).
+if command -v rg >/dev/null 2>&1; then
+  RG="rg"
+  RG_Q="rg -q"
+else
+  RG="grep -E"
+  RG_Q="grep -Eq"
 fi
 
 WORK_WAS_TEMP=0
@@ -40,20 +51,116 @@ SPLIT="APK"
 if [[ "$EXT" == "apkm" ]]; then SPLIT="APKM"
 elif [[ "$EXT" == "xapk" ]]; then SPLIT="XAPK"
 elif [[ "$EXT" == "apks" ]]; then SPLIT="APKS"; fi
-if aapt dump xmltree "$TARGET" AndroidManifest.xml 2>/dev/null | rg -qi 'split|requiredSplit'; then
+if aapt dump xmltree "$TARGET" AndroidManifest.xml 2>/dev/null | $RG_Q -i 'split|requiredSplit'; then
   SPLIT="$SPLIT (split manifest detected)"
 fi
 
-DEXES="$(unzip -l "$APK" | rg '\.dex' | awk '{print $4}' | tr '\n' ' ')"
-DEXCOUNT="$(unzip -l "$APK" | rg -c '\.dex')"
-LIBS="$(unzip -l "$APK" | rg -o 'lib/[a-z0-9_-]+' | sort -u | tr '\n' ' ')"
-
-FRAMEWORK="native"
-if unzip -l "$APK" | rg -q 'index.android.bundle'; then
-  FRAMEWORK="React Native"
-elif unzip -l "$APK" | rg -q 'libflutter|libapp\.so'; then
-  FRAMEWORK="Flutter"
+# Aggregate zip listings: outer APK + base.apk (split-aware view for .so/dex).
+LISTING="$(mktemp)"
+trap 'rm -f "$LISTING"' EXIT
+{ unzip -l "$APK" 2>/dev/null | awk '{print $NF}'; } > "$LISTING"
+if [[ "$WORK_WAS_TEMP" == "1" ]]; then
+  { unzip -l "$TARGET" 2>/dev/null | awk '{print $NF}'; } >> "$LISTING"
 fi
+
+DEXES="$($RG '\.dex' "$LISTING" | awk '{print $1}' | tr '\n' ' ')"
+DEXCOUNT="$($RG -c '\.dex' "$LISTING" || true)"
+LIBS="$(grep -E '^lib/[a-z0-9_-]+' "$LISTING" | sort -u | tr '\n' ' ')"
+NATIVE_DETAILED="$(grep -E '^lib/[^/]+/[^/]+\.so$' "$LISTING" | sort -u || true)"
+
+# DEX type-descriptor strings: most libs live inside classes*.dex, not as zip
+# paths. Extract FQNs (Lcom/foo/Bar; → com/foo/Bar) so stack detection works
+# even on obfuscated apps. Tries base.apk first, falls back to outer APK.
+DEXSTR="$(mktemp)"
+trap 'rm -f "$LISTING" "$DEXSTR"' EXIT
+: > "$DEXSTR"
+for src in "$TARGET" "$APK"; do
+  for dex in $(unzip -Z1 "$src" 2>/dev/null | grep -E '^classes[0-9]*\.dex$' || true); do
+    unzip -p "$src" "$dex" 2>/dev/null \
+      | strings -n 8 \
+      | grep -oE 'L[a-z][a-zA-Z0-9_]*(/[a-zA-Z0-9_$]+)+;' \
+      | sed -E 's/^L//; s/;$//' >> "$DEXSTR" || true
+    break # one DEX is usually enough for stack signals; keeps recon fast
+  done
+  if [[ -s "$DEXSTR" ]]; then break; fi
+done
+sort -u "$DEXSTR" -o "$DEXSTR"
+
+has() { grep -Eq "$1" "$LISTING" || grep -Eq "$1" "$DEXSTR"; }
+
+# --- Framework detection (first match wins) ---
+FRAMEWORK="native"
+FRAMEWORK_WHY=""
+if grep -Eq '^lib/[^/]+/libflutter\.so$' "$LISTING"; then
+  FRAMEWORK="Flutter"; FRAMEWORK_WHY="lib/<abi>/libflutter.so present"
+  grep -Eq '^lib/[^/]+/libapp\.so$' "$LISTING" && FRAMEWORK_WHY="$FRAMEWORK_WHY + libapp.so (AOT Dart)"
+elif grep -Eq '^lib/[^/]+/libhermes\.so$|^assets/index\.android\.bundle$|^lib/[^/]+/libreactnativejni\.so$' "$LISTING"; then
+  FRAMEWORK="React Native"; FRAMEWORK_WHY="hermes/index.android.bundle/reactnativejni marker"
+elif grep -Eq '^assets/www/index\.html$|^assets/www/cordova\.js$|^assets/public/index\.html$' "$LISTING"; then
+  FRAMEWORK="Cordova / Capacitor (WebView hybrid)"; FRAMEWORK_WHY="assets/www/ or assets/public/ shell"
+elif grep -Eq '^lib/[^/]+/libmonodroid\.so$|^assemblies/' "$LISTING"; then
+  FRAMEWORK="Xamarin / .NET MAUI"; FRAMEWORK_WHY="libmonodroid.so or assemblies/ (.NET DLLs)"
+elif grep -Eq '^assets/flutter_assets/' "$LISTING"; then
+  FRAMEWORK="Flutter (code-only split?)"; FRAMEWORK_WHY="flutter_assets/ without libflutter.so — check splits"
+elif has 'androidx\.compose'; then
+  FRAMEWORK="Native Android (Kotlin + Jetpack Compose)"; FRAMEWORK_WHY="androidx.compose.* in DEX"
+elif has '^META-INF/.*\.kotlin_module$'; then
+  FRAMEWORK="Native Android (Kotlin)"; FRAMEWORK_WHY="kotlin_module metadata, no Compose markers"
+else
+  FRAMEWORK="Native Android (Java/Kotlin)"; FRAMEWORK_WHY="no cross-platform markers"
+fi
+
+# --- Stack signals ---
+http=()
+has 'retrofit2' && http+=("Retrofit")
+has 'okhttp3' && http+=("OkHttp")
+has 'io/ktor/' && http+=("Ktor")
+has 'com/apollographql/' && http+=("Apollo/GraphQL")
+has 'com/android/volley' && http+=("Volley")
+
+di=()
+has 'dagger/hilt/' && di+=("Hilt")
+has 'org/koin/' && di+=("Koin")
+
+ser=()
+has 'kotlinx/serialization/' && ser+=("kotlinx.serialization")
+has 'com/google/gson/' && ser+=("Gson")
+has 'com/squareup/moshi/' && ser+=("Moshi")
+has 'com/fasterxml/jackson/' && ser+=("Jackson")
+
+billing=()
+has 'revenuecat|com/revenuecat' && billing+=("RevenueCat")
+has 'adapty|com/adapty' && billing+=("Adapty")
+has 'qonversion|io/qonversion' && billing+=("Qonversion")
+has 'superwall' && billing+=("Superwall")
+has 'com/android/billingclient' && billing+=("Play Billing")
+has 'LicenseChecker|licensing' && billing+=("LVL")
+
+protect=()
+has '[Pp]airip|[Pp]airIp' && protect+=("PairIP?")
+has 'PlayIntegrity|IntegrityManager' && protect+=("Play Integrity")
+has 'RootBeer|checkRoot|isRooted|magisk' && protect+=("root-checks")
+has 'CertificatePinner|checkServerTrusted|TrustManager' && protect+=("pinning")
+
+# --- Obfuscation estimate: single/double-letter root dirs ---
+SHORT_DIRS=$(grep -oE '^[a-z]{1,2}/' "$LISTING" | sort -u | wc -l | tr -d ' ')
+if [[ "$SHORT_DIRS" -gt 30 ]]; then OBF="HIGH ($SHORT_DIRS short root dirs)"
+elif [[ "$SHORT_DIRS" -gt 10 ]]; then OBF="MODERATE ($SHORT_DIRS short root dirs)"
+else OBF="LOW"; fi
+
+# --- Notable SDKs / permissions ---
+sdks=()
+has '^assets/com/appsflyer/' && sdks+=("AppsFlyer")
+has 'com/datadog/' && sdks+=("Datadog")
+has 'io/sentry/' && sdks+=("Sentry")
+has 'com/google/firebase/' && sdks+=("Firebase")
+has 'com/google/android/gms/' && sdks+=("Play Services")
+has 'com/facebook/' && sdks+=("Facebook")
+has 'com/stripe/|com/braintreepayments/|com/payu/' && sdks+=("payments-SDK")
+PERMS="$(aapt dump badging "$TARGET" 2>/dev/null | grep -oP "uses-permission: name='\K[^']+" | tr '\n' ' ')"
+
+if has 'BuildConfig\.class$'; then BUILDCONFIG="present — grep BuildConfig.java after decompile for base URLs/flavor/keys"
+else BUILDCONFIG="not in listing (still worth grepping after decompile)"; fi
 
 APKID="unknown (apkid not available)"
 if command -v uvx >/dev/null 2>&1; then
@@ -61,6 +168,15 @@ if command -v uvx >/dev/null 2>&1; then
 fi
 
 SIZE="$(du -h "$APK" | cut -f1)"
+
+# --- Recommendation ---
+case "$FRAMEWORK" in
+  Flutter*) NEXT="Java decompile yields ~no app logic (Dart AOT in libapp.so). Prefer binary hexPatch or the platform-channel bridge; see bypass-patterns.md." ;;
+  React*) NEXT="Logic is JS/Hermes (assets/index.android.bundle), not DEX. Use Hermes-level replacement; native modules are patchable normally." ;;
+  Cordova*) NEXT="App code is assets/www|public/ HTML/JS — unzip and inspect, no DEX fingerprints needed." ;;
+  Xamarin*|*.NET*) NEXT="Logic is .NET DLLs (assemblies/). Dump with ILSpy/dotPeek; jadx shows only the Mono host." ;;
+  *) NEXT="Proceed: jadx → decompiled/ + extract-smali.sh → smali/ (all DEX files), then hunt per reverse-engineering.md §3." ;;
+esac
 
 cat > "$OUT" <<EOF
 # Recon — ${LABEL:-unknown}
@@ -84,9 +200,28 @@ $APKID
 \`\`\`
 
 ## Architecture
-- Framework: $FRAMEWORK
-- Native libs: $LIBS
+- Framework: $FRAMEWORK ($FRAMEWORK_WHY)
+- Obfuscation: $OBF
+- Native libs: ${LIBS:-none}
 - Main activity: ${LAUNCH:-unknown}
+- Permissions: ${PERMS:-none listed}
+
+## Stack signals (DEX strings + listing)
+- HTTP: ${http[*]:-none detected}
+- DI: ${di[*]:-none detected}
+- Serialization: ${ser[*]:-none detected}
+- Billing SDK: ${billing[*]:-none detected}
+- Protections: ${protect[*]:-none detected}
+- Third-party SDKs: ${sdks[*]:-none detected}
+- BuildConfig: $BUILDCONFIG
+
+## Native libraries (detailed)
+\`\`\`
+${NATIVE_DETAILED:-none}
+\`\`\`
+
+## Recommended next step
+$NEXT
 EOF
 
 echo "✅ Recon written to $OUT"

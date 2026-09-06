@@ -90,6 +90,12 @@ Fallbacks for heavy obfuscation: `"L"` as a parameter type (matches any object),
 `classFingerprint` via a stable anchor (`toString` with readable content, e.g. Kotlin
 data-class output), SDK-call-only filters without strings.
 
+Recover real Kotlin names to *find* targets (never to *match* on): R8 cannot strip
+`@DebugMetadata(c="com.foo.Bar$…")` / `@Metadata(d2={…Lcom/foo/Bar;…})` strings —
+run `scripts/recover-kotlin-names.sh <decompiled> <mapping-dir>` for an obf → real map
+(~100% of `*Repository`/`*ViewModel`/`*Impl`). `jadx --deobf` only invents synthetic
+names; metadata recovery restores the developer-written ones.
+
 ## Fingerprint debugging
 
 When a fingerprint stops matching, work through this order:

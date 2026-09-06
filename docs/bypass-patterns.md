@@ -73,6 +73,9 @@ that `return-void`s on each blocked tag instead of writing N patches.
   results (`isMock` → false, `Settings.Global.getInt` for ADB → 0).
 - **Certificate transparency for debugging:** inject a `network_security_config` that
   trusts user CAs (`resourcePatch` on the manifest + a new XML).
+- **Ktor pinning (Kotlin apps):** same `checkServerTrusted`/`TrustManager` hunt as OkHttp,
+  plus Ktor `defaultRequest`/engine config; Koin bindings (`single {}`/`factory {}`)
+  locate which client impl is actually wired.
 - **Crash reporting off-switch:** manifest `meta-data` (Sentry `io.sentry.enabled=false`, …).
 - These scan every class, so implement them as instruction transforms with tight
   filters — broad matchers are slow and risky.
@@ -100,6 +103,8 @@ that `return-void`s on each blocked tag instead of writing N patches.
 | -------- | ------ | ------------- |
 | Native Java/Kotlin | Default (DEX holds the logic) | Standard jadx + smali + fingerprint flow |
 | React Native | `index.android.bundle` in assets | JS via Hermes-level replacement; native modules normally |
+| Cordova / Capacitor | `assets/www/` or `assets/public/` shell | HTML/JS — unzip and inspect, no DEX work |
+| Xamarin / .NET MAUI | `libmonodroid.so` or `assemblies/` | .NET DLLs via ILSpy/dotPeek; jadx shows only the host |
 | Flutter | `libflutter.so` / `libapp.so` | Compiled Dart in `libapp.so` — binary `hexPatch`, or attack the platform-channel bridge instead |
 | Kotlin Multiplatform | — | Same as native (shared code compiles to DEX) |
 | DEX-loading (plugins) | `DexClassLoader\|loadClass` | Patch the loader or the loaded code |

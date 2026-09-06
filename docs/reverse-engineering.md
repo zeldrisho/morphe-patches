@@ -32,8 +32,13 @@ Keep per-app work outside this repo (e.g. a sibling `analysis/<app>/` folder wit
 | `rg` | Fast search over decompiled output | `apt install ripgrep` |
 | `adb` | Install patched APK on device | `apt install adb` |
 
-`scripts/apk-recon.sh` wraps the recon step; `scripts/extract-smali.sh` wraps the
-DEX → smali step (including split `.apkm`/`.xapk` handling).
+`scripts/apk-recon.sh` wraps the recon step (Phase-0 triage: framework, HTTP/DI/billing
+stack signals via DEX strings, obfuscation estimate, split-aware native libs, recommended
+next step); `scripts/extract-smali.sh` wraps the
+DEX → smali step (including split `.apkm`/`.xapk` handling);
+`scripts/hunt-signals.sh <decompiled|smali>` counts protection/billing/ads/Ktor/Koin
+signals in one pass before hunting; `scripts/recover-kotlin-names.sh <decompiled>`
+rebuilds obfuscated → real Kotlin class names from `@DebugMetadata`/`@Metadata`.
 
 ## 1. Recon
 
@@ -45,8 +50,13 @@ Run `scripts/apk-recon.sh <file.apk>` (or do it manually):
 3. `uvx apkid <apk>` — compiler, obfuscator, packer, anti-debug, anti-VM (per DEX / lib).
 4. `unzip -l <apk> | rg '\.dex'` — DEX count.
 5. `unzip -l <apk> | rg 'index.android.bundle|libflutter|libapp'` — framework:
-   `index.android.bundle` = React Native, `libflutter.so`/`libapp.so` = Flutter, else native.
+   `index.android.bundle` = React Native, `libflutter.so`/`libapp.so` = Flutter,
+   `assets/www|public/` = Cordova/Capacitor, `libmonodroid.so|assemblies/` = Xamarin/MAUI,
+   else native (Compose vs Kotlin distinguished via `androidx.compose` / `kotlin_module`
+   DEX strings — `apk-recon.sh` does all of this automatically).
 6. Record native-lib architectures and notable permissions (billing, internet, etc.).
+7. Note HTTP/DI/billing stack signals from the recon report (Retrofit/OkHttp/Ktor/Apollo,
+   Hilt/Koin, RevenueCat/Adapty/Play Billing) — they pick the hunt patterns in §3.
 
 Save as `analysis/<app>/notes/recon.md` (rename the APK to `<app>_<version>.<ext>`).
 
@@ -80,7 +90,17 @@ Notes:
 ## 3. Hunt (find targets)
 
 Search in a fixed order — protections first, because an integrity/root check will
-break testing of everything else:
+break testing of everything else. Start with a one-pass triage:
+
+```bash
+scripts/hunt-signals.sh analysis/<app>/decompiled [--files]
+```
+
+Then work the buckets below (highest signal first):
+
+0. **BuildConfig sweep** (almost never obfuscated — base URLs, flavors, keys):
+   `rg 'BASE_URL|API_URL|FLAVOR|API_KEY' -g 'BuildConfig.java' analysis/<app>/decompiled`
+   Read every hit; each Gradle module emits its own file.
 
 1. **Protections** — integrity/license, signature verification, root, pinning:
    `pairip|PairIp|PlayIntegrity|IntegrityManager|processLicenseResponse`,
@@ -95,6 +115,32 @@ break testing of everything else:
 4. **Ads** — `showAd|loadAd|interstitial|MobileAds|AdRequest|UnityAds|AppLovin|IronSource`;
    per-SDK load/show/initialize methods (SDK class names are stable, app class names are not).
 5. **Feature gates** — `RemoteConfig|getBoolean|featureFlag|isFeatureEnabled`.
+6. **Modern Kotlin stacks** (when Retrofit patterns miss — KMP/Kotlin-only apps):
+   Ktor `client.get\(|client.post\(|defaultRequest|BearerTokens|loadTokens|refreshTokens`,
+   Apollo `serverUrl|OPERATION_DOCUMENT`, Koin `module {|single<|factory<|by inject`,
+   request signing `HmacSHA|SecretKeySpec|x-signature|computeSignature`.
+
+### 3.5 Recover Kotlin names (obfuscated Kotlin apps only)
+
+R8 renames JVM symbols but cannot strip `@DebugMetadata(c="…")` / `@Metadata(d2)`
+strings. Before tracing call flows, rebuild the real names:
+
+```bash
+scripts/recover-kotlin-names.sh analysis/<app>/decompiled analysis/<app>/mapping
+# → mapping.tsv / mapping.json / by_package/; typically ~100% of
+# *Repository/*ViewModel/*UseCase/*Impl, ~80% of DTOs
+```
+
+Use the mapping to *find* classes (never to *match* — fingerprints still anchor on
+SDK calls/strings/opcodes per `fingerprint-guide.md`). `jadx --deobf` alone is not
+equivalent: it invents synthetic names instead of recovering the originals.
+
+Obfuscation-resistant fallback: when call sites inline to `a.b(c, "…")`, grep the
+path literals themselves — R8 never obfuscates string contents:
+
+```bash
+rg -o '"(/[A-Za-z0-9_{}.\-]+(/[A-Za-z0-9_{}.\-]+)+/?)"' analysis/<app>/decompiled -g '*.java'
+```
 
 Example:
 
