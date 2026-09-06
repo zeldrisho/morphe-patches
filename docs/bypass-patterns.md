@@ -3,6 +3,9 @@
 Starting points for common patch goals, distilled from community patch repos.
 Always confirm against the target app's smali before writing a fingerprint
 (`reverse-engineering.md` §3); adapt register use to the method (`bytecode-reference.md`).
+Search strings here mirror the `scripts/hunt-signals.sh` buckets — the script is
+the canonical copy; when a pattern changes, update all three places
+(`hunt-signals.sh`, `reverse-engineering.md` §3, this doc).
 
 ## Which billing system? (decision guide)
 

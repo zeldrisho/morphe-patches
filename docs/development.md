@@ -1,7 +1,8 @@
 # Development guide
 
-Use this guide when adding patches or changing build configuration.
-See `architecture.md` for module layout and `release.md` for the release pipeline.
+Use this guide for environment setup and first-time template init.
+For writing patches see `patch-development.md`; for finding targets
+see `reverse-engineering.md`; for module layout see `architecture.md`.
 
 ## Prerequisites
 
@@ -25,12 +26,8 @@ Template leftovers still present — finish these before first real patch:
 
 ## Adding a patch
 
-- Put shared targets in `patches/src/main/kotlin/app/template/patches/shared/Constants.kt`.
-- Put each patch beside its fingerprints: `patches/src/main/kotlin/app/template/patches/<app>/`.
-- Declare fingerprints as named objects (e.g. `Fingerprints.kt`) so match failures show a name.
-- Keep internal-only helpers as `bytecodePatch { ... }` without `name` (see `example/InternalPatch.kt`).
-- Put complex runtime logic in `extensions/extension/src/main/java/` and link with `extendWith("extensions/extension.mpe")`.
-- Prefer exact, apkmirror/up-to-down-available `AppTarget` versions over `version = null`.
+Covered in `patch-development.md` (file layout, patch types, build/test loop,
+troubleshooting) — nothing patch-specific lives here by design.
 
 ## Verify
 
@@ -40,5 +37,7 @@ Template leftovers still present — finish these before first real patch:
 ./gradlew :patches:buildAndroid clean --no-daemon
 ```
 
-The `.mpp` lands in `patches/build/libs/patches-*.mpp`; apply it in Morphe Desktop like any released bundle.
+The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the
+toolchain works — for the real loop (apply in Morphe Desktop, single-patch
+isolation, troubleshooting) see `patch-development.md` § Build and test.
 Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, or the `gradle.properties` version — the release pipeline owns them (see `release.md`).

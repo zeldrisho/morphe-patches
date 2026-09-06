@@ -3,6 +3,9 @@
 # Counts protection / billing / ads / modern-stack signals so you know which
 # bypass-pattern section applies. Mirrors the skill's find-api-calls summary,
 # but oriented at patch targets (not API docs).
+# CANONICAL PATTERN LIST: the buckets below duplicate docs/reverse-engineering.md §3
+# and docs/bypass-patterns.md search strings on purpose. If you change a pattern
+# here, update both docs to match (and vice versa).
 # Usage: scripts/hunt-signals.sh <analysis-dir> [--files]
 #   <analysis-dir>: analysis/<app>/decompiled or analysis/<app>/smali
 #   --files: also print matching file list per bucket (default: counts only)

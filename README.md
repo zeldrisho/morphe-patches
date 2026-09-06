@@ -36,20 +36,11 @@ Or add the source URL manually in Morphe Manager → Sources.
 - Use semantic commits: `feat:` (new feature), `fix:` (bug fix), `chore:` (no release). See `docs/release.md`.
 - Merge (do not squash) `dev` into `main` for a stable release. Never create releases by hand — `release.yml` handles versioning, assets, and generated files.
 - Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, or the patch list above.
-- See `docs/development.md` for setup and `docs/architecture.md` for patch structure. Patcher API details: [patcher documentation](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md).
+- See `docs/development.md` for setup and `docs/architecture.md` for patch structure. Patcher API details: [patcher documentation](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md). Full build/test loop and troubleshooting: `docs/patch-development.md`; [Morphe documentation](https://github.com/MorpheApp/morphe-documentation) for Manager/Desktop usage.
 
 <!-- The patches end tag is intentionally placed here so the first release will clean up
      this readme of all developer instructions above. -->
 <!-- PATCHES_END -->
-
-### 🛠️ Building locally
-
-- Run `./gradlew buildAndroid`
-- The built patches .mpp file is found in `patches/build/libs/patches-*.mpp`
-- Patch the mpp file using [Morphe-Desktop](https://github.com/MorpheApp/morphe-desktop)
-  like any other patch bundle.
-
-See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation) for more information.
 
 ## 📜 License
 
