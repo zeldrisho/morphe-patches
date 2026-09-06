@@ -17,29 +17,40 @@ Or add the source URL manually in Morphe Manager → Sources.
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
+> **[v1.0.0-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.0.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;5 patches total
+<details open>
+<summary>📦 Threads&nbsp;&nbsp;•&nbsp;&nbsp;4 patches</summary>
+<br>
 
-<!-- Do not modify this section by hand. The patch list is generated when release.yml creates a new release.
+**🎯 Supported versions:**
 
-     If you wish for the patches list to be collapsed, then remove the word 'EXPANDED' from the comment tag above.
+| 434.0.0.41.74 |
+| :---: |
 
-     If you wish to manually keep this list updated then remove the PATCHES_START and PATCHES_END
-     comment blocks entirely. -->
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Change app name](#change-app-name) | Changes the app name shown under the launcher icon. Set the desired name in the patch options. | • App name |
+| [Change package name](#change-package-name) | Changes the app package name so the patched app installs alongside the original Threads. Set the desired package name in the patch options. WARNING: Meta apps hardcode many component/provider references — renaming the package can break Facebook login (SSO), content providers, or push. Disable this patch if you hit such issues. | • Package name |
+| [Hide ads](#hide-ads) | Removes sponsored posts from the Threads feed by filtering ad feed units (detected via Media.DED) out of the list merged into the feed cache, before they can render. Feed-scoped; other surfaces (clips/reels) are not affected. |  |
+| [Remove AD_ID permission](#remove-ad-id-permission) | Removes the advertising-id (AD_ID) permissions so the device advertising id cannot be read for ad tracking. Does not disable Meta's core analytics. |  |
 
-#### A list of your patches will automatically be shown here after your first patches release is created.
+</details>
 
-&nbsp;
+<details open>
+<summary>📦 XYZ app&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<br>
 
-## 🧑‍💻 Dev usage
+**🎯 Supported versions:**
 
-- **Make all changes on the `dev` branch.**
-- Build locally with `./gradlew buildAndroid`; the `.mpp` lands in `patches/build/libs/patches-*.mpp`. Apply it with [Morphe Desktop](https://github.com/MorpheApp/morphe-desktop) like any released bundle.
-- Use semantic commits: `feat:` (new feature), `fix:` (bug fix), `chore:` (no release). See `docs/release.md`.
-- Merge (do not squash) `dev` into `main` for a stable release. Never create releases by hand — `release.yml` handles versioning, assets, and generated files.
-- Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, or the patch list above.
-- See `docs/development.md` for setup and `docs/architecture.md` for patch structure. Patcher API details: [patcher documentation](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md). Full build/test loop and troubleshooting: `docs/patch-development.md`; [Morphe documentation](https://github.com/MorpheApp/morphe-documentation) for Manager/Desktop usage.
+| 2.0.0 | 1.0.2 |
+| :---: | :---: |
 
-<!-- The patches end tag is intentionally placed here so the first release will clean up
-     this readme of all developer instructions above. -->
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Example Patch](#example-patch) | Example patch to start with. |  |
+
+</details>
+
 <!-- PATCHES_END -->
 
 ## 📜 License
