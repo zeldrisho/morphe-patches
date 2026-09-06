@@ -9,14 +9,14 @@
 #   PACKAGE_NAME   -> new package id (enables "Change package name" if present)
 #   MPP            -> patch bundle (default: newest local build, else latest release)
 #   KEYSTORE       -> signing keystore (default: ./Morphe.keystore)
-#   MORPHE_CLI     -> morphe-cli jar (default: ~/tools/morphe-cli/morphe-cli.jar)
+#   MORPHE_CLI     -> morphe-cli jar (default: ~/.local/bin/morphe-cli.jar)
 #   GITHUB_REPO    -> owner/repo used when downloading the latest release bundle
 set -euo pipefail
 
 INPUT="${1:?Usage: scripts/repatch.sh <apk-file> [output.apk]}"
 OUT="${2:-${INPUT%.*}_patched.apk}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CLI="${MORPHE_CLI:-$HOME/tools/morphe-cli/morphe-cli.jar}"
+CLI="${MORPHE_CLI:-$HOME/.local/bin/morphe-cli.jar}"
 KEYSTORE="${KEYSTORE:-$PROJECT_DIR/Morphe.keystore}"
 GITHUB_REPO="${GITHUB_REPO:-}"
 
