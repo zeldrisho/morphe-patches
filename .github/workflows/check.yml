@@ -7,6 +7,12 @@ on:
       - dev
   workflow_dispatch:
 
+# Least privilege: this workflow only reads the repo and pulls public
+# packages (Morphe Gradle plugin via GitHub Packages). No writes.
+permissions:
+  contents: read
+  packages: read
+
 jobs:
   check:
     name: Unit tests + lint + build
