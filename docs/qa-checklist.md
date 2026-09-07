@@ -7,22 +7,38 @@ pinned APK (`434.0.0.41.74` / versionCode `510406926` unless re-fingerprinting).
 ## 1. Build
 
 ```bash
-export ANDROID_HOME=$HOME/Android/Sdk
+# If SDK discovery is not configured: export ANDROID_HOME=$HOME/Android/Sdk
 ./gradlew :patches:test :extensions:extension:testDebugUnitTest
 ./gradlew buildAndroid          # .mpp -> patches/build/libs/patches-*.mpp
 shellcheck scripts/*.sh
+python3 -m unittest discover -s scripts/tests -v  # offline helper regression tests
 ```
 
 ## 2. Re-patch + install
 
 ```bash
-scripts/repatch.sh <threads.apkm> /tmp/threads_patched.apk
+MPP="patches/build/libs/patches-<version>.mpp" \
+  scripts/repatch.sh /path/to/threads.apkm /tmp/threads_patched.apk
+# Only update an existing install if its signing certificate matches.
 adb install -r /tmp/threads_patched.apk
 ```
 
+Record the input APK version/code and hash, bundle path/hash, enabled patches,
+package ID, device/Android version, and signing certificate fingerprint (never
+passwords). Keep screenshots, UI dumps, and logs outside Git.
+
 - [ ] `aapt dump badging` shows no `AD_ID` permission
-- [ ] Renamed package (`PACKAGE_NAME=...`) installs **alongside** stock, no
-      `INSTALL_FAILED_DUPLICATE_PERMISSION`
+- [ ] Fresh login works with the default package and default-on patches.
+      An existing session is a separate smoke test, not fresh-login evidence.
+      Preserve it: ask before logout, clearing data, or uninstalling. Use a
+      clean test device/profile where possible; the user enters credentials.
+- [ ] Renamed package (`PACKAGE_NAME=...`) installs **alongside stock-signed**
+      Threads, no `INSTALL_FAILED_DUPLICATE_PERMISSION`. Verify the stock
+      copy's signing certificate against the original APK; a patched
+      default-package copy does not satisfy this check. Do not replace an
+      existing differently signed copy without approval.
+- [ ] Both stock and renamed copies launch; test renamed-package login
+      separately because OAuth/App Links can depend on package and signing.
 - [ ] Launcher shows `APP_NAME` override
 
 ## 3. Feed ad removal (issue #5 regression)
@@ -31,15 +47,28 @@ Relabel-vs-remove signature: "labels disappeared but content still there" =
 filter bypassed, predicate neutralized instead. Verify **removal**:
 
 ```bash
-# scroll the main feed, then dump the visible screen as text
-adb shell uiautomator dump /sdcard/ui.xml
-adb pull /sdcard/ui.xml && grep -ci -E 'Ad|Sponsored' ui.xml
+QA_DIR="$(mktemp -d /tmp/morphe-qa.XXXXXX)"
+adb logcat -b crash -d > "$QA_DIR/crash-before.txt"
+# Scroll the main feed and visually inspect changing content, then capture it.
+adb shell uiautomator dump /sdcard/morphe-qa-ui.xml
+adb pull /sdcard/morphe-qa-ui.xml "$QA_DIR/ui.xml"
+adb shell rm /sdcard/morphe-qa-ui.xml
+adb exec-out screencap -p > "$QA_DIR/feed.png"
+adb logcat -b crash -d > "$QA_DIR/crash-after.txt"
+# Label matches are only supplemental evidence; absence does not prove removal.
+grep -oiE '\b(Ad|Sponsored)\b' "$QA_DIR/ui.xml" || true
 ```
 
-- [ ] Sponsored units absent from main feed (gap-free, no blank cards)
-- [ ] Clips/reels untouched (feed-scoped by design)
-- [ ] `adb logcat -s FeedAdFilter` shows no crash on scroll; worst case on a
-      new app version is ads returning, never a broken feed
+- [ ] Sponsored units absent from main feed (gap-free, no blank cards),
+      confirmed visually across refreshed/scrolled content, not just labels
+- [ ] Clips/reels still open and play normally (feed-scoped by design)
+- [ ] Compare before/after crash buffers for new app crashes and inspect
+      `adb logcat -d -s FeedAdFilter`. The filter is designed to fail open on
+      unsupported models; a clean smoke test is not comprehensive coverage.
+
+Record each result as PASS / FAIL / BLOCKED with its evidence. Temporary files
+are not durable evidence; retain sanitized notes in the release/PR record.
+Do not merge the stable release while required checks remain blocked.
 
 ## 4. Version bump (new Threads release)
 
