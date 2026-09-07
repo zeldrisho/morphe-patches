@@ -3,9 +3,10 @@
 # Counts protection / billing / ads / modern-stack signals so you know which
 # bypass-pattern section applies. Mirrors the skill's find-api-calls summary,
 # but oriented at patch targets (not API docs).
-# CANONICAL PATTERN LIST: the buckets below duplicate docs/reverse-engineering.md §3
-# and docs/bypass-patterns.md search strings on purpose. If you change a pattern
-# here, update both docs to match (and vice versa).
+# CANONICAL PATTERN LIST: the buckets below own the exact search expressions.
+# docs/reverse-engineering.md summarizes intent and docs/bypass-patterns.md names
+# signal families only. If you change a pattern here, update the recipe that
+# motivated it; if a recipe needs a new signal, add the expression here first.
 # Usage: scripts/hunt-signals.sh <analysis-dir> [--files]
 #   <analysis-dir>: analysis/<app>/decompiled or analysis/<app>/smali
 #   --files: also print matching file list per bucket (default: counts only)
@@ -51,5 +52,5 @@ bucket "apollo/graphql" 'ApolloClient|serverUrl|OPERATION_DOCUMENT'
 bucket "koin" 'org\.koin|module \{|single<|factory<|singleOf|by inject'
 bucket "hilt/dagger" '@HiltAndroidApp|@AndroidEntryPoint|@Provides|@Binds|@Inject'
 echo
-echo "Next: run targeted rg per bucket above, then smali-verify (reverse-engineering.md §3)."
+echo "Next: run targeted rg per bucket above, then smali-verify (see docs/reverse-engineering.md)."
 echo "Tip: BuildConfig first: rg 'BASE_URL|API_URL|FLAVOR|API_KEY' -g 'BuildConfig.java' $DIR"

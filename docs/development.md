@@ -1,45 +1,46 @@
 # Development guide
 
-Use this guide for environment setup and first-time template init.
-For writing patches see `patch-development.md`; for finding targets
-see `reverse-engineering.md`; for module layout see `architecture.md`.
+Developer entry point. Start here, then follow the reading order below.
+For environment setup see [toolchain setup](toolchain.md).
+
+## Reading order
+
+1. [Toolchain setup](toolchain.md) — install once per host.
+2. [Architecture](architecture.md) — module and data-flow overview.
+3. [Reverse engineering workflow](reverse-engineering.md) — finding targets.
+4. [Fingerprint guide](fingerprint-guide.md) — writing fingerprints.
+5. [Patch development](patch-development.md) — writing, building, and testing patches.
+6. [QA checklist](qa-checklist.md) — per-release and per-update device procedure.
+7. [Release process](release.md) — branching, versioning, and publishing.
+8. [Maintenance](maintenance.md) — durable decisions index.
+9. [Lessons learned](lessons-learned.md) — incident context.
 
 ## Prerequisites
 
-- Java 21 (Temurin, per `.github/workflows/release.yml`).
-- Node.js tooling via `vp install` (semantic-release deps in `package.json`).
-- GitHub PAT with `read:packages` for the Morphe registry in
-  `settings.gradle.kts` (`gpr.user` / `gpr.key` or `GITHUB_ACTOR` / `GITHUB_TOKEN`).
-- Morphe Desktop for local `.mpp` testing.
+All tools, SDK packages, Vite+, GitHub Packages credentials, and Morphe Desktop
+come from [toolchain setup](toolchain.md). Original APKs/APKMs come only from
+[APKMirror](https://www.apkmirror.com/).
 
-## First-time init
+## Repo state
 
-Template init is done (group `com.zeldrisho.threads`, `about` = Zeldris Patches,
-`app.template.*` scaffolding removed, extension namespace
-`com.zeldrisho.threads.extension`). If re-scaffolding from upstream template, finish:
-
-- `patches/build.gradle.kts`: `group` and `patches { about { ... } }`.
-- `patches/src/main/kotlin/app/template/`: rename `app.template.*` packages.
-- `patches/src/main/kotlin/app/template/patches/shared/Constants.kt`: real app targets.
-- `extensions/extension/build.gradle.kts`: `android { namespace }`.
-- `README.md`: title, About, add-source link, License holder.
-- `.github/ISSUE_TEMPLATE/`: repo links.
-- Optional `patches-bundle.png` for a custom Manager icon.
+Template init is complete; this repo is already renamed to `com.zeldrisho.threads`.
+Only re-scaffold from the upstream template when starting a new bundle repo.
 
 ## Adding a patch
 
-Covered in `patch-development.md` (file layout, patch types, build/test loop,
-troubleshooting) — nothing patch-specific lives here by design.
+Covered in [patch development](patch-development.md) (file layout, patch types,
+build/test loop, troubleshooting) — nothing patch-specific lives here by design.
 
 ## Verify
 
+Canonical local verification (bash):
+
 ```bash
-./gradlew buildAndroid
-./gradlew generatePatchesList
-./gradlew clean :patches:buildAndroid --no-daemon
+./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
 ```
 
 The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the
 toolchain works — for the real loop (apply in Morphe Desktop, single-patch
-isolation, troubleshooting) see `patch-development.md` § Build and test.
-Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, or the `gradle.properties` version — the release pipeline owns them (see `release.md`).
+isolation, troubleshooting) see [patch development](patch-development.md#build-and-test).
+Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, or the
+`gradle.properties` version — the release pipeline owns them (see [release process](release.md)).

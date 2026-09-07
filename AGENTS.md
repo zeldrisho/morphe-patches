@@ -2,9 +2,9 @@
 
 ## Tools
 
-- Gradle via wrapper: `./gradlew` (Java 21, see `.github/workflows/release.yml`).
-- JS tooling via `vp`: `vp install`.
-- Android SDK (`platforms`, `build-tools`, `platform-tools` for `adb`/`aapt`); see `docs/lessons-learned.md` for this box's install.
+- Gradle via wrapper: `./gradlew` (Java 21, see `docs/toolchain.md`).
+- JS tooling via `vp`: `vp install` (see `docs/toolchain.md`).
+- Android SDK, Morphe Desktop CLI, and host tools: see `docs/toolchain.md`.
 
 ## Project Layout
 
@@ -20,8 +20,8 @@
 | ---- | ------- |
 | Build patches bundle | `./gradlew buildAndroid` → `patches/build/libs/patches-*.mpp` |
 | Regenerate patch list | `./gradlew generatePatchesList` → `patches-list.json` |
-| Verify without release | `./gradlew :patches:buildAndroid clean --no-daemon` |
-| Re-patch + sign an APK | `scripts/repatch.sh <app.apk\|apkm> [out.apk]` (`APP_NAME`, `PACKAGE_NAME`, `MPP`/`GITHUB_REPO`, `KEYSTORE`, `MORPHE_CLI` env overrides) |
+| Verify without release | `./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon` |
+| Re-patch + sign an APK | `bash scripts/repatch.sh <app.apkm> [out.apk]` (`APP_NAME`, `PACKAGE_NAME`, `MPP`/`GITHUB_REPO`, `KEYSTORE`, `MORPHE_CLI` env overrides) |
 
 ## Key Conventions
 
@@ -29,14 +29,15 @@
 - Commits: `feat:` (minor), `fix:` (patch), `chore:` (no release); see `docs/release.md`.
 - Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, `README.md` patch list, `gradle.properties` version.
 - Never create releases by hand; `release.yml` + `.releaserc` own versioning, assets, backmerge.
-- Risky patches (login/providers/push at risk) ship `default = false` with a WARNING; see `docs/maintenance.md`.
+- Risky patches (login/providers/push at risk) ship `default = false` with a WARNING; see `docs/patch-development.md`.
 
 ## External References
 
 | Need | File |
 | ---- | ---- |
 | User setup / patch list | `README.md` |
-| Development setup | `docs/development.md` |
+| Host setup (Fedora WSL + macOS installs) | `docs/toolchain.md` |
+| Development entry + reading order | `docs/development.md` |
 | Patch/extension structure | `docs/architecture.md` |
 | Finding targets (recon→hunt) | `docs/reverse-engineering.md` |
 | Writing fingerprints | `docs/fingerprint-guide.md` |

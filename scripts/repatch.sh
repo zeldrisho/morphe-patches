@@ -1,7 +1,7 @@
 #!/bin/bash
 # repatch.sh — re-patch an APK/APKM with this repo's patch set and sign it.
 # Usage: scripts/repatch.sh <app.apk|apkm|xapk|apks> [output.apk]
-# Requires: java, python3, morphe-cli jar, signing keystore (curl for downloads).
+# Requires: java, python3, Morphe Desktop all.jar, signing keystore (curl for downloads).
 # Template adapted from chiggi_morphe_patches/scripts/repatch_sonyliv.sh.
 #
 # Overridable via environment variables:
@@ -13,7 +13,8 @@
 #                       often lowercase it to `morphe` — override in that case)
 #   KEYSTORE_PASSWORD       -> keystore password (default: empty, the Morphe.keystore convention)
 #   KEYSTORE_ENTRY_PASSWORD -> key entry password (default: CLI default; flag omitted)
-#   MORPHE_CLI     -> morphe-cli jar (default: ~/.local/bin/morphe-cli.jar)
+#   MORPHE_CLI     -> Morphe Desktop all.jar (local alias: ~/.local/bin/morphe-cli.jar)
+#                    See docs/toolchain.md; this must be a JAR, not a wrapper.
 #   GITHUB_REPO    -> owner/repo used when downloading the latest release bundle
 set -euo pipefail
 

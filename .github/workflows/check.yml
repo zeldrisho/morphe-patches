@@ -2,10 +2,12 @@ name: Check
 
 on:
   pull_request:
-  push:
-    branches:
-      - dev
   workflow_dispatch:
+
+# PRs cover dev → main and feature branches; manual runs cover work without a PR.
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 # Least privilege: this workflow only reads the repo and pulls public
 # packages (Morphe Gradle plugin via GitHub Packages). No writes.
@@ -38,7 +40,7 @@ jobs:
       - name: Unit tests
         env:
           # Morphe Gradle plugin resolves from GitHub Packages, which needs
-          # auth even for public packages (see docs/lessons-learned.md).
+          # auth even for public packages (see docs/toolchain.md).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :patches:test :extensions:extension:testDebugUnitTest --no-daemon
 

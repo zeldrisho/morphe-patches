@@ -87,7 +87,7 @@ class RepatchTest(unittest.TestCase):
         )
 
     def calls(self):
-        """Parse and return the list of morphe-cli commands logged during script execution."""
+        """Parse and return the list of Desktop CLI commands logged during script execution."""
         return [json.loads(line) for line in Path(self.env["CALLS"]).read_text().splitlines()]
 
     def test_default_signing_and_patch_selection(self):
