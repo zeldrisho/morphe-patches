@@ -1,3 +1,9 @@
+## [1.0.0-dev.5](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-09-07)
+
+### 🐛 Bug Fixes
+
+* apply CodeRabbit auto-fixes ([d807ae7](https://github.com/zeldrisho/morphe-patches/commit/d807ae746c9d08f74352dffc89f31a680797292b))
+
 ## [1.0.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-09-07)
 
 ### 🐛 Bug Fixes
