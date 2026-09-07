@@ -27,6 +27,9 @@ import java.util.List;
  */
 public final class FeedAdFilter {
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     */
     private FeedAdFilter() {
     }
 
@@ -55,6 +58,11 @@ public final class FeedAdFilter {
         return out.size() == items.size() ? items : out;
     }
 
+    /**
+     * Checks whether a feed unit is an ad via reflection on DED(), A05(), A02(), Ckh(), and CDh().
+     * @param item The feed unit object to inspect.
+     * @return True if the item is determined to be an ad, false otherwise or on reflection failure.
+     */
     private static boolean isAdUnit(Object item) {
         try {
             // 1) Direct DED() (X/1qQ ad headers carry their own DED flag).
@@ -85,10 +93,22 @@ public final class FeedAdFilter {
         return false;
     }
 
+    /**
+     * Invokes DED() on an object via reflection and returns true if the result is Boolean.TRUE.
+     * @param o The object to inspect.
+     * @return True if o.DED() returns true, false otherwise or on reflection failure.
+     */
     private static boolean callDed(Object o) {
         return o != null && Boolean.TRUE.equals(call(o, "DED"));
     }
 
+    /**
+     * Reflectively invokes a no-arg method on an object, returning null on any failure.
+     * Only invokes methods that return boolean, Boolean, or non-primitive types.
+     * @param o The object to call the method on.
+     * @param name The method name.
+     * @return The method's return value, or null if the method does not exist or reflection fails.
+     */
     private static Object call(Object o, String name) {
         try {
             Method m = o.getClass().getMethod(name);

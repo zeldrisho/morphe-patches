@@ -8,10 +8,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+/**
+ * Parse an XML string into a DOM Document for testing.
+ */
 private fun parseManifest(xml: String): Document =
     DocumentBuilderFactory.newInstance().newDocumentBuilder()
         .parse(ByteArrayInputStream(xml.toByteArray()))
 
+/**
+ * Generate a test manifest with providers, permissions, and custom attributes.
+ */
 private fun manifest(
     packageName: String = "com.instagram.barcelona",
     extra: String = "",
@@ -28,6 +34,9 @@ private fun manifest(
     </manifest>""",
 )
 
+/**
+ * Extract all values of a given attribute from all elements with a given tag name.
+ */
 private fun attr(doc: Document, tag: String, attr: String): List<String> {
     val nodes = doc.getElementsByTagName(tag)
     return (0 until nodes.length).map {
@@ -35,12 +44,21 @@ private fun attr(doc: Document, tag: String, attr: String): List<String> {
     }
 }
 
+/**
+ * Unit tests for package name validation and manifest rewriting logic.
+ */
 class PackageRewriteTest {
+    /**
+     * Verify that valid Android package names are accepted.
+     */
     @Test fun validNamesAccepted() {
         assertTrue(isValidPackageName("com.instagram.barcelona.morphe"))
         assertTrue(isValidPackageName("a.b"))
     }
 
+    /**
+     * Verify that invalid Android package names are rejected.
+     */
     @Test fun invalidNamesRejected() {
         assertFalse(isValidPackageName(null))
         assertFalse(isValidPackageName("SingleSegment"))
@@ -49,6 +67,9 @@ class PackageRewriteTest {
         assertFalse(isValidPackageName(""))
     }
 
+    /**
+     * Verify that package rewriting updates the manifest package, provider authorities, and custom permissions.
+     */
     @Test fun rewritesPackageProvidersAndCustomPermissions() {
         val doc = manifest()
         rewritePackage(doc, "com.instagram.barcelona.morphe")

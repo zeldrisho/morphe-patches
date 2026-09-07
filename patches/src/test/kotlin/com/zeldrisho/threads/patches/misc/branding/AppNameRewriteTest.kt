@@ -7,10 +7,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
+/**
+ * Parse an XML string into a DOM Document for testing.
+ */
 private fun parse(xml: String): Document =
     DocumentBuilderFactory.newInstance().newDocumentBuilder()
         .parse(ByteArrayInputStream(xml.toByteArray()))
 
+/**
+ * Generate a minimal test manifest with application and activity labels.
+ */
 private fun manifest(label: String = "Threads"): Document = parse(
     """<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.instagram.barcelona">
       <application android:label="$label">
@@ -20,7 +26,13 @@ private fun manifest(label: String = "Threads"): Document = parse(
     </manifest>""",
 )
 
+/**
+ * Unit tests for app name rewriting logic in manifests.
+ */
 class AppNameRewriteTest {
+    /**
+     * Verify that applyAppName correctly updates application and launcher activity labels.
+     */
     @Test fun setsApplicationAndLauncherLabels() {
         val doc = manifest()
         applyAppName(doc, "Threads Morphe")
@@ -37,6 +49,9 @@ class AppNameRewriteTest {
         assertEquals("Threads", other.getAttribute("android:label"))
     }
 
+    /**
+     * Verify that a manifest without an application element throws an explicit error.
+     */
     @Test fun missingApplicationFailsExplicitly() {
         val doc = parse(
             """<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="x"/>""",

@@ -9,6 +9,7 @@
 # Then: grep hits can be annotated with the real owning class.
 set -euo pipefail
 
+# Display usage information and exit.
 usage() {
   cat <<EOF
 Usage: recover-kotlin-names.sh <decompiled-sources-dir> [mapping-dir]

@@ -6,6 +6,11 @@ const val ORIGINAL_PACKAGE = "com.instagram.barcelona"
 
 private val PACKAGE_NAME_REGEX = Regex("^[a-z]\\w*(\\.[a-z]\\w*)+$")
 
+/**
+ * Validates an Android package name format (dot-separated segments, each starting with a lowercase letter).
+ * @param name The package name to validate.
+ * @return True if the name is a valid Android package identifier, false otherwise.
+ */
 fun isValidPackageName(name: String?): Boolean =
     name != null && PACKAGE_NAME_REGEX.matches(name)
 

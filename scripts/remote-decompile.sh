@@ -36,6 +36,7 @@ apk_url = os.environ["APK_URL"]
 work_dir = os.environ["WORK_DIR"]
 
 def code(*lines):
+    """Generate a Jupyter notebook code cell from the given lines of Python/bash code."""
     return {"cell_type": "code", "metadata": {},
             "source": [l + "\n" for l in lines],
             "outputs": [], "execution_count": None}

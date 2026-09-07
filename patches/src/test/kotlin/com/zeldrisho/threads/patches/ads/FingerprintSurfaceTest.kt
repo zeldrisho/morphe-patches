@@ -17,6 +17,9 @@ import kotlin.test.assertTrue
  */
 class FingerprintSurfaceTest {
 
+    /**
+     * Verify the register math contract for the A0F method signature.
+     */
     @Test fun feedMergeSignatureContract() {
         // A0F(this, LX/9aR, Integer, String, String, List, LX/2uI, Function3, Z):
         // 9 params including `this`; the feed list is param index 5.
@@ -25,6 +28,9 @@ class FingerprintSurfaceTest {
         assertEquals(11, feedListRegister(registerCount = 15), "list reg shifts with frame size")
     }
 
+    /**
+     * Verify that injected move instructions stay within v0-v15 or use from16 for higher registers.
+     */
     @Test fun injectedMovesStayInV0V15() {
         // morphe snippet injection only accepts registers v0-v15; the helpers
         // must emit the from16 form once the list register exceeds v15.
@@ -33,6 +39,9 @@ class FingerprintSurfaceTest {
         assertTrue(feedListStoreMove(16).contains("from16"), "store mirrors load")
     }
 
+    /**
+     * Verify that the Threads compatibility target version remains pinned to avoid silent drift.
+     */
     @Test fun compatibilityStaysPinned() {
         val compat = Constants.COMPATIBILITY_THREADS
         assertEquals("com.instagram.barcelona", compat.packageName)
@@ -41,6 +50,9 @@ class FingerprintSurfaceTest {
         assertEquals(510406926, Constants.TESTED_VERSION_CODE, "tested versionCode must be recorded")
     }
 
+    /**
+     * Document the obfuscated reflection chain (DED, A05, A02, Ckh, CDh) so renames are caught early.
+     */
     @Test fun reflectionChainIsDocumented() {
         // The extension resolves these obfuscated members via reflection
         // (FeedAdFilter.java). Listed here so a rename shows up as a hunt list,

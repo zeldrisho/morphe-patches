@@ -7,10 +7,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/**
+ * Parse an XML string into a DOM Document for testing.
+ */
 private fun parse(xml: String): Document =
     DocumentBuilderFactory.newInstance().newDocumentBuilder()
         .parse(ByteArrayInputStream(xml.toByteArray()))
 
+/**
+ * Generate a minimal test manifest with AD_ID permissions.
+ */
 private fun manifest(): Document = parse(
     """<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.instagram.barcelona">
       <uses-permission android:name="android.permission.INTERNET"/>
@@ -20,6 +26,9 @@ private fun manifest(): Document = parse(
     </manifest>""",
 )
 
+/**
+ * Extract all uses-permission names from a manifest Document.
+ */
 private fun perms(doc: Document): List<String> {
     val nodes = doc.getElementsByTagName("uses-permission")
     return (0 until nodes.length).map {
@@ -27,7 +36,13 @@ private fun perms(doc: Document): List<String> {
     }
 }
 
+/**
+ * Unit tests for AD_ID permission removal logic.
+ */
 class AdIdStripTest {
+    /**
+     * Verify that only AD_ID permissions are removed while other permissions remain intact.
+     */
     @Test fun removesOnlyAdIdPermissions() {
         val doc = manifest()
         assertEquals(2, stripAdIdPermissions(doc))
@@ -35,6 +50,9 @@ class AdIdStripTest {
         assertEquals(listOf("android.permission.INTERNET", "android.permission.CAMERA"), remaining)
     }
 
+    /**
+     * Verify that a manifest without AD_ID permissions is left unchanged.
+     */
     @Test fun noMatchIsNoOp() {
         val doc = parse(
             """<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="x">

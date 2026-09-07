@@ -86,6 +86,7 @@ for src in "$TARGET" "$APK"; do
 done
 sort -u "$DEXSTR" -o "$DEXSTR"
 
+# Check if a pattern exists in the APK listing or DEX strings.
 has() { grep -Eq "$1" "$LISTING" || grep -Eq "$1" "$DEXSTR"; }
 
 # --- Framework detection (first match wins) ---

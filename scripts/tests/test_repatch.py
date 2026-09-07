@@ -43,7 +43,9 @@ else:
 
 
 class RepatchTest(unittest.TestCase):
+    """Test suite for the repatch.sh script, covering patch bundle discovery, signing options, and error paths."""
     def setUp(self):
+        """Set up a temporary test environment with a fake java executable and mock project structure."""
         self.temp = tempfile.TemporaryDirectory(prefix="repatch test ")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -78,15 +80,18 @@ class RepatchTest(unittest.TestCase):
         self.output = self.root / "output.apk"
 
     def run_helper(self, **overrides):
+        """Run the repatch.sh script with optional environment variable overrides and return the subprocess result."""
         return subprocess.run(
             ["bash", str(self.script), str(self.input), str(self.output)],
             env=self.env | overrides, capture_output=True, text=True, timeout=15,
         )
 
     def calls(self):
+        """Parse and return the list of morphe-cli commands logged during script execution."""
         return [json.loads(line) for line in Path(self.env["CALLS"]).read_text().splitlines()]
 
     def test_default_signing_and_patch_selection(self):
+        """Verify the script uses default signing parameters and selects the correct patch bundle."""
         result = self.run_helper()
         self.assertEqual(result.returncode, 0, result.stderr)
         calls = self.calls()
@@ -103,6 +108,7 @@ class RepatchTest(unittest.TestCase):
         self.assertFalse(Path(args[args.index("-t") + 1]).parent.exists())
 
     def test_signing_and_rename_overrides(self):
+        """Verify that keystore and app/package rename options pass through correctly to the CLI."""
         result = self.run_helper(
             KEYSTORE_ALIAS="morphe", KEYSTORE_PASSWORD="store pass=word",
             KEYSTORE_ENTRY_PASSWORD="entry pass=word", APP_NAME="Threads Test",
@@ -120,6 +126,7 @@ class RepatchTest(unittest.TestCase):
                          "com.example.threads")
 
     def test_newest_local_bundle_excludes_documentation(self):
+        """Verify the script selects the newest .mpp bundle while excluding javadoc and sources artifacts."""
         for name, mtime in (("patches-1.mpp", 100), ("patches-2.mpp", 200),
                             ("patches-2-sources.mpp", 300), ("patches-2-javadoc.mpp", 400)):
             path = self.libs / name
@@ -131,12 +138,14 @@ class RepatchTest(unittest.TestCase):
         self.assertEqual(args[args.index("-p") + 1], str(self.libs / "patches-2.mpp"))
 
     def test_missing_explicit_bundle_fails_before_cli(self):
+        """Verify that specifying a nonexistent patch bundle fails early with a clear error message."""
         result = self.run_helper(MPP=str(self.root / "missing.mpp"))
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("patch bundle not found", result.stderr)
         self.assertFalse(Path(self.env["CALLS"]).exists())
 
     def test_options_failure_is_visible_and_cleans_scratch(self):
+        """Verify that options-create failures surface diagnostics and clean up temporary directories."""
         result = self.run_helper(FAIL_OPTIONS="1")
         self.assertEqual(result.returncode, 23)
         self.assertIn("options-create diagnostic", result.stderr)
@@ -147,6 +156,7 @@ class RepatchTest(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_signing_failure_does_not_report_success(self):
+        """Verify that patch/sign failures do not print a success message and preserve error diagnostics."""
         result = self.run_helper(FAIL_PATCH="1")
         self.assertEqual(result.returncode, 24)
         self.assertIn("signing diagnostic", result.stderr)

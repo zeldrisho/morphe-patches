@@ -27,6 +27,7 @@ GITHUB_REPO="${GITHUB_REPO:-zeldrisho/morphe-patches}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
+# Print an error message to stderr and exit with code 1.
 die() { echo "❌ $*" >&2; exit 1; }
 
 command -v java >/dev/null 2>&1 || die "java not found"
