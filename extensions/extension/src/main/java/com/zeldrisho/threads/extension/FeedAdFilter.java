@@ -2,6 +2,8 @@ package com.zeldrisho.threads.extension;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -25,6 +27,22 @@ import java.util.List;
  * breaking the feed).
  */
 public final class FeedAdFilter {
+
+  /**
+   * Resolved no-arg methods by "class#name", mirroring Piko's decoder philosophy (resolve once,
+   * reuse): the feed merge consults DED/A05/A02/Ckh/CDh thousands of times per scroll, so
+   * reflective lookup happens at most once per pair. Plain maps under one lock keep this safe on
+   * the extension's minSdk (API 23), where ConcurrentHashMap.computeIfAbsent and Optional are
+   * unavailable. Misses are recorded in {@link #KNOWN_MISSING} so R8 drift on one shape does not
+   * pay lookup costs on every subsequent item.
+   */
+  private static final Object CACHE_LOCK = new Object();
+
+  /** Resolved methods by "class#name"; guarded by {@link #CACHE_LOCK}. */
+  private static final HashMap<String, Method> METHOD_CACHE = new HashMap<>();
+
+  /** Keys with no resolvable method (misses); guarded by {@link #CACHE_LOCK}. */
+  private static final HashSet<String> KNOWN_MISSING = new HashSet<>();
 
   /** Private constructor to prevent instantiation of this utility class. */
   private FeedAdFilter() {}
@@ -108,15 +126,70 @@ public final class FeedAdFilter {
    * @return The method's return value, or null if the method does not exist or reflection fails.
    */
   private static Object call(Object o, String name) {
+    if (o == null) {
+      return null;
+    }
     try {
-      Method m = o.getClass().getMethod(name);
-      if (m.getReturnType() == boolean.class
-          || m.getReturnType() == Boolean.class
-          || !m.getReturnType().isPrimitive()) {
+      Method m = lookup(o.getClass(), name);
+      if (m != null) {
         return m.invoke(o);
       }
     } catch (Throwable ignored) {
     }
     return null;
+  }
+
+  /**
+   * Returns the cached no-arg method for a (class, name) pair, resolving and caching it on first
+   * use. Null means absent (unknown shape or disallowed return type) and is cached too.
+   */
+  private static Method lookup(Class<?> cls, String name) {
+    String key = cls.getName() + '#' + name;
+    synchronized (CACHE_LOCK) {
+      if (KNOWN_MISSING.contains(key)) {
+        return null;
+      }
+      Method cached = METHOD_CACHE.get(key);
+      if (cached != null) {
+        return cached;
+      }
+      Method resolved = resolve(cls, name);
+      if (resolved != null) {
+        METHOD_CACHE.put(key, resolved);
+      } else {
+        KNOWN_MISSING.add(key);
+      }
+      return resolved;
+    }
+  }
+
+  /** Resolves a public no-arg method whose return type the filter is allowed to read. */
+  private static Method resolve(Class<?> cls, String name) {
+    try {
+      // getMethod(name) with no parameter types only resolves zero-arg methods.
+      Method m = cls.getMethod(name);
+      if (m.getReturnType() == boolean.class
+          || m.getReturnType() == Boolean.class
+          || !m.getReturnType().isPrimitive()) {
+        return m;
+      }
+    } catch (Throwable ignored) {
+    }
+    return null;
+  }
+
+  /** Test-only: number of cached (class, method) entries, including misses. */
+  static int cachedMethodCountForTest() {
+    synchronized (CACHE_LOCK) {
+      return METHOD_CACHE.size() + KNOWN_MISSING.size();
+    }
+  }
+
+  /** Test-only: clears the reflection cache so tests observe cold lookups deterministically. */
+  static void clearCacheForTest() {
+    synchronized (CACHE_LOCK) {
+      METHOD_CACHE.clear();
+      KNOWN_MISSING.clear();
+    }
   }
 }

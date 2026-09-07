@@ -38,3 +38,6 @@ decisions, not duplicate instructions.
   re-running the [QA checklist](qa-checklist.md#version-bump-new-threads-release).
 - Worst case for a missed drift is ads returning, never a broken feed — keep it
   that way (reflection wrapped, no-ops on mismatch).
+- No settings UI: patches stay stateless and always-on/off via Morphe toggles.
+  Piko-style settings infra (`settingsPatch`, pref store, in-app UI) is
+  out of scope — skipped 2026-09-07, not deferred.

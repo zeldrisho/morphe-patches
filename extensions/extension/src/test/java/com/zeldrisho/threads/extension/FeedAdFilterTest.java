@@ -163,4 +163,32 @@ public class FeedAdFilterTest {
     assertTrue(out.contains(null));
     assertTrue(out.contains(post));
   }
+
+  /** First use must populate the reflection cache, including misses for unknown shapes. */
+  @Test
+  public void reflectionCachePopulatesOnFirstUse() {
+    FeedAdFilter.clearCacheForTest();
+    assertEquals(0, FeedAdFilter.cachedMethodCountForTest());
+    List<?> in = new ArrayList<>(Arrays.asList(new FakeFeedUnit(true), new FakeFeedUnit(false)));
+    List<?> out = FeedAdFilter.filterAds(in);
+    assertEquals(1, out.size());
+    assertTrue(FeedAdFilter.cachedMethodCountForTest() > 0);
+  }
+
+  /** Repeat filtering must reuse cached lookups (no growth) with identical results. */
+  @Test
+  public void repeatFilteringReusesCache() {
+    FeedAdFilter.clearCacheForTest();
+    Object ad = new FakeFeedUnit(true);
+    Object post = new FakeFeedUnit(false);
+    Object unknown = new Object();
+    List<Object> in = new ArrayList<>(Arrays.asList(ad, post, unknown));
+    List<?> first = FeedAdFilter.filterAds(in);
+    int cached = FeedAdFilter.cachedMethodCountForTest();
+    assertTrue(cached > 0);
+    List<?> second = FeedAdFilter.filterAds(in);
+    assertEquals(first.size(), second.size());
+    assertSame(first.get(0), second.get(0));
+    assertEquals(cached, FeedAdFilter.cachedMethodCountForTest());
+  }
 }
