@@ -11,8 +11,7 @@ private val PACKAGE_NAME_REGEX = Regex("^[a-z]\\w*(\\.[a-z]\\w*)+$")
  * @param name The package name to validate.
  * @return True if the name is a valid Android package identifier, false otherwise.
  */
-fun isValidPackageName(name: String?): Boolean =
-    name != null && PACKAGE_NAME_REGEX.matches(name)
+fun isValidPackageName(name: String?): Boolean = name != null && PACKAGE_NAME_REGEX.matches(name)
 
 /**
  * Pure, unit-testable core of [changePackageNamePatch]'s `finalize {}` block.

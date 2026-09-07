@@ -15,18 +15,21 @@ set -e
 DIR="${1:?Usage: scripts/hunt-signals.sh <decompiled-or-smali-dir> [--files]}"
 FILES=0
 [[ "${2:-}" == "--files" ]] && FILES=1
-[[ ! -d "$DIR" ]] && { echo "❌ Not a directory: $DIR" >&2; exit 1; }
+[[ ! -d "$DIR" ]] && {
+    echo "❌ Not a directory: $DIR" >&2
+    exit 1
+}
 
 if command -v rg >/dev/null 2>&1; then G="rg -l"; else G="grep -rEl"; fi
 
 # Count and optionally list files matching a pattern under a category label.
 # $1=label (e.g. "integrity/license"), $2=pattern (grep/rg regex).
 bucket() { # $1=label $2=pattern
-  n=$($G "$2" "$DIR" 2>/dev/null | wc -l | tr -d ' ')
-  printf '  %-28s %s files\n' "$1:" "$n"
-  if [[ "$FILES" == "1" && "$n" -gt 0 && "$n" -le 20 ]]; then
-    $G "$2" "$DIR" 2>/dev/null | sed 's/^/      /'
-  fi
+    n=$($G "$2" "$DIR" 2>/dev/null | wc -l | tr -d ' ')
+    printf '  %-28s %s files\n' "$1:" "$n"
+    if [[ "$FILES" == "1" && "$n" -gt 0 && "$n" -le 20 ]]; then
+        $G "$2" "$DIR" 2>/dev/null | sed 's/^/      /'
+    fi
 }
 
 echo "=== Hunt signals: $DIR ==="

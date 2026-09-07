@@ -16,8 +16,14 @@ internal object FeedMergeMethod : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "Ljava/lang/Object;",
     parameters = listOf(
-        "L", "Ljava/lang/Integer;", "Ljava/lang/String;", "Ljava/lang/String;",
-        "Ljava/util/List;", "L", "Lkotlin/jvm/functions/Function3;", "Z",
+        "L",
+        "Ljava/lang/Integer;",
+        "Ljava/lang/String;",
+        "Ljava/lang/String;",
+        "Ljava/util/List;",
+        "L",
+        "Lkotlin/jvm/functions/Function3;",
+        "Z",
     ),
     filters = listOf(
         methodCall(

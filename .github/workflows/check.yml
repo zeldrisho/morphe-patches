@@ -34,8 +34,20 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
 
-      - name: Shellcheck
-        run: shellcheck scripts/*.sh
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: '0.12.3'
+          enable-cache: false
+
+      - name: Scripts, workflows, and conflict/line-ending checks
+        # Include pinned ShellCheck on PATH for actionlint's embedded shell checks.
+        run: uvx --from pre-commit==4.6.2 --with shellcheck-py==0.11.0.1 pre-commit run --all-files --show-diff-on-failure
+
+      - name: JVM formatting and static analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew qualityCheck --no-daemon
 
       - name: Unit tests
         env:

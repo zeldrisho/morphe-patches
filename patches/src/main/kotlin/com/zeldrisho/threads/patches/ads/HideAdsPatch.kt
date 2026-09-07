@@ -1,8 +1,8 @@
 package com.zeldrisho.threads.patches.ads
 
-import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_THREADS
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
+import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_THREADS
 
 /**
  * Hides sponsored posts from the Threads feed.

@@ -112,7 +112,7 @@ required. `ANDROID_HOME` controls Gradle SDK discovery; PATH controls terminal t
 | Gradle (checked-in `./gradlew`; no separate install) | Build/test bundles and extensions |
 | `vp` / Node.js (see [Repository dependencies](#4-repository-dependencies)) | Release tooling dependencies |
 | Morphe Desktop CLI/GUI (see [Morphe Desktop is also the CLI](#5-morphe-desktop-is-also-the-cli)) | Apply bundles and sign APKs |
-| `shellcheck`, `actionlint` (`brew install shellcheck actionlint`) | Lint helper scripts and workflows |
+| `shellcheck`, `actionlint` (`brew install shellcheck actionlint`) | Standalone script/workflow linting; pinned hooks, shfmt, and JVM checks: [code quality](development.md#code-quality) |
 | `gh`, `jq` (Fedora: `sudo dnf install -y gh jq`; macOS: `brew install gh jq`) | GitHub releases/PRs and JSON |
 
 ### Needed only for reverse engineering
@@ -236,7 +236,8 @@ apktool --version
 shellcheck scripts/*.sh
 actionlint
 python3 -m unittest discover -s scripts/tests
-./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
+uvx --from pre-commit==4.6.2 pre-commit run --all-files
+./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
 ```
 
 The final command builds the bundle and companion extension; a successful build

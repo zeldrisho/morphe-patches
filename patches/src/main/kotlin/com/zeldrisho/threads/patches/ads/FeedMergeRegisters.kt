@@ -1,7 +1,7 @@
 package com.zeldrisho.threads.patches.ads
 
-/**
- * Pure, unit-testable register math for [hideAdsPatch].
+/*
+ * Pure, unit-testable register math for hideAdsPatch.
  *
  * A0F(this, LX/9aR, Integer, String, String, List, LX/2uI, Function3, Z):
  * 9 params including `this`; the feed list is param index 5 (p5).
@@ -11,6 +11,7 @@ package com.zeldrisho.threads.patches.ads
  * Injected snippets only accept registers v0-v15, hence the
  * `move-object` vs `move-object/from16` split.
  */
+private const val MAX_SHORT_MOVE_REGISTER = 15
 
 /**
  * Calculates the Dalvik register number for the feed list parameter in A0F.
@@ -32,8 +33,7 @@ fun feedListRegister(registerCount: Int, paramsIncludingThis: Int = 9, listParam
  * @param listReg The register number holding the feed list.
  * @return The smali instruction string.
  */
-fun feedListLoadMove(listReg: Int): String =
-    if (listReg <= 15) "move-object v0, v$listReg" else "move-object/from16 v0, v$listReg"
+fun feedListLoadMove(listReg: Int): String = if (listReg <= MAX_SHORT_MOVE_REGISTER) "move-object v0, v$listReg" else "move-object/from16 v0, v$listReg"
 
 /**
  * Generates the smali move instruction to store v0 back into the feed list register.
@@ -41,5 +41,4 @@ fun feedListLoadMove(listReg: Int): String =
  * @param listReg The register number holding the feed list.
  * @return The smali instruction string.
  */
-fun feedListStoreMove(listReg: Int): String =
-    if (listReg <= 15) "move-object v$listReg, v0" else "move-object/from16 v$listReg, v0"
+fun feedListStoreMove(listReg: Int): String = if (listReg <= MAX_SHORT_MOVE_REGISTER) "move-object v$listReg, v0" else "move-object/from16 v$listReg, v0"

@@ -1,10 +1,11 @@
 package com.zeldrisho.threads.patches.ads
 
-import app.morphe.patcher.PatcherConfig
 import app.morphe.patcher.PackageMetadata
+import app.morphe.patcher.PatcherConfig
 import app.morphe.patcher.patch.BytecodePatchContext
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.DexFileFactory
+import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.Opcodes
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.immutable.ImmutableClassDef
@@ -13,7 +14,6 @@ import com.android.tools.smali.dexlib2.immutable.ImmutableMethodImplementation
 import com.android.tools.smali.dexlib2.immutable.ImmutableMethodParameter
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction3rc
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodReference
-import com.android.tools.smali.dexlib2.Opcode
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -32,15 +32,24 @@ class FeedTargetTest {
     private fun context(): BytecodePatchContext {
         val config = PatcherConfig(apkFile = temporary.newFile("input.apk"), temporaryFilesPath = temporary.newFolder())
         val metadata = PackageMetadata::class.java.constructors.single().newInstance(
-            "com.instagram.barcelona", "434.0.0.41.74", "510406926", null,
+            "com.instagram.barcelona",
+            "434.0.0.41.74",
+            "510406926",
+            null,
         )
         return BytecodePatchContext::class.java.getConstructor(PatcherConfig::class.java, PackageMetadata::class.java)
             .newInstance(config, metadata)
     }
 
     private fun classDef(type: String, methods: List<Method>) = ImmutableClassDef(
-        type, AccessFlags.PUBLIC.value, "Ljava/lang/Object;", emptyList(), null,
-        emptySet(), emptyList(), methods,
+        type,
+        AccessFlags.PUBLIC.value,
+        "Ljava/lang/Object;",
+        emptyList(),
+        null,
+        emptySet(),
+        emptyList(),
+        methods,
     )
 
     private fun mergeMethod(
@@ -49,17 +58,37 @@ class FeedTargetTest {
             "BarcelonaFeedCache\$addAndSaveItemsFromFeedFetchSuccess\$2\$1;",
         listType: String = "Ljava/util/List;",
     ): ImmutableMethod = ImmutableMethod(
-        FeedMergeMethod.definingClass!!, name,
-        listOf("LX/Renamed;", "Ljava/lang/Integer;", "Ljava/lang/String;", "Ljava/lang/String;",
-            listType, "LX/Continuation;", "Lkotlin/jvm/functions/Function3;", "Z")
+        FeedMergeMethod.definingClass!!,
+        name,
+        listOf(
+            "LX/Renamed;",
+            "Ljava/lang/Integer;",
+            "Ljava/lang/String;",
+            "Ljava/lang/String;",
+            listType,
+            "LX/Continuation;",
+            "Lkotlin/jvm/functions/Function3;",
+            "Z",
+        )
             .map { ImmutableMethodParameter(it, emptySet(), null) },
-        "Ljava/lang/Object;", AccessFlags.PUBLIC.value or AccessFlags.FINAL.value,
-        emptySet(), emptySet(),
+        "Ljava/lang/Object;",
+        AccessFlags.PUBLIC.value or AccessFlags.FINAL.value,
+        emptySet(),
+        emptySet(),
         // Minimal synthetic matching fixture, not executable app bytecode.
-        ImmutableMethodImplementation(46, listOf(
-            ImmutableInstruction3rc(Opcode.INVOKE_DIRECT_RANGE, 0, 1,
-                ImmutableMethodReference(callback, "<init>", emptyList(), "V")),
-        ), emptyList(), emptyList()),
+        ImmutableMethodImplementation(
+            46,
+            listOf(
+                ImmutableInstruction3rc(
+                    Opcode.INVOKE_DIRECT_RANGE,
+                    0,
+                    1,
+                    ImmutableMethodReference(callback, "<init>", emptyList(), "V"),
+                ),
+            ),
+            emptyList(),
+            emptyList(),
+        ),
     )
 
     @Test fun matchesRenamedMethodAndObjectParameters() {
@@ -90,13 +119,26 @@ class FeedTargetTest {
         }
     }
 
-    private fun reflectionClasses(transform: (FeedReflectionMember, ImmutableMethod) -> ImmutableMethod? = { _, m -> m }) =
-        feedReflectionMembers.groupBy { it.owner }.mapValues { (owner, members) ->
-            classDef(owner, members.mapNotNull { member ->
-                transform(member, ImmutableMethod(owner, member.name, emptyList(), member.returnType,
-                    AccessFlags.PUBLIC.value, emptySet(), emptySet(), null))
-            })
-        }
+    private fun reflectionClasses(transform: (FeedReflectionMember, ImmutableMethod) -> ImmutableMethod? = { _, m -> m }) = feedReflectionMembers.groupBy { it.owner }.mapValues { (owner, members) ->
+        classDef(
+            owner,
+            members.mapNotNull { member ->
+                transform(
+                    member,
+                    ImmutableMethod(
+                        owner,
+                        member.name,
+                        emptyList(),
+                        member.returnType,
+                        AccessFlags.PUBLIC.value,
+                        emptySet(),
+                        emptySet(),
+                        null,
+                    ),
+                )
+            },
+        )
+    }
 
     @Test fun acceptsCompleteReflectionContract() {
         val classes = reflectionClasses()
@@ -116,16 +158,24 @@ class FeedTargetTest {
     @Test fun rejectsWrongReturnTypeVisibilityStaticAndParameters() {
         for (mutation in 0..3) {
             val classes = reflectionClasses { member, method ->
-                if (member != feedReflectionMembers.first()) method else ImmutableMethod(
-                    member.owner, member.name,
-                    if (mutation == 3) listOf(ImmutableMethodParameter("I", emptySet(), null)) else emptyList(),
-                    if (mutation == 0) "I" else member.returnType,
-                    when (mutation) {
-                        1 -> AccessFlags.PRIVATE.value
-                        2 -> AccessFlags.PUBLIC.value or AccessFlags.STATIC.value
-                        else -> AccessFlags.PUBLIC.value
-                    }, emptySet(), emptySet(), null,
-                )
+                if (member != feedReflectionMembers.first()) {
+                    method
+                } else {
+                    ImmutableMethod(
+                        member.owner,
+                        member.name,
+                        if (mutation == 3) listOf(ImmutableMethodParameter("I", emptySet(), null)) else emptyList(),
+                        if (mutation == 0) "I" else member.returnType,
+                        when (mutation) {
+                            1 -> AccessFlags.PRIVATE.value
+                            2 -> AccessFlags.PUBLIC.value or AccessFlags.STATIC.value
+                            else -> AccessFlags.PUBLIC.value
+                        },
+                        emptySet(),
+                        emptySet(),
+                        null,
+                    )
+                }
             }
             assertFailsWith<IllegalStateException> { validateFeedReflectionContract(classes::get) }
         }

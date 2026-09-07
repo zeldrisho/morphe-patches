@@ -37,7 +37,8 @@ build/test loop, troubleshooting) — nothing patch-specific lives here by desig
 Canonical local verification (bash):
 
 ```bash
-./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
+uvx --from pre-commit==4.6.2 pre-commit run --all-files --show-diff-on-failure
+./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
 ```
 
 The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the
@@ -45,3 +46,56 @@ toolchain works — for the real loop (apply in Morphe Desktop, single-patch
 isolation, troubleshooting) see [patch development](patch-development.md#build-and-test).
 Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, or the
 `gradle.properties` version — the release pipeline owns them (see [release process](release.md)).
+
+## Code quality
+
+CI runs the same check-only commands above. Hooks are optional; CI does not rely
+on contributors installing them. Generated metadata, build output, and local APK
+analysis directories are not formatting targets.
+
+| Check | Configuration / scope |
+| --- | --- |
+| Spotless: ktlint + google-java-format | Root `build.gradle.kts`; Kotlin sources/tests, Gradle scripts, extension Java sources/tests |
+| detekt | `patches/build.gradle.kts`, `config/detekt/detekt.yml`; Kotlin source analysis, without type resolution |
+| Android Lint | `:extensions:extension:lintDebug`; extension production and test sources |
+| ShellCheck + shfmt | `.pre-commit-config.yaml`; `scripts/**/*.sh` |
+| actionlint | `.pre-commit-config.yaml`; GitHub Actions workflows; also uses ShellCheck when on PATH (installed explicitly in CI) |
+| Merge conflicts + mixed line endings | `.pre-commit-config.yaml`; tracked text files |
+
+`qualityCheck` aggregates Spotless, detekt, and Android Lint. It does not run unit
+tests or build the bundle; `buildAndroid` alone does not run this quality gate.
+Reports are under `patches/build/reports/detekt/` and
+`extensions/extension/build/reports/`.
+
+Tool versions are pinned in the Gradle files, hook revisions, and CI install step.
+Detekt **2.0.0-alpha.6** is intentional: its embedded compiler matches Morphe's
+Kotlin **2.4.10**, unlike stable detekt 1.23.8. Recheck the
+[compatibility table](https://detekt.dev/docs/introduction/compatibility/) when
+upgrading Morphe/Kotlin. Formatting belongs to Spotless; detekt keeps its default
+rules with small documented exceptions, not a baseline of ignored findings.
+These checks cannot establish real-APK fingerprint compatibility or device behavior.
+
+### Optional commit hooks
+
+```bash
+uvx --from pre-commit==4.6.2 pre-commit install
+# Remove only the pre-commit-managed hook:
+uvx --from pre-commit==4.6.2 pre-commit uninstall
+```
+
+The first run downloads isolated hook environments (including Go for actionlint
+if needed), so allow network access. No Gradle/SDK build runs during a commit.
+For system tools and ShellCheck on PATH, see [toolchain setup](toolchain.md).
+
+### Apply formatting explicitly
+
+Checks do not rewrite files. To fix formatting locally:
+
+```bash
+./gradlew spotlessApply --no-daemon
+# Same shfmt revision as the check-only hook:
+uvx --from 'git+https://github.com/scop/pre-commit-shfmt@05c1426671b9237fb5e1444dd63aa5731bec0dfb' shfmt -w -i 4 -ci scripts/*.sh
+```
+
+Review the diff and rerun verification before committing. Kotlin naming/KDoc
+errors that cannot be autoformatted must be corrected manually.

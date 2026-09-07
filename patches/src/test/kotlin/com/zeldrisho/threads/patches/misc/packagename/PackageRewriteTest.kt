@@ -11,9 +11,8 @@ import kotlin.test.assertTrue
 /**
  * Parse an XML string into a DOM Document for testing.
  */
-private fun parseManifest(xml: String): Document =
-    DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        .parse(ByteArrayInputStream(xml.toByteArray()))
+private fun parseManifest(xml: String): Document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+    .parse(ByteArrayInputStream(xml.toByteArray()))
 
 /**
  * Generate a test manifest with providers, permissions, and custom attributes.
@@ -49,10 +48,12 @@ private fun attr(doc: Document, tag: String, attr: String): List<String> {
  */
 class PackageRewriteTest {
     @Test fun rewritesEachAuthorityIndependently() {
-        val doc = manifest(extra = """
+        val doc = manifest(
+            extra = """
             <provider android:authorities="third.party;com.instagram.barcelona.files;com.instagram.barcelona.cache"/>
             <provider android:authorities="com.instagram.barcelona.files;third.party"/>
-        """)
+        """,
+        )
         rewritePackage(doc, "example.clone")
         assertEquals(
             listOf("third.party;example.clone.files;example.clone.cache", "example.clone.files;third.party"),
@@ -61,29 +62,37 @@ class PackageRewriteTest {
     }
 
     @Test fun preservesResourceReferencesAndUnrelatedAuthorities() {
-        val doc = manifest(extra = """
+        val doc = manifest(
+            extra = """
             <provider android:authorities="@string/provider_authority"/>
             <provider android:authorities="com.instagram.barcelonax.files;.relative;third.party"/>
             <provider android:authorities=""/>
             <provider/>
-        """)
+        """,
+        )
         rewritePackage(doc, "example.clone")
         assertEquals(
             listOf("@string/provider_authority", "com.instagram.barcelonax.files;.relative;third.party", "", ""),
             attr(doc, "provider", "android:authorities").takeLast(4),
         )
         val providers = doc.getElementsByTagName("provider")
-        assertFalse((providers.item(providers.length - 1) as org.w3c.dom.Element)
-            .hasAttribute("android:authorities"))
+        assertFalse(
+            (providers.item(providers.length - 1) as org.w3c.dom.Element)
+                .hasAttribute("android:authorities"),
+        )
     }
 
     @Test fun replacesOnlyTheLeadingPackageInAnAuthority() {
-        val doc = manifest(extra = """
+        val doc = manifest(
+            extra = """
             <provider android:authorities="com.instagram.barcelona.files.com.instagram.barcelona.backup"/>
-        """)
+        """,
+        )
         rewritePackage(doc, "example.clone")
-        assertEquals("example.clone.files.com.instagram.barcelona.backup",
-            attr(doc, "provider", "android:authorities").last())
+        assertEquals(
+            "example.clone.files.com.instagram.barcelona.backup",
+            attr(doc, "provider", "android:authorities").last(),
+        )
     }
 
     @Test fun rewritesCustomPermissionsForShorterPackageName() {
@@ -132,10 +141,14 @@ class PackageRewriteTest {
         val doc = manifest()
         rewritePackage(doc, "com.instagram.barcelona.morphe")
         assertEquals("com.instagram.barcelona.morphe", doc.documentElement.getAttribute("package"))
-        assertTrue(attr(doc, "provider", "android:authorities")
-            .contains("com.instagram.barcelona.morphe.fileprovider"))
-        assertTrue(attr(doc, "provider", "android:authorities")
-            .contains("com.google.firebase.MESSAGING"))
+        assertTrue(
+            attr(doc, "provider", "android:authorities")
+                .contains("com.instagram.barcelona.morphe.fileprovider"),
+        )
+        assertTrue(
+            attr(doc, "provider", "android:authorities")
+                .contains("com.google.firebase.MESSAGING"),
+        )
         val perms = attr(doc, "permission", "android:name") +
             attr(doc, "uses-permission", "android:name")
         assertTrue(perms.contains("com.instagram.barcelona.morphe.permission.MY_PERM"))

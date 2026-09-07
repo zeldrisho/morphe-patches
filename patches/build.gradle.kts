@@ -1,3 +1,13 @@
+plugins {
+    // Matches the Kotlin 2.4.10 compiler supplied by Morphe; see docs/development.md.
+    id("dev.detekt") version "2.0.0-alpha.6"
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+}
+
 group = "com.zeldrisho.threads"
 
 patches {
