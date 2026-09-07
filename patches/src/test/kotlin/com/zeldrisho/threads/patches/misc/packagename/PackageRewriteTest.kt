@@ -48,6 +48,44 @@ private fun attr(doc: Document, tag: String, attr: String): List<String> {
  * Unit tests for package name validation and manifest rewriting logic.
  */
 class PackageRewriteTest {
+    @Test fun rewritesEachAuthorityIndependently() {
+        val doc = manifest(extra = """
+            <provider android:authorities="third.party;com.instagram.barcelona.files;com.instagram.barcelona.cache"/>
+            <provider android:authorities="com.instagram.barcelona.files;third.party"/>
+        """)
+        rewritePackage(doc, "example.clone")
+        assertEquals(
+            listOf("third.party;example.clone.files;example.clone.cache", "example.clone.files;third.party"),
+            attr(doc, "provider", "android:authorities").takeLast(2),
+        )
+    }
+
+    @Test fun preservesResourceReferencesAndUnrelatedAuthorities() {
+        val doc = manifest(extra = """
+            <provider android:authorities="@string/provider_authority"/>
+            <provider android:authorities="com.instagram.barcelonax.files;.relative;third.party"/>
+            <provider android:authorities=""/>
+            <provider/>
+        """)
+        rewritePackage(doc, "example.clone")
+        assertEquals(
+            listOf("@string/provider_authority", "com.instagram.barcelonax.files;.relative;third.party", "", ""),
+            attr(doc, "provider", "android:authorities").takeLast(4),
+        )
+        val providers = doc.getElementsByTagName("provider")
+        assertFalse((providers.item(providers.length - 1) as org.w3c.dom.Element)
+            .hasAttribute("android:authorities"))
+    }
+
+    @Test fun replacesOnlyTheLeadingPackageInAnAuthority() {
+        val doc = manifest(extra = """
+            <provider android:authorities="com.instagram.barcelona.files.com.instagram.barcelona.backup"/>
+        """)
+        rewritePackage(doc, "example.clone")
+        assertEquals("example.clone.files.com.instagram.barcelona.backup",
+            attr(doc, "provider", "android:authorities").last())
+    }
+
     @Test fun rewritesCustomPermissionsForShorterPackageName() {
         val newPackage = "com.instagram"
         assertTrue(isValidPackageName(newPackage))
