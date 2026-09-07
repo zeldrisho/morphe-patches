@@ -1,3 +1,9 @@
+## [1.0.0-dev.6](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.5...v1.0.0-dev.6) (2026-09-07)
+
+### 🐛 Bug Fixes
+
+* Apply CodeRabbit auto-fixes ([0fd14fa](https://github.com/zeldrisho/morphe-patches/commit/0fd14fa53caedeeafc31b7b96542056464cd2a2d)), closes [#1](https://github.com/zeldrisho/morphe-patches/issues/1)
+
 ## [1.0.0-dev.5](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.4...v1.0.0-dev.5) (2026-09-07)
 
 ### 🐛 Bug Fixes
