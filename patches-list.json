@@ -41,7 +41,7 @@
     {
       "name": "Change package name",
       "description": "Changes the app package name so the patched app installs alongside the original Threads. Set the desired package name in the patch options. WARNING: Meta apps hardcode many component/provider references — renaming the package can break Facebook login (SSO), content providers, or push. Disable this patch if you hit such issues.",
-      "default": true,
+      "default": false,
       "dependencies": [],
       "compatiblePackages": [
         {
@@ -73,41 +73,6 @@
           "values": null
         }
       ]
-    },
-    {
-      "name": "Example Patch",
-      "description": "Example patch to start with.",
-      "default": true,
-      "dependencies": [
-        "BytecodePatch"
-      ],
-      "compatiblePackages": [
-        {
-          "packageName": "com.example.app",
-          "name": "XYZ app",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#FF0045",
-          "signatures": null,
-          "targets": [
-            {
-              "version": "2.0.0",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            },
-            {
-              "version": "1.0.2",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
     },
     {
       "name": "Hide ads",

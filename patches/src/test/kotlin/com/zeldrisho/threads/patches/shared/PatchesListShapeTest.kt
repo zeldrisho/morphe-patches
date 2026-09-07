@@ -30,12 +30,27 @@ class PatchesListShapeTest {
     }
 
     @Test fun patchCountMatchesSources() {
-        // 4 user-visible Threads patches; template example patches are unnamed/internal.
+        // Exactly 4 Threads patches — template scaffolding was removed, so any
+        // extra entry (e.g. a resurrected "Example Patch") fails loudly.
+        // Note: "name" also appears on compatiblePackages entries ("Threads"),
+        // so only top-level patch names are counted (6-space indent in output).
         val json = listJson()
-        val names = Regex("\"name\": \"(.*?)\"").findAll(json).map { it.groupValues[1] }.toList()
-        val threadsPatches = names.filter {
-            it in setOf("Hide ads", "Remove AD_ID permission", "Change app name", "Change package name")
-        }
-        assertEquals(4, threadsPatches.size, "expected 4 Threads patches, found: $threadsPatches")
+        val names = Regex("(?m)^      \"name\": \"(.*?)\"").findAll(json).map { it.groupValues[1] }.toList()
+        assertEquals(
+            listOf("Change app name", "Change package name", "Hide ads", "Remove AD_ID permission"),
+            names.sorted(),
+            "expected exactly 4 Threads patches, found: $names",
+        )
+    }
+
+    @Test fun renamePatchIsOptIn() {
+        // Change package name must stay off by default: renaming breaks
+        // package+cert-bound flows (SSO, providers, push). See lessons-learned.
+        val json = listJson()
+        val block = Regex(
+            "\"name\": \"Change package name\".*?\"default\": (true|false)",
+            RegexOption.DOT_MATCHES_ALL,
+        ).find(json)?.groupValues?.get(1)
+        assertEquals("false", block, "Change package name must default to false")
     }
 }

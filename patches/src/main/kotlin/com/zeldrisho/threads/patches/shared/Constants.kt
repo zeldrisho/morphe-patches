@@ -5,6 +5,11 @@ import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
 
 object Constants {
+    /** Tested build: APKMirror versionCode 510406926 (APKPure ships the same
+     * version name with versionCode 510406907 — smali matched, but re-verify
+     * fingerprints per update; see docs/qa-checklist.md §4). */
+    const val TESTED_VERSION_CODE = 510406926
+
     // Threads (Meta codename "Barcelona") is built from the Instagram codebase and is heavily
     // R8-obfuscated. Obfuscated class/method names shift on nearly every Meta release, so a
     // null ("any") version is NOT realistic here (and the Morphe Manager cannot parse a null

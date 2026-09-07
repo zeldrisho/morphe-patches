@@ -12,7 +12,10 @@ val changePackageNamePatch = resourcePatch(
         "original Threads. Set the desired package name in the patch options. WARNING: Meta apps " +
         "hardcode many component/provider references — renaming the package can break Facebook " +
         "login (SSO), content providers, or push. Disable this patch if you hit such issues.",
-    default = true,
+    // Off by default: renaming breaks package+cert-bound flows (web-OAuth/App-Links/Google
+    // sign-in, providers, push). Opt in only if you need side-by-side install; see
+    // docs/lessons-learned.md (rename risk) and docs/qa-checklist.md §2.
+    default = false,
 ) {
     compatibleWith(COMPATIBILITY_THREADS)
 

@@ -1,10 +1,10 @@
-# 🧩 zeldrisho Patches
+# 🧩 Zeldris Patches
 
 Patches for apps I like, built for [Morphe](https://morphe.software).
 
 ## ❓ About
 
-Personal Morphe patch bundle maintained by [@zeldrisho](https://github.com/zeldrisho).
+Personal Morphe patch bundle maintained by Zeldris ([@zeldrisho](https://github.com/zeldrisho)).
 Patches, compatible app versions, and options are listed below; the list is
 regenerated on every release.
 
@@ -55,4 +55,4 @@ Or add the source URL manually in Morphe Manager → Sources.
 
 ## 📜 License
 
-zeldrisho Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+Zeldris Patches are licensed under the [GNU General Public License v3.0](LICENSE)

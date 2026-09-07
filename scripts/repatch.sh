@@ -18,7 +18,7 @@ OUT="${2:-${INPUT%.*}_patched.apk}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CLI="${MORPHE_CLI:-$HOME/.local/bin/morphe-cli.jar}"
 KEYSTORE="${KEYSTORE:-$PROJECT_DIR/Morphe.keystore}"
-GITHUB_REPO="${GITHUB_REPO:-}"
+GITHUB_REPO="${GITHUB_REPO:-zeldrisho/morphe-patches}"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT

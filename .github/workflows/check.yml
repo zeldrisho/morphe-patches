@@ -28,7 +28,18 @@ jobs:
         run: shellcheck scripts/*.sh
 
       - name: Unit tests
+        env:
+          # Morphe Gradle plugin resolves from GitHub Packages, which needs
+          # auth even for public packages (see docs/lessons-learned.md).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :patches:test :extensions:extension:testDebugUnitTest --no-daemon
 
+      - name: Build extension dex
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :patches:verifyExtensionMpe --no-daemon && test -f extensions/extension.mpe
+
       - name: Build bundle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew buildAndroid --no-daemon

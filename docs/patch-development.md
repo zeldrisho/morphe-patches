@@ -35,7 +35,7 @@ patches/src/main/kotlin/app/template/patches/<app>/
   staleness explicit instead of silently matching the wrong code. Prefer versions
   available on well-known APK mirrors (see `Constants.kt` comments).
 - Internal-only helpers stay unnamed (`bytecodePatch { ... }` without `name`) and are
-  wired in via `dependsOn(...)` — see `example/InternalPatch.kt`.
+  wired in via `dependsOn(...)` (unnamed `bytecodePatch { ... }` without `name`).
 - Complex runtime logic goes in `extensions/extension/src/main/java/` and is linked with
   `extendWith("extensions/extension.mpe")` (when to use it: below).
 - Prefer exact `AppTarget` versions available on well-known APK mirrors over `version = null` (see above — null breaks Manager loading).

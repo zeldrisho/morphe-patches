@@ -14,7 +14,9 @@ see `reverse-engineering.md`; for module layout see `architecture.md`.
 
 ## First-time init
 
-Template leftovers still present — finish these before first real patch:
+Template init is done (group `com.zeldrisho.threads`, `about` = Zeldris Patches,
+`app.template.*` scaffolding removed, extension namespace
+`com.zeldrisho.threads.extension`). If re-scaffolding from upstream template, finish:
 
 - `patches/build.gradle.kts`: `group` and `patches { about { ... } }`.
 - `patches/src/main/kotlin/app/template/`: rename `app.template.*` packages.

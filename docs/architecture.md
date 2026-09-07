@@ -52,9 +52,9 @@ original APK ──▶ jadx + baksmali ──▶ target (class + method + instru
 
 ## Patch anatomy
 
-- `example/ExamplePatch.kt`: user-visible `bytecodePatch` with `compatibleWith(...)`, `dependsOn(...)`, `extendWith(...)`, `execute { ... }`.
-- `example/Fingerprints.kt`: named `Fingerprint` objects (class, method, access flags, return type, parameters, instruction filters).
-- `example/InternalPatch.kt`: unnamed `bytecodePatch` — hidden from Manager/CLI, used via `dependsOn`.
+- `ads/HideAdsPatch.kt` (Threads): user-visible `bytecodePatch` with `compatibleWith(...)`, `extendWith(...)`, `execute { ... }` — the reference example in this repo.
+- `ads/Fingerprints.kt` pattern: named `Fingerprint` objects (class, method, access flags, return type, parameters, instruction filters) kept beside the patch; Threads inlines its single-method fingerprint as a private object at the bottom of `HideAdsPatch.kt`.
+- Unnamed `bytecodePatch` (no `name`) stays hidden from Manager/CLI and is wired in via `dependsOn(...)`.
 - `shared/Constants.kt`: `Compatibility` records (package name, `ApkFileType`, icon color, `AppTarget` versions, optional `versionCodes` per `SupportedAbi`).
 
 ## Generated data flow

@@ -1,17 +1,18 @@
 # Agent Instructions
 
-## Package Manager
+## Tools
 
 - Gradle via wrapper: `./gradlew` (Java 21, see `.github/workflows/release.yml`).
 - JS tooling via `vp`: `vp install`.
+- Android SDK (`platforms`, `build-tools`, `platform-tools` for `adb`/`aapt`); see `docs/lessons-learned.md` for this box's install.
 
 ## Project Layout
 
 | Path | Purpose |
 | ---- | ------- |
-| `patches/src/main/kotlin/` | Patch + fingerprint sources (`app/template/patches/`, `util/PatchListGenerator.kt`) |
-| `extensions/extension/` | Companion extension source, outputs `extensions/extension.mpe` |
-| `scripts/` | Helper scripts (`apk-recon.sh`, `extract-smali.sh`, `remote-decompile.sh`, `hunt-signals.sh`, `recover-kotlin-names.sh`, `repatch.sh`) |
+| `patches/` | Patch + fingerprint sources; builds `patches/build/libs/patches-*.mpp` |
+| `extensions/extension/` | Companion extension source; builds `extensions/extension.mpe` |
+| `scripts/` | Helper scripts (APK recon, re-patch, cleanup) |
 
 ## Commands
 
@@ -28,8 +29,7 @@
 - Commits: `feat:` (minor), `fix:` (patch), `chore:` (no release); see `docs/release.md`.
 - Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, `README.md` patch list, `gradle.properties` version.
 - Never create releases by hand; `release.yml` + `.releaserc` own versioning, assets, backmerge.
-- Rename template defaults: `group` + `about` in `patches/build.gradle.kts`, `app.template.*` packages, `Compatibility` entries in `patches/src/main/kotlin/app/template/patches/shared/Constants.kt`.
-- Project name must not imply Morphe authorship; see `NOTICE`.
+- Risky patches (login/providers/push at risk) ship `default = false` with a WARNING; see `docs/maintenance.md`.
 
 ## External References
 
@@ -45,4 +45,6 @@
 | Smali, obfuscation, match debugging | `docs/bytecode-reference.md` |
 | Bypass techniques per system | `docs/bypass-patterns.md` |
 | Release process | `docs/release.md` |
-| Patcher API / fingerprinting | `https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md` |
+| Remaining work | `docs/plan.md` |
+| Per-release / per-update QA | `docs/qa-checklist.md` |
+| Recurring maintenance / project decisions | `docs/maintenance.md` |
