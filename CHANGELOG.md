@@ -1,3 +1,9 @@
+## [1.0.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-09-07)
+
+### 🐛 Bug Fixes
+
+* **ci:** Set least-privilege permissions on Check workflow ([e178d56](https://github.com/zeldrisho/morphe-patches/commit/e178d5622d5872316a4b641d73fa4ec871c74aef))
+
 ## [1.0.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-09-07)
 
 ### ✨ New Features
