@@ -61,10 +61,12 @@ grep -oiE '\b(Ad|Sponsored)\b' "$QA_DIR/ui.xml" || true
 
 - [ ] Sponsored units absent from main feed (gap-free, no blank cards),
       confirmed visually across refreshed/scrolled content, not just labels
-- [ ] Clips/reels still open and play normally (feed-scoped by design)
-- [ ] Compare before/after crash buffers for new app crashes and inspect
-      `adb logcat -d -s FeedAdFilter`. The filter is designed to fail open on
-      unsupported models; a clean smoke test is not comprehensive coverage.
+- [ ] Video posts still open and play normally. Threads has no separate
+      clips/reels surface; this is a playback regression check, not video-ad QA.
+- [ ] Compare before/after crash buffers for new app crashes. The production
+      `FeedAdFilter` emits no logs; a silent tag does not prove execution or
+      removal. Use controlled comparison or verified temporary instrumentation
+      for removal evidence. A clean smoke test is not comprehensive coverage.
 
 Record each result as PASS / FAIL / BLOCKED with its evidence. Temporary files
 are not durable evidence; retain sanitized notes in the release/PR record.

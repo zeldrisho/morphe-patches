@@ -20,11 +20,17 @@ Nothing feature-specific lives here — this is how the repo is operated.
 - Verify publication and alert resolution directly; a green workflow or an
   empty default-branch alert listing does not prove a PR alert is fixed.
   For a supplied CodeQL alert, inspect its specific ID and PR instance state.
+- If fetch/prune or branch inspection times out, report cleanup as unverified.
+  Do not infer merge status from stale refs or force-delete branches.
 
 ## Device QA evidence has limits
 - Record the exact input version/code, explicitly selected bundle (`MPP`),
   enabled patches, package ID, device, and signing setup. Multiple local
   bundles can exist; do not assume a helper selected the newest one.
+- Tie device results to the installed APK hash and verified signing certificate.
+  Without input/bundle/options provenance, a passing installed build does not
+  validate the current bundle or its exact default-on configuration. Offline
+  helper tests verify orchestration, not real APK signing or device behavior.
 - Existing-session behavior, fresh login, and renamed-package login are
   separate checks. Coexistence with a patched app does not establish
   coexistence with stock-signed upstream.
@@ -35,6 +41,23 @@ Nothing feature-specific lives here — this is how the repo is operated.
   installed app signed with another key. Let the user enter credentials.
 - UI dumps and logs can contain account/feed data. Keep them outside the
   repository; temporary files may disappear and are not durable evidence.
+- If the device locks or becomes inaccessible, pause UI actions immediately,
+  tell the user, and resume only after checking the current screen. Keep the
+  user informed during interactive QA rather than waiting for another prompt.
+- For user-demonstrated navigation, capture only with consent and a bounded
+  duration; do not inject taps during the demonstration. Stop capture before
+  credential entry. Learn visible controls, not just fixed touch coordinates.
+- Test surfaces the app actually exposes; do not import another app's feature
+  terminology or invent ad surfaces. Confirm video playback with changing
+  frames/progress, separately from ad-removal evidence.
+- A silent log tag proves nothing if the tested implementation emits no logs.
+  Inspect instrumentation before treating logcat output as execution evidence.
+
+## Keep plans small
+- `docs/plan.md` contains only remaining actionable work, not completed checks
+  or session transcripts. Keep recurring procedures in the QA checklist and
+  durable cross-feature lessons here; retain sanitized release evidence in the
+  release/PR record rather than creating feature-specific session documents.
 
 ## Respect the local toolchain
 - Use tools already on `PATH`. `ANDROID_HOME` identifies the SDK for builds,
