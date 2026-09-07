@@ -17,14 +17,15 @@ See `reverse-engineering.md` (finding targets), `fingerprint-guide.md` (fingerpr
 One app = one folder; one concern = one subfolder with its fingerprints next to the patch:
 
 ```
-patches/src/main/kotlin/app/template/patches/<app>/
+patches/src/main/kotlin/com/zeldrisho/threads/patches/
 ├── shared/Constants.kt          # Compatibility records (package, file type, versions)
-├── premium/
-│   ├── Fingerprints.kt          # named Fingerprint objects
-│   └── <App>PremiumPatch.kt     # bytecodePatch definitions
-└── ads/
-    ├── Fingerprints.kt
-    └── HideAdsPatch.kt
+├── ads/
+│   ├── FeedMergeRegisters.kt    # Register helpers
+│   └── HideAdsPatch.kt          # Patch and named fingerprint
+└── misc/
+    ├── analytics/
+    ├── branding/
+    └── packagename/
 ```
 
 - Shared targets go in `shared/Constants.kt` (see `architecture.md` for the fields).
@@ -157,8 +158,10 @@ val myPatch = bytecodePatch(name = "My Feature") {
 ./gradlew :patches:buildAndroid clean --no-daemon
 ```
 
-Apply the `.mpp` in Morphe Desktop against the **original** APK (never an extracted
-`base.apk`), then `adb install -r` the output. To debug one patch in isolation, apply
+Apply the `.mpp` in Morphe Desktop against the **original `.apks` split container**
+matching the supported Threads version and `ApkFileType.APKS` compatibility
+declaration (never an extracted `base.apk`), then `adb install -r` the output.
+To debug one patch in isolation, apply
 only it (`--exclusive`-style single-patch run in the CLI/Desktop) before the full suite —
 a fingerprint failure elsewhere won't mask your result that way.
 

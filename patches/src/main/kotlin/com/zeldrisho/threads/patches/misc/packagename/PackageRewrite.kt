@@ -40,7 +40,7 @@ fun rewritePackage(document: org.w3c.dom.Document, newPackage: String) {
         for (i in 0 until nodes.length) {
             val node = nodes.item(i) as Element
             val name = node.getAttribute("android:name")
-            if (name.startsWith("$ORIGINAL_PACKAGE.") && !name.startsWith("$newPackage.")) {
+            if (name.startsWith("$ORIGINAL_PACKAGE.")) {
                 node.setAttribute("android:name", name.replaceFirst("$ORIGINAL_PACKAGE.", "$newPackage."))
             }
         }

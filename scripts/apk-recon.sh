@@ -23,19 +23,28 @@ else
   RG_Q="grep -Eq"
 fi
 
-WORK_WAS_TEMP=0
 TARGET="$APK"
+SOURCES=("$APK")
 EXT="${APK##*.}"
-TMPDIR=""
+TMPDIR="$(mktemp -d)"
+trap 'rm -rf "$TMPDIR"' EXIT
 if [[ "$EXT" == "apkm" || "$EXT" == "xapk" || "$EXT" == "apks" ]]; then
-  TMPDIR="$(mktemp -d)"
-  trap 'rm -rf "$TMPDIR"' EXIT
-  unzip -o -q "$APK" "base.apk" -d "$TMPDIR" || {
-    echo "❌ Could not extract base.apk from $APK" >&2
+  unzip -o -q "$APK" '*.apk' -d "$TMPDIR/splits" || {
+    echo "❌ Could not extract split APKs from $APK" >&2
     exit 1
   }
-  TARGET="$TMPDIR/base.apk"
-  WORK_WAS_TEMP=1
+  mapfile -d '' -t SOURCES < <(find "$TMPDIR/splits" -type f -name '*.apk' -print0 | sort -z)
+  if (( ${#SOURCES[@]} == 0 )); then
+    echo "❌ No embedded APKs found in $APK" >&2
+    exit 1
+  fi
+  TARGET="${SOURCES[0]}"
+  for src in "${SOURCES[@]}"; do
+    if [[ "${src##*/}" == "base.apk" || "${src##*/}" == "base-master.apk" ]]; then
+      TARGET="$src"
+      break
+    fi
+  done
 fi
 
 BADGING="$(aapt dump badging "$TARGET" 2>/dev/null | head -20)"
@@ -55,13 +64,12 @@ if aapt dump xmltree "$TARGET" AndroidManifest.xml 2>/dev/null | $RG_Q -i 'split
   SPLIT="$SPLIT (split manifest detected)"
 fi
 
-# Aggregate zip listings: outer APK + base.apk (split-aware view for .so/dex).
-LISTING="$(mktemp)"
-trap 'rm -f "$LISTING"' EXIT
-{ unzip -l "$APK" 2>/dev/null | awk '{print $NF}'; } > "$LISTING"
-if [[ "$WORK_WAS_TEMP" == "1" ]]; then
-  { unzip -l "$TARGET" 2>/dev/null | awk '{print $NF}'; } >> "$LISTING"
-fi
+# Aggregate every APK's contents so feature splits contribute .so/DEX signals.
+LISTING="$TMPDIR/listing"
+: > "$LISTING"
+for src in "${SOURCES[@]}"; do
+  unzip -Z1 "$src" >> "$LISTING"
+done
 
 DEXES="$($RG '\.dex' "$LISTING" | awk '{print $1}' | tr '\n' ' ')"
 DEXCOUNT="$($RG -c '\.dex' "$LISTING" || true)"
@@ -70,19 +78,16 @@ NATIVE_DETAILED="$(grep -E '^lib/[^/]+/[^/]+\.so$' "$LISTING" | sort -u || true)
 
 # DEX type-descriptor strings: most libs live inside classes*.dex, not as zip
 # paths. Extract FQNs (Lcom/foo/Bar; → com/foo/Bar) so stack detection works
-# even on obfuscated apps. Tries base.apk first, falls back to outer APK.
-DEXSTR="$(mktemp)"
-trap 'rm -f "$LISTING" "$DEXSTR"' EXIT
+# even on obfuscated apps. Inspect every DEX from every APK.
+DEXSTR="$TMPDIR/dexstrings"
 : > "$DEXSTR"
-for src in "$TARGET" "$APK"; do
-  for dex in $(unzip -Z1 "$src" 2>/dev/null | grep -E '^classes[0-9]*\.dex$' || true); do
+for src in "${SOURCES[@]}"; do
+  while IFS= read -r dex; do
     unzip -p "$src" "$dex" 2>/dev/null \
       | strings -n 8 \
       | grep -oE 'L[a-z][a-zA-Z0-9_]*(/[a-zA-Z0-9_$]+)+;' \
       | sed -E 's/^L//; s/;$//' >> "$DEXSTR" || true
-    break # one DEX is usually enough for stack signals; keeps recon fast
-  done
-  if [[ -s "$DEXSTR" ]]; then break; fi
+  done < <(unzip -Z1 "$src" | grep -E '\.dex$' || true)
 done
 sort -u "$DEXSTR" -o "$DEXSTR"
 
@@ -226,7 +231,3 @@ $NEXT
 EOF
 
 echo "✅ Recon written to $OUT"
-if [ "$WORK_WAS_TEMP" = "1" ]; then
-  rm -rf "$TMPDIR"
-  trap - EXIT
-fi

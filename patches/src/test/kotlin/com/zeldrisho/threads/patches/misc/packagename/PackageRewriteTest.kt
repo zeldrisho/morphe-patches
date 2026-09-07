@@ -48,6 +48,26 @@ private fun attr(doc: Document, tag: String, attr: String): List<String> {
  * Unit tests for package name validation and manifest rewriting logic.
  */
 class PackageRewriteTest {
+    @Test fun rewritesCustomPermissionsForShorterPackageName() {
+        val newPackage = "com.instagram"
+        assertTrue(isValidPackageName(newPackage))
+        val doc = manifest()
+        rewritePackage(doc, newPackage)
+
+        assertEquals(
+            listOf("com.instagram.permission.MY_PERM"),
+            attr(doc, "permission", "android:name"),
+        )
+        assertEquals(
+            listOf(
+                "android.permission.INTERNET",
+                "com.instagram.permission.MY_PERM",
+                "com.google.android.gms.permission.AD_ID",
+            ),
+            attr(doc, "uses-permission", "android:name"),
+        )
+    }
+
     /**
      * Verify that valid Android package names are accepted.
      */

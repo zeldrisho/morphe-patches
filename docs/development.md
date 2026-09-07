@@ -36,7 +36,7 @@ troubleshooting) — nothing patch-specific lives here by design.
 ```bash
 ./gradlew buildAndroid
 ./gradlew generatePatchesList
-./gradlew :patches:buildAndroid clean --no-daemon
+./gradlew clean :patches:buildAndroid --no-daemon
 ```
 
 The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the

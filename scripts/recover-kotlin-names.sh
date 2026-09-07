@@ -30,6 +30,7 @@ mkdir -p "$OUT/by_package"
 python3 - "$SRC" "$OUT" <<'PY'
 import os, re, sys, json
 from collections import defaultdict
+from urllib.parse import quote
 
 SRC, OUT = sys.argv[1], sys.argv[2]
 
@@ -103,7 +104,7 @@ for obf, real in mapping.items():
     by_pkg[pkg].append((real, obf, file_real[obf]))
 
 for pkg, rows in by_pkg.items():
-    safe = os.path.basename(pkg).replace(".", "_") or "default"
+    safe = quote(pkg, safe="()") or "default"
     with open(os.path.join(OUT, "by_package", f"{safe}.txt"), "w") as f:
         for real, obf, p in sorted(rows):
             f.write(f"{real}\t{obf}\t{p}\n")

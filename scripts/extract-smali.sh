@@ -17,21 +17,27 @@ TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 
 EXT="${APK##*.}"
-DEX_SOURCE="$APK"
+SOURCES=("$APK")
 if [[ "$EXT" == "apkm" || "$EXT" == "xapk" || "$EXT" == "apks" ]]; then
-  unzip -o -q "$APK" "base.apk" -d "$TMPDIR" || {
-    echo "❌ Could not extract base.apk from $APK" >&2
+  unzip -o -q "$APK" '*.apk' -d "$TMPDIR/splits" || {
+    echo "❌ Could not extract split APKs from $APK" >&2
     exit 1
   }
-  DEX_SOURCE="$TMPDIR/base.apk"
+  mapfile -d '' -t SOURCES < <(find "$TMPDIR/splits" -type f -name '*.apk' -print0 | sort -z)
 fi
 
 COUNT=0
-for dex in $(unzip -l "$DEX_SOURCE" | rg '\.dex' | awk '{print $4}'); do
-  name="$(basename "$dex" .dex)"
-  unzip -o -q "$DEX_SOURCE" "$dex" -d "$TMPDIR"
-  baksmali d "$TMPDIR/$dex" -o "$OUT/$name"
-  COUNT=$((COUNT + 1))
+for src in "${SOURCES[@]}"; do
+  split_out="$OUT"
+  if [[ "$src" == "$TMPDIR/splits/"* ]]; then
+    split="${src#"$TMPDIR/splits/"}"
+    split_out="$OUT/${split%.apk}"
+  fi
+  while IFS= read -r dex; do
+    unzip -p "$src" "$dex" > "$TMPDIR/current.dex"
+    baksmali d "$TMPDIR/current.dex" -o "$split_out/${dex%.dex}"
+    COUNT=$((COUNT + 1))
+  done < <(unzip -Z1 "$src" | grep -E '\.dex$' || true)
 done
 
 if [ "$COUNT" = "0" ]; then

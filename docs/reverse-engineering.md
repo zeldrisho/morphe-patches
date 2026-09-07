@@ -14,7 +14,7 @@ RECON → DECOMPILE → HUNT → WRITE → TEST
 | Recon | What app is this? | Identity + protections + framework notes |
 | Decompile | What does it do? | `decompiled/` (jadx Java) + `smali/` (baksmali) |
 | Hunt | Where is the check? | Smali-verified target (class, method, instruction sequence) |
-| Write | How to bypass it? | `Fingerprints.kt` + `*Patch.kt` under `patches/src/main/kotlin/app/template/patches/<app>/` |
+| Write | How to bypass it? | `Fingerprints.kt` + `*Patch.kt` under `patches/src/main/kotlin/com/zeldrisho/threads/patches/` |
 | Test | Does it match? | `./gradlew buildAndroid`, then apply the `.mpp` in Morphe Desktop |
 
 Keep per-app work outside this repo (e.g. a sibling `analysis/<app>/` folder with
@@ -174,12 +174,25 @@ Minimal hooks (log first, mutate only after you see traffic):
 
 ```javascript
 function bytesToHex(b) { return Array.from(new Uint8Array(b)).map(x => ('0' + (x & 0xFF).toString(16)).slice(-2)).join(''); }
-// AES key / IV capture
+// Enable only for a disposable test account; never share raw capture logs.
+const CAPTURE_CRYPTO_BYTES = false;
+// Cryptographic metadata only by default.
 Java.perform(function() {
   Java.use("javax.crypto.spec.SecretKeySpec").$init.overload('[B', 'java.lang.String')
-    .implementation = function(k, a) { console.log("[key] " + a + " " + bytesToHex(k)); return this.$init(k, a); };
+    .implementation = function(k, a) {
+      console.log("[key] algorithm=" + a + " bytes=" + k.length);
+      if (CAPTURE_CRYPTO_BYTES) console.log("[key] raw=" + bytesToHex(k));
+      return this.$init(k, a);
+    };
   Java.use("javax.crypto.Cipher").doFinal.overload('[B')
-    .implementation = function(b) { console.log("[cipher] in=" + bytesToHex(b)); var r = this.doFinal(b); console.log("[cipher] out=" + bytesToHex(r)); return r; };
+    .implementation = function(b) {
+      console.log("[cipher] algorithm=" + this.getAlgorithm() + " inBytes=" + b.length);
+      if (CAPTURE_CRYPTO_BYTES) console.log("[cipher] in=" + bytesToHex(b));
+      var r = this.doFinal(b);
+      console.log("[cipher] outBytes=" + r.length);
+      if (CAPTURE_CRYPTO_BYTES) console.log("[cipher] out=" + bytesToHex(r));
+      return r;
+    };
 });
 // OkHttp request / response (skip if okhttp3.* absent — R8-relocated; use TrustManager hooks instead)
 Java.perform(function() {

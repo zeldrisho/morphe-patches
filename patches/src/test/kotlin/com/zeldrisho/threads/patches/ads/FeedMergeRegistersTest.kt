@@ -2,18 +2,24 @@ package com.zeldrisho.threads.patches.ads
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
  * Unit tests for the Dalvik register calculation helpers in FeedMergeRegisters.kt.
  */
 class FeedMergeRegistersTest {
+    @Test fun rejectsFramesWithoutLocalScratchRegister() {
+        assertFailsWith<IllegalArgumentException> { feedListRegister(9) }
+        assertFailsWith<IllegalArgumentException> { feedListRegister(8) }
+    }
+
     /**
      * Verify the register calculation for the feed list parameter in A0F.
      */
     @Test fun listRegisterMath() {
         // registerCount - 9 params (incl. this) + index 5
-        assertEquals(5, feedListRegister(9))
+        assertEquals(6, feedListRegister(10))
         assertEquals(11, feedListRegister(15))
     }
 

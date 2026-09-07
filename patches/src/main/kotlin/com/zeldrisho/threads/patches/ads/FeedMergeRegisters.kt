@@ -19,8 +19,12 @@ package com.zeldrisho.threads.patches.ads
  * @param listParamIndex Zero-based index of the List parameter (default 5).
  * @return The register number holding the feed list.
  */
-fun feedListRegister(registerCount: Int, paramsIncludingThis: Int = 9, listParamIndex: Int = 5): Int =
-    registerCount - paramsIncludingThis + listParamIndex
+fun feedListRegister(registerCount: Int, paramsIncludingThis: Int = 9, listParamIndex: Int = 5): Int {
+    require(registerCount > paramsIncludingThis) {
+        "Feed merge requires a local scratch register: v0 must not alias a parameter"
+    }
+    return registerCount - paramsIncludingThis + listParamIndex
+}
 
 /**
  * Generates the smali move instruction to load the feed list from its register into v0.

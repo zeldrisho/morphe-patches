@@ -24,7 +24,7 @@ class FingerprintSurfaceTest {
         // A0F(this, LX/9aR, Integer, String, String, List, LX/2uI, Function3, Z):
         // 9 params including `this`; the feed list is param index 5.
         // Register math: listReg = registerCount - 9 + 5.
-        assertEquals(5, feedListRegister(registerCount = 9), "list reg at minimal frame")
+        assertEquals(6, feedListRegister(registerCount = 10), "list reg with one local scratch register")
         assertEquals(11, feedListRegister(registerCount = 15), "list reg shifts with frame size")
     }
 
