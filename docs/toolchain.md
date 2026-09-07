@@ -204,6 +204,8 @@ java -jar "$MORPHE_CLI"
 ```
 
 `scripts/repatch.sh` uses `java -jar`, `options-create`, and `patch`.
+Full flag reference and terminal flows (discovery, single-patch isolation,
+signing, updates): [CLI patching](cli.md).
 It needs a JAR path, **not** a shell wrapper. It explicitly selects the patch
 bundle, temporary directory, and keystore; its keystore default is the repo's
 `Morphe.keystore`, not the Desktop data directory. Set `KEYSTORE` to your

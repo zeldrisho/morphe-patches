@@ -6,14 +6,15 @@ For environment setup see [toolchain setup](toolchain.md).
 ## Reading order
 
 1. [Toolchain setup](toolchain.md) — install once per host.
-2. [Architecture](architecture.md) — module and data-flow overview.
-3. [Reverse engineering workflow](reverse-engineering.md) — finding targets.
-4. [Fingerprint guide](fingerprint-guide.md) — writing fingerprints.
-5. [Patch development](patch-development.md) — writing, building, and testing patches.
-6. [QA checklist](qa-checklist.md) — per-release and per-update device procedure.
-7. [Release process](release.md) — branching, versioning, and publishing.
-8. [Maintenance](maintenance.md) — durable decisions index.
-9. [Lessons learned](lessons-learned.md) — incident context.
+2. [CLI patching](cli.md) — terminal flows (Desktop JAR flags, `repatch.sh`, signing).
+3. [Architecture](architecture.md) — module and data-flow overview.
+4. [Reverse engineering workflow](reverse-engineering.md) — finding targets.
+5. [Fingerprint guide](fingerprint-guide.md) — writing fingerprints.
+6. [Patch development](patch-development.md) — writing, building, and testing patches.
+7. [QA checklist](qa-checklist.md) — per-release and per-update device procedure.
+8. [Release process](release.md) — branching, versioning, and publishing.
+9. [Maintenance](maintenance.md) — durable decisions index.
+10. [Lessons learned](lessons-learned.md) — incident context.
 
 ## Prerequisites
 

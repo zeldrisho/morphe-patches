@@ -171,11 +171,11 @@ val myPatch = bytecodePatch(name = "My Feature") {
 # .mpp -> patches/build/libs/patches-*.mpp
 ```
 
-Apply the `.mpp` in Morphe Desktop against the **downloaded APKMirror split bundle**
+Apply the `.mpp` via the terminal ([CLI patching](cli.md)) against the **downloaded APKMirror split bundle**
 matching the supported Threads version and `ApkFileType.APKS` compatibility
 declaration (never an extracted `base.apk`), then `adb install -r` the output.
 To debug one patch in isolation, apply
-only it (`--exclusive`-style single-patch run in the CLI/Desktop) before the full suite —
+only it (`patch --exclusive -e "Name"`, see [CLI patching](cli.md#canonical-flows-this-repo)) before the full suite —
 a fingerprint failure elsewhere won't mask your result that way.
 
 Work on `dev`, merge (no squash) to `main` for stable releases; `feat:`/`fix:`/`chore:`

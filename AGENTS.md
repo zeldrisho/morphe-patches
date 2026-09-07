@@ -37,6 +37,7 @@
 | ---- | ---- |
 | User setup / patch list | `README.md` |
 | Host setup (Fedora WSL + macOS installs) | `docs/toolchain.md` |
+| CLI patching (Desktop JAR flags, repatch flows, signing) | `docs/cli.md` |
 | Development entry + reading order | `docs/development.md` |
 | Patch/extension structure | `docs/architecture.md` |
 | Finding targets (recon→hunt) | `docs/reverse-engineering.md` |
