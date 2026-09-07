@@ -13,6 +13,10 @@ import java.io.File
 import java.net.URLClassLoader
 import java.util.jar.Manifest
 
+/**
+ * Entry point for generating patches-list.json from the compiled patch bundle.
+ * Reads the .mpp bundle from build/libs/, extracts patch metadata, and writes patches-list.json.
+ */
 fun main() {
     val patchFiles = setOf(
         File("build/libs/").listFiles { file ->
@@ -36,6 +40,11 @@ fun main() {
     }
 }
 
+/**
+ * Generates the patches-list.json file from a set of loaded patches.
+ * @param version The patch bundle version string from the manifest.
+ * @param patches The set of patches loaded from the bundle JAR.
+ */
 @Suppress("DEPRECATION")
 private fun generatePatchList(version: String, patches: Set<Patch<*>>) {
     val listJson = File("../patches-list.json")

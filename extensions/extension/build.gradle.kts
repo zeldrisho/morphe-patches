@@ -3,5 +3,9 @@ extension {
 }
 
 android {
-    namespace = "app.template.extension"
+    namespace = "com.zeldrisho.threads.extension"
+}
+
+dependencies {
+    testImplementation(libs.junit)
 }
