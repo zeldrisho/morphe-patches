@@ -86,7 +86,10 @@ via `GITHUB_REPO`), runs `options-create`, applies `APP_NAME` /
 `PACKAGE_NAME` into the options JSON (rename patches only), then `patch -p`
 with `--options-file`, `-o`, `-t`, and `--keystore*`. Env overrides:
 `APP_NAME PACKAGE_NAME MPP KEYSTORE KEYSTORE_ALIAS KEYSTORE_PASSWORD
-KEYSTORE_ENTRY_PASSWORD MORPHE_CLI GITHUB_REPO`.
+KEYSTORE_ENTRY_PASSWORD MORPHE_CLI VERIFY_SDK GITHUB_REPO`.
+`VERIFY_SDK` is opt-in SDK verification: `1` uses SDK discovery, a path value
+passes `--verify-with-sdk=<path>` (required release-QA step; see
+[QA checklist](qa-checklist.md#re-patch--install)).
 
 Raw equivalents when the helper hides what you need:
 

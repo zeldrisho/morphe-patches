@@ -26,14 +26,15 @@ class FingerprintSurfaceTest {
     }
 
     /**
-     * Verify that injected move instructions stay within v0-v15 or use from16 for higher registers.
+     * Verify that injected move instructions follow instruction encodings.
      */
-    @Test fun injectedMovesStayInV0V15() {
-        // morphe snippet injection only accepts registers v0-v15; the helpers
-        // must emit the from16 form once the list register exceeds v15.
+    @Test fun injectedMovesFollowEncodings() {
+        // move-object has 4-bit operands; from16 extends the range, and stores
+        // above v255 need move-object/16 (from16 has an 8-bit destination).
         assertTrue(feedListLoadMove(15).startsWith("move-object v0,"), "v15 uses plain move")
         assertTrue(feedListLoadMove(16).contains("from16"), "v16 needs from16")
         assertTrue(feedListStoreMove(16).contains("from16"), "store mirrors load")
+        assertEquals("move-object/16 v256, v0", feedListStoreMove(256))
     }
 
     /**

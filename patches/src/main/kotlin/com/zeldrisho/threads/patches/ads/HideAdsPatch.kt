@@ -2,6 +2,7 @@ package com.zeldrisho.threads.patches.ads
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_THREADS
 
 /**
@@ -42,21 +43,26 @@ val hideAdsPatch = bytecodePatch(
     execute {
         validateFeedReflectionContract { classDefByOrNull(it) }
         val method = FeedMergeMethod.matchAll(1..1).single().method
-        val impl = method.implementation
-            ?: error("BarcelonaFeedCache.A0F has no implementation")
-        // A0F(this, LX/9aR, Integer, String, String, List, LX/2uI, Function3, Z):
-        // 9 params including `this`; the feed list is param index 5 (p5).
-        val listReg = feedListRegister(impl.registerCount)
-        val loadMove = feedListLoadMove(listReg)
-        val storeMove = feedListStoreMove(listReg)
-        method.addInstructions(
-            0,
-            """
-                $loadMove
-                invoke-static {v0}, Lcom/zeldrisho/threads/extension/FeedAdFilter;->filterAds(Ljava/util/List;)Ljava/util/List;
-                move-result-object v0
-                $storeMove
-            """,
-        )
+        injectFeedAdFilter(method)
     }
+}
+
+/** Injects the production hook; the caller must first validate the target and reflection ABI. */
+internal fun injectFeedAdFilter(method: MutableMethod) {
+    val impl = method.implementation
+        ?: error("BarcelonaFeedCache.A0F has no implementation")
+    // A0F(this, LX/9aR, Integer, String, String, List, LX/2uI, Function3, Z):
+    // 9 params including `this`; the feed list is param index 5 (p5).
+    val listReg = feedListRegister(impl.registerCount)
+    val loadMove = feedListLoadMove(listReg)
+    val storeMove = feedListStoreMove(listReg)
+    method.addInstructions(
+        0,
+        """
+            $loadMove
+            invoke-static {v0}, Lcom/zeldrisho/threads/extension/FeedAdFilter;->filterAds(Ljava/util/List;)Ljava/util/List;
+            move-result-object v0
+            $storeMove
+        """,
+    )
 }

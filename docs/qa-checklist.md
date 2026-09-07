@@ -40,6 +40,18 @@ MPP="patches/build/libs/patches-<version>.mpp" \
 adb install -r /tmp/threads_patched.apk
 ```
 
+Release QA must include one SDK-verified re-patch (compilation alone only
+proves the toolchain ran; the patcher verifier defaults to existence checks):
+
+```bash
+MPP="patches/build/libs/patches-<version>.mpp" VERIFY_SDK=1 \
+  bash scripts/repatch.sh /path/to/threads.apkm /tmp/threads_verified.apk
+```
+
+`VERIFY_SDK=1` uses `$ANDROID_HOME` → `$ANDROID_SDK_ROOT` → OS-default SDK
+discovery; pass `VERIFY_SDK=/path/to/sdk` to pin a specific SDK. Record the
+verification result alongside the bundle/input hashes.
+
 Record the input APK version/code and hash, bundle path/hash, enabled patches,
 package ID, device/Android version, and signing certificate fingerprint (never
 passwords). Multiple local bundles can exist; do not assume the helper selected

@@ -15,6 +15,10 @@
 #   KEYSTORE_ENTRY_PASSWORD -> key entry password (default: CLI default; flag omitted)
 #   MORPHE_CLI     -> Morphe Desktop all.jar (local alias: ~/.local/bin/morphe-cli.jar)
 #                    See docs/toolchain.md; this must be a JAR, not a wrapper.
+#   VERIFY_SDK     -> opt-in DEX/APK verification: 1 uses SDK discovery
+#                    ($ANDROID_HOME -> $ANDROID_SDK_ROOT -> OS default),
+#                    any other value is passed as --verify-with-sdk=<path>.
+#                    Empty/0/false disables verification (default).
 #   GITHUB_REPO    -> owner/repo used when downloading the latest release bundle
 set -euo pipefail
 
@@ -86,8 +90,14 @@ PY
 KEYSTORE_ARGS=(--keystore="$KEYSTORE" --keystore-entry-alias="${KEYSTORE_ALIAS:-Morphe}")
 [[ -n "${KEYSTORE_PASSWORD:-}" ]] && KEYSTORE_ARGS+=(--keystore-password="$KEYSTORE_PASSWORD")
 [[ -n "${KEYSTORE_ENTRY_PASSWORD:-}" ]] && KEYSTORE_ARGS+=(--keystore-entry-password="$KEYSTORE_ENTRY_PASSWORD")
+VERIFY_ARGS=()
+case "${VERIFY_SDK:-}" in
+    ""|0|false|no) ;;
+    1|true|yes) VERIFY_ARGS+=(--verify-with-sdk) ;;
+    *) VERIFY_ARGS+=(--verify-with-sdk="$VERIFY_SDK") ;;
+esac
 echo "Patching '$INPUT' -> '$OUT'"
-java -jar "$CLI" patch -p "$MPP" --options-file "$OPTS" "${KEYSTORE_ARGS[@]}" \
+java -jar "$CLI" patch -p "$MPP" --options-file "$OPTS" "${KEYSTORE_ARGS[@]}" "${VERIFY_ARGS[@]}" \
     -o "$OUT" -t "$TMP/patch" "$INPUT"
 
 echo
