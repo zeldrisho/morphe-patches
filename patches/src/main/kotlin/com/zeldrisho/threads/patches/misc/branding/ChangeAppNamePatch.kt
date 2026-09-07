@@ -3,9 +3,6 @@ package com.zeldrisho.threads.patches.misc.branding
 import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_THREADS
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.patch.stringOption
-import org.w3c.dom.Element
-
-private const val LAUNCHER_ACTIVITY = "com.instagram.barcelona.mainactivity.BarcelonaActivity"
 
 @Suppress("unused")
 val changeAppNamePatch = resourcePatch(
@@ -26,20 +23,7 @@ val changeAppNamePatch = resourcePatch(
 
     execute {
         document("AndroidManifest.xml").use { document ->
-            val newName = appName!!
-
-            // Override the <application> label.
-            val application = document.getElementsByTagName("application").item(0) as Element
-            application.setAttribute("android:label", newName)
-
-            // Override the launcher activity label so the home screen shows the new name.
-            val activities = document.getElementsByTagName("activity")
-            for (i in 0 until activities.length) {
-                val activity = activities.item(i) as Element
-                if (activity.getAttribute("android:name") == LAUNCHER_ACTIVITY) {
-                    activity.setAttribute("android:label", newName)
-                }
-            }
+            applyAppName(document, appName!!)
         }
     }
 }

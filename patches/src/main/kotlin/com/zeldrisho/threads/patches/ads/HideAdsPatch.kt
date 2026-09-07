@@ -47,17 +47,9 @@ val hideAdsPatch = bytecodePatch(
             ?: error("BarcelonaFeedCache.A0F has no implementation")
         // A0F(this, LX/9aR, Integer, String, String, List, LX/2uI, Function3, Z):
         // 9 params including `this`; the feed list is param index 5 (p5).
-        val listReg = impl.registerCount - 9 + 5
-        val loadMove = if (listReg <= 15) {
-            "move-object v0, v$listReg"
-        } else {
-            "move-object/from16 v0, v$listReg"
-        }
-        val storeMove = if (listReg <= 15) {
-            "move-object v$listReg, v0"
-        } else {
-            "move-object/from16 v$listReg, v0"
-        }
+        val listReg = feedListRegister(impl.registerCount)
+        val loadMove = feedListLoadMove(listReg)
+        val storeMove = feedListStoreMove(listReg)
         method.addInstructions(
             0,
             """

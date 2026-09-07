@@ -20,6 +20,8 @@ val patchListGeneratorClasspath = configurations.create("patchListGeneratorClass
 dependencies {
     compileOnly(libs.gson)
     patchListGeneratorClasspath(libs.gson)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
 }
 
 tasks {

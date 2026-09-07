@@ -32,7 +32,12 @@ command -v java >/dev/null 2>&1 || die "java not found"
 
 # ---------- Locate the .mpp patch bundle ----------
 # Prefer a locally built bundle; otherwise download the latest GitHub release asset.
-MPP="${MPP:-$(ls -t "$PROJECT_DIR"/patches/build/libs/patches-*.mpp 2>/dev/null | grep -vE 'sources|javadoc' | head -1 || true)}"
+if [[ -z "${MPP:-}" ]]; then
+  MPP="$(for f in "$PROJECT_DIR"/patches/build/libs/patches-*.mpp; do
+    [[ -e "$f" ]] || continue
+    case "$f" in *sources*|*javadoc*) continue;; *) printf '%s\n' "$f";; esac
+  done | head -1 || true)"
+fi
 if [[ -z "$MPP" ]]; then
   [[ -n "$GITHUB_REPO" ]] || die "no local .mpp found; set MPP= or GITHUB_REPO=owner/repo"
   echo "No local .mpp found. Downloading the latest release bundle..."

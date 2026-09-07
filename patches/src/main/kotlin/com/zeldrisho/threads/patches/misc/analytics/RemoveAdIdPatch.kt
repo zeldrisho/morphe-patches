@@ -2,7 +2,6 @@ package com.zeldrisho.threads.patches.misc.analytics
 
 import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_THREADS
 import app.morphe.patcher.patch.resourcePatch
-import org.w3c.dom.Element
 
 /**
  * Advertising-id permissions to strip so no component (the Play Services measurement SDK, Meta ad
@@ -13,11 +12,6 @@ import org.w3c.dom.Element
  * AD_ID permissions. Core Meta telemetry is not disabled here (doing so reliably is high-risk and
  * out of scope).
  */
-private val AD_ID_PERMISSIONS = setOf(
-    "com.google.android.gms.permission.AD_ID",
-    "android.permission.ACCESS_ADSERVICES_AD_ID",
-)
-
 @Suppress("unused")
 val removeAdIdPatch = resourcePatch(
     name = "Remove AD_ID permission",
@@ -29,16 +23,7 @@ val removeAdIdPatch = resourcePatch(
 
     execute {
         document("AndroidManifest.xml").use { document ->
-            // Iterate over a snapshot since removeChild mutates the live NodeList.
-            val permissionNodes = document.getElementsByTagName("uses-permission")
-            val toRemove = ArrayList<Element>()
-            for (i in 0 until permissionNodes.length) {
-                val element = permissionNodes.item(i) as Element
-                if (element.getAttribute("android:name") in AD_ID_PERMISSIONS) {
-                    toRemove.add(element)
-                }
-            }
-            toRemove.forEach { it.parentNode.removeChild(it) }
+            stripAdIdPermissions(document)
         }
     }
 }

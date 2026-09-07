@@ -5,3 +5,7 @@ extension {
 android {
     namespace = "app.template.extension"
 }
+
+dependencies {
+    testImplementation(libs.junit)
+}
