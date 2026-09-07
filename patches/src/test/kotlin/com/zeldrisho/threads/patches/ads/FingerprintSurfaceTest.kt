@@ -8,12 +8,9 @@ import kotlin.test.assertTrue
 /**
  * Guards the R8-obfuscated fingerprint surface Hide-ads depends on.
  *
- * These names drift on nearly every Meta release (see lessons-learned.md), so
- * this test pins the CURRENT contract in one place: if Threads renames
- * BarcelonaFeedCache.A0F, Media.DED, or the A05/A02/Ckh/CDh reflection chain,
- * the failure message tells the next person exactly what to re-hunt
- * (docs/reverse-engineering.md + docs/qa-checklist.md §4) instead of shipping
- * a silently dead filter.
+ * These tests guard compatibility metadata and register math, not an APK's
+ * contents. FeedTargetTest exercises real fingerprint matching and reflection
+ * ABI validation; its optional local APK test detects drift in the pinned input.
  */
 class FingerprintSurfaceTest {
 
@@ -48,17 +45,5 @@ class FingerprintSurfaceTest {
         val versions = compat.targets.map { it.version }
         assertTrue("434.0.0.41.74" in versions, "Threads target must stay pinned, found: $versions")
         assertEquals(510406926, Constants.TESTED_VERSION_CODE, "tested versionCode must be recorded")
-    }
-
-    /**
-     * Document the obfuscated reflection chain (DED, A05, A02, Ckh, CDh) so renames are caught early.
-     */
-    @Test fun reflectionChainIsDocumented() {
-        // The extension resolves these obfuscated members via reflection
-        // (FeedAdFilter.java). Listed here so a rename shows up as a hunt list,
-        // not tribal knowledge: direct DED(), media A05()->DED(), thread
-        // A02()->Ckh()->CDh()->DED().
-        val members = setOf("DED", "A05", "A02", "Ckh", "CDh")
-        assertEquals(5, members.size, "reflection chain: $members")
     }
 }

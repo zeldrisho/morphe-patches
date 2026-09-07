@@ -24,6 +24,16 @@ dependencies {
 }
 
 tasks {
+    test {
+        // Make opt-in local APK validation cache-correct; CI uses synthetic fixtures.
+        val apkPath = providers.environmentVariable("THREADS_TEST_APK").orNull.orEmpty()
+        inputs.property("threadsTestApk", apkPath)
+        if (apkPath.isNotBlank()) {
+            inputs.file(rootProject.file(apkPath)).withPropertyName("threadsTestApkFile")
+            environment("THREADS_TEST_APK", rootProject.file(apkPath).absolutePath)
+        }
+    }
+
     // The extension module build only produces
     // extensions/extension/build/morphe/extensions/extension.mpe, but the
     // Hide-ads patch resolves extendWith("extensions/extension.mpe") relative

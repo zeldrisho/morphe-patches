@@ -23,7 +23,9 @@ patches/src/main/kotlin/com/zeldrisho/threads/patches/
 ├── shared/Constants.kt          # Compatibility records (package, file type, versions)
 ├── ads/
 │   ├── FeedMergeRegisters.kt    # Register helpers
-│   └── HideAdsPatch.kt          # Patch and named fingerprint
+│   ├── FeedReflectionContract.kt # Patch-time reflection ABI validation
+│   ├── Fingerprints.kt         # Structural feed-merge fingerprint
+│   └── HideAdsPatch.kt         # Injection
 └── misc/
     ├── analytics/
     ├── branding/

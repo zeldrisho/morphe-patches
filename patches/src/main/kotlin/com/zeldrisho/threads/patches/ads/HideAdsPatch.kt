@@ -1,10 +1,8 @@
 package com.zeldrisho.threads.patches.ads
 
 import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_THREADS
-import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
-import com.android.tools.smali.dexlib2.AccessFlags
 
 /**
  * Hides sponsored posts from the Threads feed.
@@ -42,7 +40,8 @@ val hideAdsPatch = bytecodePatch(
     extendWith("extensions/extension.mpe")
 
     execute {
-        val method = FeedMergeMethod.method
+        validateFeedReflectionContract { classDefByOrNull(it) }
+        val method = FeedMergeMethod.matchAll(1..1).single().method
         val impl = method.implementation
             ?: error("BarcelonaFeedCache.A0F has no implementation")
         // A0F(this, LX/9aR, Integer, String, String, List, LX/2uI, Function3, Z):
@@ -61,11 +60,3 @@ val hideAdsPatch = bytecodePatch(
         )
     }
 }
-
-private object FeedMergeMethod : Fingerprint(
-    name = "A0F",
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
-    returnType = "Ljava/lang/Object;",
-    parameters = listOf("LX/9aR;", "Ljava/lang/Integer;", "Ljava/lang/String;", "Ljava/lang/String;", "Ljava/util/List;", "LX/2uI;", "Lkotlin/jvm/functions/Function3;", "Z"),
-    definingClass = "Lcom/instagram/barcelona/feed/data/cache/BarcelonaFeedCache;",
-)

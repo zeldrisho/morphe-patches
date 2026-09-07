@@ -4,7 +4,7 @@ Practical reference for writing fingerprints and bytecode patches in this repo.
 See the [reverse engineering workflow](reverse-engineering.md) for how to find targets,
 [architecture](architecture.md) for module layout, and
 `patches/src/main/kotlin/com/zeldrisho/threads/patches/ads/HideAdsPatch.kt`
-for the Threads patch and fingerprint example.
+for the Threads patch; `ads/Fingerprints.kt` contains its fingerprint.
 
 ## Rules
 
@@ -13,7 +13,7 @@ Policy first, exception second:
 - **Prefer stable anchors** (SDK calls, strings, opcodes, signatures) over
   obfuscated app names (`a`, `b`, `H`, …), which change nearly every release.
 - **Version-pinned exception:** when no stable anchor uniquely identifies a
-  heavily obfuscated target (as with the Threads `FeedMergeMethod`), matching on
+  heavily obfuscated target (as with the Threads reflection ABI), matching on
   the obfuscated class/method shape is acceptable **only** with an exact pinned
   `AppTarget` version plus the tested `versionCode`, a loud drift test, and a
   documented re-hunt path. See [patch development](patch-development.md#file-layout).
@@ -25,6 +25,20 @@ Policy first, exception second:
 - **Declare fingerprints as named `object`s** so match failures print a useful name.
 - When editing several instructions in one method, work **last index first** (or
   re-match after each edit) so earlier edits don't shift later indices.
+
+## Threads feed targeting
+
+`FeedMergeMethod` matches the named cache class, parameter shape (List at p5),
+and construction of `BarcelonaFeedCache$addAndSaveItemsFromFeedFetchSuccess$2$1`.
+The pinned APK resolves this to `A0F`; the fingerprint does not require that R8
+name or its obfuscated parameter descriptors. Patching requires exactly one match.
+
+`FeedReflectionContract.kt` separately checks the public no-argument instance
+members used by `FeedAdFilter`, including return types. Missing members abort
+patching with a re-hunt message; unexpected runtime objects still fail open.
+This validates the ABI, not the meaning of `DED()` or actual ad removal. Keep
+the exact version restriction and device QA. Local DEX verification is described
+in the [QA checklist](qa-checklist.md#build).
 
 ## Fingerprint declaration
 
