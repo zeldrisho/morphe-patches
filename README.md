@@ -17,7 +17,7 @@ Or add the source URL manually in Morphe Manager → Sources.
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.3](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.0.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;4 patches total
+> **[v1.0.0-dev.4](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.0.0-dev.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;4 patches total
 <details open>
 <summary>📦 Threads&nbsp;&nbsp;•&nbsp;&nbsp;4 patches</summary>
 <br>

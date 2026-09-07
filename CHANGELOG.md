@@ -1,3 +1,9 @@
+## [1.0.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.3...v1.0.0-dev.4) (2026-09-07)
+
+### 🐛 Bug Fixes
+
+* **scripts:** Repair repatch CLI options and signing overrides ([ca923f9](https://github.com/zeldrisho/morphe-patches/commit/ca923f9b1220e64cd9740d639ea0836fd5fd4c60))
+
 ## [1.0.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-09-07)
 
 ### 🐛 Bug Fixes
