@@ -225,7 +225,7 @@ apktool --version
 shellcheck scripts/*.sh
 actionlint
 python3 -m unittest discover -s scripts/tests
-uvx --from pre-commit==4.6.2 pre-commit run --all-files
+uvx --from pre-commit==4.6.2 --with shellcheck-py==0.11.0.1 pre-commit run --all-files
 ./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
 ```
 

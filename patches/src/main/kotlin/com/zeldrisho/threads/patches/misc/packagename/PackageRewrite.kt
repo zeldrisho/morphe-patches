@@ -29,7 +29,9 @@ fun rewritePackage(document: org.w3c.dom.Document, newPackage: String) {
         // Each authority is independent. Preserve third-party names and resource
         // references; only rewrite our package prefix, never occurrences in a suffix.
         val rewritten = authorities.split(';').joinToString(";") { authority ->
-            if (authority.startsWith("$ORIGINAL_PACKAGE.")) {
+            if (authority == ORIGINAL_PACKAGE) {
+                newPackage
+            } else if (authority.startsWith("$ORIGINAL_PACKAGE.")) {
                 authority.replaceFirst("$ORIGINAL_PACKAGE.", "$newPackage.")
             } else {
                 authority

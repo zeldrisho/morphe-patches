@@ -57,7 +57,7 @@ public final class ThreadsPatchHelper {
   /** Sets window flags minus FLAG_SECURE (mask included) for the same reason. */
   public static void setWindowFlags(Window window, int flags, int mask) {
     if (window != null) {
-      window.setFlags(flags & ~FLAG_SECURE, mask & ~FLAG_SECURE);
+      window.setFlags(flags & ~FLAG_SECURE, mask | FLAG_SECURE);
     }
   }
 

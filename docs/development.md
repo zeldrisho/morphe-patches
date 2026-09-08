@@ -37,7 +37,7 @@ build/test loop, troubleshooting) — nothing patch-specific lives here by desig
 Canonical local verification (bash):
 
 ```bash
-uvx --from pre-commit==4.6.2 pre-commit run --all-files --show-diff-on-failure
+uvx --from pre-commit==4.6.2 --with shellcheck-py==0.11.0.1 pre-commit run --all-files --show-diff-on-failure
 ./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
 ```
 

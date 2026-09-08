@@ -95,6 +95,20 @@ class PackageRewriteTest {
         )
     }
 
+    @Test fun rewritesAuthorityEqualToOriginalPackage() {
+        val doc = manifest(
+            extra = """
+            <provider android:authorities="com.instagram.barcelona"/>
+            <provider android:authorities="com.instagram.barcelona;com.instagram.barcelona.files"/>
+        """,
+        )
+        rewritePackage(doc, "example.clone")
+        assertEquals(
+            listOf("example.clone", "example.clone;example.clone.files"),
+            attr(doc, "provider", "android:authorities").takeLast(2),
+        )
+    }
+
     @Test fun rewritesCustomPermissionsForShorterPackageName() {
         val newPackage = "com.instagram"
         assertTrue(isValidPackageName(newPackage))

@@ -56,7 +56,7 @@ with no `*` bullets.
    and pushes it to `main`, so Manager readers serve the new build.
    This happens only after the download exists.
 
-Retrying a tag push resumes the same release. Never move a published tag or
+To retry a failed run, use the Actions "Re-run jobs" control or `gh run rerun <run-id>` for the tag's run — re-pushing an existing tag does not start a new run (`push.tags` fires only on a new ref update). Never move a published tag or
 replace a published asset — fix forward with a new version instead.
 
 ## Changelog policy
@@ -84,7 +84,7 @@ release notes and the `patches-bundle.json` description are the same section.
 
 - A failed run may already have created the release or pushed a manifest
   commit. Inspect remote state (`gh release view`, `git ls-remote`) before
-  retrying; re-pushing the tag resumes safely.
+  retrying; re-running the failed run resumes safely (it reuses the existing release and uploads a missing asset).
 - Do not delete/repoint published tags or force-push release history.
 - Verify publication directly; a green workflow does not by itself prove an
   artifact published.

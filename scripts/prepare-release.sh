@@ -71,7 +71,7 @@ if not re.search(r"^\* ", body, re.MULTILINE):
     sys.exit("## Unreleased has no '*' bullets — add the app patch changes first")
 rest = section[next_heading.start() if next_heading else len(section):]
 open(path, "w", encoding="utf-8").write(
-    text[: match.start()] + f"## {version} ({today})\n" + body.rstrip("\n") + "\n\n" + rest.lstrip("\n")
+    text[: match.start()] + "## Unreleased\n\n" + f"## {version} ({today})\n" + body.rstrip("\n") + "\n\n" + rest.lstrip("\n")
 )
 PY
 [[ -n "$(git diff -- CHANGELOG.md)" ]] || die "CHANGELOG promotion produced no change"
