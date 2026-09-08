@@ -92,8 +92,8 @@ KEYSTORE_ARGS=(--keystore="$KEYSTORE" --keystore-entry-alias="${KEYSTORE_ALIAS:-
 [[ -n "${KEYSTORE_ENTRY_PASSWORD:-}" ]] && KEYSTORE_ARGS+=(--keystore-entry-password="$KEYSTORE_ENTRY_PASSWORD")
 VERIFY_ARGS=()
 case "${VERIFY_SDK:-}" in
-    ""|0|false|no) ;;
-    1|true|yes) VERIFY_ARGS+=(--verify-with-sdk) ;;
+    "" | 0 | false | no) ;;
+    1 | true | yes) VERIFY_ARGS+=(--verify-with-sdk) ;;
     *) VERIFY_ARGS+=(--verify-with-sdk="$VERIFY_SDK") ;;
 esac
 echo "Patching '$INPUT' -> '$OUT'"

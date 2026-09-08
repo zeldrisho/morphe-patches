@@ -19,10 +19,22 @@ VERSION="${1:?Usage: scripts/prepare-release.sh <X.Y.Z>}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_DIR"
 
-[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "❌ Version must be X.Y.Z (got '$VERSION')" >&2; exit 1; }
-[[ "$(git rev-parse --abbrev-ref HEAD)" == "main" ]] || { echo "❌ Run on main (see docs/release.md)" >&2; exit 1; }
-if ! git diff --quiet || ! git diff --cached --quiet; then echo "❌ Working tree is dirty" >&2; exit 1; fi
-if git rev-parse "v$VERSION" >/dev/null 2>&1; then echo "❌ Tag v$VERSION already exists" >&2; exit 1; fi
+[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+    echo "❌ Version must be X.Y.Z (got '$VERSION')" >&2
+    exit 1
+}
+[[ "$(git rev-parse --abbrev-ref HEAD)" == "main" ]] || {
+    echo "❌ Run on main (see docs/release.md)" >&2
+    exit 1
+}
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "❌ Working tree is dirty" >&2
+    exit 1
+fi
+if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+    echo "❌ Tag v$VERSION already exists" >&2
+    exit 1
+fi
 
 REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || git remote get-url origin | sed -E 's#.*github\.com[:/]([^/]+/[^/]+?)(\.git)?$#\1#')"
 TODAY="$(date +%F)"
