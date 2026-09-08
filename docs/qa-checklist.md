@@ -11,9 +11,10 @@ Needs `adb` plus the APK pinned in `shared/Constants.kt` (currently Threads
 
 ```bash
 ./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
-shellcheck scripts/*.sh
 python3 -m unittest discover -s scripts/tests -v  # offline helper regression tests
 ```
+
+Shell/shfmt/workflow lint is already covered by the `pre-commit` gate in Verify — do not re-run `shellcheck`/`actionlint` standalone here.
 
 The `.mpp` lands in `patches/build/libs/patches-*.mpp`. Successful Check workflow
 runs also retain a `patches-<sha>-<attempt>` artifact for seven days. Record the
