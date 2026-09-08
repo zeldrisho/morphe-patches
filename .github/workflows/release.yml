@@ -2,7 +2,7 @@ name: Release
 
 # Stable-only releases. Push an annotated version tag on main and this
 # workflow tests, builds, and publishes the GitHub release, then points
-# patches-bundle.json (main and dev) at the new download.
+# patches-bundle.json (main) at the new download.
 #
 #   git checkout main && git pull
 #   bash scripts/prepare-release.sh 1.2.0
@@ -115,10 +115,10 @@ jobs:
           subject-name: 'Morphe Patches ${{ github.ref_name }}'
           subject-path: ${{ env.MPP }}
 
-      # Only now is the download known to exist: point both branch manifests
-      # at it so stable and prerelease-channel readers serve the same build.
+      # Only now is the download known to exist: point the main manifest
+      # at it so Manager readers serve the new build.
       # Never move the tag or replace the published asset — retry instead.
-      - name: Point branch manifests at the release
+      - name: Point main manifest at the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
@@ -126,10 +126,9 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          for BRANCH in main dev; do
-            git fetch origin "$BRANCH" --quiet
-            git checkout -B "$BRANCH" "origin/$BRANCH"
-            python3 - "$TAG" <<'PY'
+          git fetch origin main --quiet
+          git checkout -B main origin/main
+          python3 - "$TAG" <<'PY'
           import datetime, json, sys
           tag = sys.argv[1]
           version = tag.removeprefix("v")
@@ -145,11 +144,10 @@ jobs:
           json.dump(data, open("patches-bundle.json", "w", encoding="utf-8"), indent=2)
           open("patches-bundle.json", "a", encoding="utf-8").write("\n")
           PY
-            git add patches-bundle.json
-            if git diff --cached --quiet; then
-              echo "$BRANCH manifest already current."
-            else
-              git commit -m "Release $TAG [skip ci]" patches-bundle.json
-            fi
-          done
-          git push origin main dev
+          git add patches-bundle.json
+          if git diff --cached --quiet; then
+            echo "main manifest already current."
+          else
+            git commit -m "Release $TAG [skip ci]" patches-bundle.json
+          fi
+          git push origin main

@@ -53,8 +53,8 @@ with no `*` bullets.
    A retry reuses the existing release and uploads a missing asset instead
    of failing. `attest-build-provenance` attests the bundle.
 4. Writes `patches-bundle.json` (version, notes as description, download URL)
-   and pushes it to `main` **and** `dev`, so both Manager channels serve the
-   same stable build. This happens only after the download exists.
+   and pushes it to `main`, so Manager readers serve the new build.
+   This happens only after the download exists.
 
 Retrying a tag push resumes the same release. Never move a published tag or
 replace a published asset — fix forward with a new version instead.
