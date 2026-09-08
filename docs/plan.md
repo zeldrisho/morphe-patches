@@ -4,17 +4,16 @@ Only outstanding actions. Procedure details live in the linked docs.
 
 ## Finish release QA
 
-Run the [QA checklist](qa-checklist.md) end to end:
-
-- [ ] Recover the installed APK's input/bundle hashes and enabled options, or
-      re-patch and sign with an explicitly selected bundle and default-on
-      options. Verify login on that exact build.
-- [ ] Establish actual sponsored-unit removal with controlled comparison or
-      runtime filtering evidence, plus visual confirmation of gap-free content;
-      label absence and clean scrolling alone are insufficient.
-- [ ] Test the opt-in renamed package alongside **stock-signed** Threads,
-      including launch/login checks. Obtain the stock APK and approval before
-      replacing a differently signed install.
+- [ ] Re-run the complete device QA checklist for the supported 434 and 445
+      versions, including repeated refresh/pagination, video playback, crash
+      comparison, and sanitized evidence/provenance in the release record.
+- [ ] Resolve or document the SDK verifier failure observed while patching 445
+      (`SdkDexVerifier`/D8 NPE), then complete one successful SDK-verified
+      re-patch as required by the QA checklist.
+- [ ] Decide whether renamed-package support should remain documented as
+      best-effort only: the 445 renamed build crashed during first-feed loading,
+      while the original-package build worked. Do not promise coexistence until
+      it is independently verified with stock-signed Threads.
 
 ## Release
 

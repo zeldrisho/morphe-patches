@@ -42,6 +42,14 @@ Hunt and authoring owners: [hunt targets](reverse-engineering.md#hunt-targets),
 | Never edit a large shared dispatcher to suppress one caller: patching the shared `refreshForRevisit` itself caused `VerifyError` crashes on some devices. Neutralize the specific callsites instead (const-overwrite the triggering registers before the invoke) and leave the shared method stock. | Froggo Facebook 573 refresh patch: touching the big shared method crashed devices; per-callsite guards in `NewsFeedFragment` worked. |
 | Never remove an ad provider — filter its output. Deleting the Story-ads provider broke its lifecycle and cold-start logging showed the first Story failing before provider init. Let the provider run stock, then strip ad items from its returned collection at the return boundary. | Froggo Facebook 573 Story-ads patch: provider removal broke cold start; return-value filtering (`instanceof` strip) kept lifecycle intact. |
 
+## App identity, compatibility, and device testing
+
+| Observation | Why it matters |
+| ---- | ---- |
+| Meta apps may depend on their original package identity even when a resource patch successfully rewrites the manifest. | Threads 445 launched and logged in with `com.instagram.barcelona`, but the renamed `com.instagram.barcelona.morphe.test` build crashed when the first feed loaded (`PostLiveMetricsRepository` NPE). Treat package renaming as best-effort; verify login and feed behavior separately. |
+| A Work Profile can isolate app data and install a second copy, but it does not make a differently signed APK with the original package coexist reliably with the stock APK. | Shelter is useful for data isolation, not for bypassing Android package/signature rules. Use an emulator or spare device for original-package testing. |
+| A successful patch run is not runtime proof; test the exact APK installed on the device and retain its input/bundle hashes, options, package ID, and certificate fingerprint. | The 445 build patched successfully and removed visible ads, while the renamed variant failed at runtime; patch-time success alone would not distinguish those outcomes. |
+
 ## TV / ABI / install issues
 
 Device procedure owner: [QA checklist](qa-checklist.md).

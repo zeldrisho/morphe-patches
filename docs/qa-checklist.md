@@ -3,9 +3,10 @@
 Canonical repeatable device procedure. Other docs link here; they do not restate it.
 Manual E2E — run on a **throwaway account** (re-signed build + VPN/proxy on a
 real account = ban risk, see [lessons learned](lessons-learned.md#what-is-and-isnt-patchable)).
-Needs `adb` plus the APK pinned in `shared/Constants.kt` (currently Threads
-`434.0.0.41.74` / `TESTED_VERSION_CODE 510406926` unless re-fingerprinting —
-`Constants.kt` is the source of truth, not this checklist).
+Needs `adb` plus the APKs pinned in `shared/Constants.kt` (currently Threads
+`434.0.0.41.74` / `TESTED_VERSION_CODE 510406926` and `445.0.0.46.83` /
+`TESTED_VERSION_CODE_445 511507647` unless re-fingerprinting — `Constants.kt`
+is the source of truth, not this checklist).
 
 ## Build
 
@@ -116,9 +117,12 @@ Do not merge the stable release while required checks remain blocked.
 
 ## Version bump (new Threads release)
 
+For each supported version:
+
 - [ ] Fingerprint `FeedMergeMethod` still resolves to exactly 1 method — 0 or >1
       means R8 drift; re-hunt per the [reverse engineering workflow](reverse-engineering.md#hunt-targets)
-- [ ] Reflection ABI validation passes; re-confirm that `DED()` still identifies
-      sponsored content. A matching method signature alone does not prove semantics.
+- [ ] Reflection ABI validation passes; re-confirm that the version's ad
+      predicate still identifies sponsored content. A matching method signature
+      alone does not prove semantics.
 - [ ] Re-run [Build](#build) through [Feed ad removal](#feed-ad-removal-issue-5-regression)
       on the new version before updating `Constants.kt`
