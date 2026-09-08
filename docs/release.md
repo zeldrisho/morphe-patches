@@ -14,9 +14,7 @@ is fine) — nothing parses them; only pushed tags publish.
 - Collect user-visible app patch changes under `## Unreleased` in
   `CHANGELOG.md` as you go (per-app `**App:**` bullets, see below).
 - `Check` runs on pull requests and pushes to `dev`; `Release` runs only on `v*` tags.
-- When `dev` is stable, merge (no squash) `dev` → `main`.
-  `.github/workflows/open_pull_request.yml` opens that PR automatically on
-  pushes to `dev`.
+- When `dev` is stable, open a PR manually and merge (no squash) `dev` → `main`.
 - Ship from this repo (`dev` → `main` → tag → release). `scripts/repatch.sh`
   defaults `GITHUB_REPO` here. Don't split work across sibling patch repos;
   porting patches between repos duplicates fingerprint maintenance with no benefit.
@@ -109,6 +107,5 @@ release notes and the `patches-bundle.json` description are the same section.
   release is cut.
 - `gradlew` must stay tracked executable (`git update-index --chmod=+x gradlew`);
   `core.fileMode=false` checkouts can silently commit it non-executable (CI exit 126).
-- Requires Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests".
 - `GITHUB_TOKEN` needs `contents:write`, `id-token:write`, `attestations:write`
   (already set in `release.yml`).
