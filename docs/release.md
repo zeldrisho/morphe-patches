@@ -13,7 +13,7 @@ is fine) — nothing parses them; only pushed tags publish.
 - Work on `dev`.
 - Collect user-visible app patch changes under `## Unreleased` in
   `CHANGELOG.md` as you go (per-app `**App:**` bullets, see below).
-- `Check` runs on pull requests; `Release` runs only on `v*` tags.
+- `Check` runs on pull requests and pushes to `dev`; `Release` runs only on `v*` tags.
 - When `dev` is stable, merge (no squash) `dev` → `main`.
   `.github/workflows/open_pull_request.yml` opens that PR automatically on
   pushes to `dev`.
