@@ -53,8 +53,8 @@ the per-update routine lives in the [QA checklist](qa-checklist.md#version-bump-
 ## Generated data flow
 
 1. `./gradlew generatePatchesList` runs `util/PatchListGenerator.kt`, which loads the `.mpp` and writes `patches-list.json`.
-2. Release (`exec` step in `.releaserc`) stamps `version`, then regenerates the `README.md` patch table between `PATCHES_START` / `PATCHES_END`.
-3. `patches-bundle.json` is written by the `@MorpheApp/changelog` plugin with the release download URL.
+2. Release staging (`scripts/prepare-release.sh`) stamps `version`, then regenerates the `README.md` patch table between `PATCHES_START` / `PATCHES_END`.
+3. `patches-bundle.json` is written by `release.yml` after the GitHub release exists, with the release download URL.
 
 `patches-list.json` groups by `compatiblePackages[].packageName`; entries with null compatibility are universal.
 Generated-file ownership and the release pipeline live in the [release process](release.md).

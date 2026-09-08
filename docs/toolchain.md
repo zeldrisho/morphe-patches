@@ -110,10 +110,9 @@ required. `ANDROID_HOME` controls Gradle SDK discovery; PATH controls terminal t
 | `aapt`, `aapt2`, `apksigner`, `zipalign` (`android sdk install build-tools/36.1.0`, or an installed suitable version) | APK metadata and signing/alignment checks |
 | `git`, `curl`, `unzip`, `zip`, `bash`, `fish`, `python3` (host commands in [Python and host tools](#1-python-and-host-tools)) | Host/script prerequisites |
 | Gradle (checked-in `./gradlew`; no separate install) | Build/test bundles and extensions |
-| `vp` / Node.js (see [Repository dependencies](#4-repository-dependencies)) | Release tooling dependencies |
+| `gh`, `jq` (Fedora: `sudo dnf install -y gh jq`; macOS: `brew install gh jq`) | GitHub releases/PRs and JSON |
 | Morphe Desktop CLI/GUI (see [Morphe Desktop is also the CLI](#5-morphe-desktop-is-also-the-cli)) | Apply bundles and sign APKs |
 | `shellcheck`, `actionlint` (`brew install shellcheck actionlint`) | Standalone script/workflow linting; pinned hooks, shfmt, and JVM checks: [code quality](development.md#code-quality) |
-| `gh`, `jq` (Fedora: `sudo dnf install -y gh jq`; macOS: `brew install gh jq`) | GitHub releases/PRs and JSON |
 
 ### Needed only for reverse engineering
 
@@ -159,20 +158,10 @@ use USB with device authorization; WSL USB needs separate Windows-side forwardin
 
 ## 4. Repository dependencies
 
-Install [Vite+](https://viteplus.dev/guide/) and reopen fish:
-
-```bash
-curl -fsSL https://vite.plus -o /tmp/vite-plus-install.sh
-bash /tmp/vite-plus-install.sh
-```
-
-```fish
-vp install
-```
-
-Vite+ manages Node.js and the package manager. Use a GitHub PAT with `read:packages`
-for the Morphe Gradle registry: `GITHUB_ACTOR` / `GITHUB_TOKEN`, or `gpr.user` /
-`gpr.key` in your private `~/.gradle/gradle.properties`. Never commit credentials.
+No JS toolchain is required — releases run on `gh`, `python3`, and `jq`.
+Use a GitHub PAT with `read:packages` for the Morphe Gradle registry:
+`GITHUB_ACTOR` / `GITHUB_TOKEN`, or `gpr.user` / `gpr.key` in your private
+`~/.gradle/gradle.properties`. Never commit credentials.
 
 ## 5. Morphe Desktop is also the CLI
 

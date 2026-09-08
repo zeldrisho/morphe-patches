@@ -44,8 +44,11 @@ uvx --from pre-commit==4.6.2 pre-commit run --all-files --show-diff-on-failure
 The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the
 toolchain works — for the real loop (apply in Morphe Desktop, single-patch
 isolation, troubleshooting) see [patch development](patch-development.md#build-and-test).
-Never hand-edit `patches-list.json`, `patches-bundle.json`, `CHANGELOG.md`, or the
-`gradle.properties` version — the release pipeline owns them (see [release process](release.md)).
+Never hand-edit `patches-list.json`, `patches-bundle.json`, or the
+`gradle.properties` version — release staging and the pipeline own them
+(`scripts/prepare-release.sh` + `release.yml`, see [release process](release.md)).
+In `CHANGELOG.md`, add bullets under `## Unreleased` only; versioned entries
+are promoted by `prepare-release.sh`, never edited by hand.
 
 ## Code quality
 
