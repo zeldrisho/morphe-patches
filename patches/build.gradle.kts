@@ -89,7 +89,6 @@ tasks {
         classpath = sourceSets["main"].runtimeClasspath + patchListGeneratorClasspath
         mainClass.set("util.PatchListGeneratorKt")
     }
-
 }
 
 // The Hide-ads patch loads the companion extension dex via

@@ -48,7 +48,9 @@ private val tryBlocksField: Field? = run {
         .firstOrNull { f ->
             if (!MutableList::class.java.isAssignableFrom(f.type) &&
                 !List::class.java.isAssignableFrom(f.type)
-            ) return@firstOrNull false
+            ) {
+                return@firstOrNull false
+            }
             val generic = f.genericType as? ParameterizedType ?: return@firstOrNull false
             val arg = generic.actualTypeArguments.firstOrNull() ?: return@firstOrNull false
             arg.typeName == BuilderTryBlock::class.java.name ||

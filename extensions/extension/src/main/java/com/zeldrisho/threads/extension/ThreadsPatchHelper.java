@@ -9,12 +9,12 @@ import android.view.Window;
 /**
  * Threads-scoped port of doom-patches' {@code UniversalPatchHelper}.
  *
- * <p>Centralizes the small, app-agnostic runtime guards future Threads patches can delegate to
- * via smali hooks, instead of inlining the same smali in every patch. Only the subset relevant
- * to Threads is ported: Play Integrity bind suppression, FLAG_SECURE stripping (screenshots),
- * and mock-location guards. WebView dark-mode CSS, VPN/proxy hiding, and audio-capture helpers
- * from the upstream file are intentionally omitted — Threads has no WebView-theming patch and
- * adding unused helpers only grows the extension dex.
+ * <p>Centralizes the small, app-agnostic runtime guards future Threads patches can delegate to via
+ * smali hooks, instead of inlining the same smali in every patch. Only the subset relevant to
+ * Threads is ported: Play Integrity bind suppression, FLAG_SECURE stripping (screenshots), and
+ * mock-location guards. WebView dark-mode CSS, VPN/proxy hiding, and audio-capture helpers from the
+ * upstream file are intentionally omitted — Threads has no WebView-theming patch and adding unused
+ * helpers only grows the extension dex.
  *
  * <p>All methods are static, null-tolerant, and swallow nothing the caller needs to see: they
  * return safe fallbacks so a hook degrades to stock behavior rather than crashing the host.
@@ -31,7 +31,8 @@ public final class ThreadsPatchHelper {
    *
    * @return false when the bind was suppressed, otherwise the real {@code bindService} result.
    */
-  public static boolean bindService(Context context, Intent intent, ServiceConnection connection, int flags) {
+  public static boolean bindService(
+      Context context, Intent intent, ServiceConnection connection, int flags) {
     if (intent != null) {
       String text =
           String.valueOf(intent.getAction()).toLowerCase()
@@ -61,7 +62,8 @@ public final class ThreadsPatchHelper {
   }
 
   /** Hides mock-location state from host checks; delegates for every other key. */
-  public static int getSettingsSecureInt(android.content.ContentResolver resolver, String name, int def) {
+  public static int getSettingsSecureInt(
+      android.content.ContentResolver resolver, String name, int def) {
     if ("mock_location".equals(name)) {
       return 0;
     }
@@ -69,7 +71,8 @@ public final class ThreadsPatchHelper {
   }
 
   /** String variant of the mock-location guard above. */
-  public static String getSettingsSecureString(android.content.ContentResolver resolver, String name) {
+  public static String getSettingsSecureString(
+      android.content.ContentResolver resolver, String name) {
     if ("mock_location".equals(name)) {
       return "0";
     }
