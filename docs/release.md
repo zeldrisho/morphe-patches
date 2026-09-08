@@ -10,12 +10,12 @@ is fine) — nothing parses them; only pushed tags publish.
 
 ## Daily flow
 
-- Work on `dev`.
+- Work on a branch.
 - Collect user-visible app patch changes under `## Unreleased` in
   `CHANGELOG.md` as you go (per-app `**App:**` bullets, see below).
-- `Check` runs on pull requests and pushes to `dev`; `Release` runs only on `v*` tags.
-- When `dev` is stable, open a PR manually and merge (no squash) `dev` → `main`.
-- Ship from this repo (`dev` → `main` → tag → release). `scripts/repatch.sh`
+- `Check` runs on pushes and pull requests; `Release` runs only on `v*` tags.
+- When the branch is stable, open a PR manually and merge (no squash) into `main`.
+- Ship from this repo (branch → `main` → tag → release). `scripts/repatch.sh`
   defaults `GITHUB_REPO` here. Don't split work across sibling patch repos;
   porting patches between repos duplicates fingerprint maintenance with no benefit.
 

@@ -3,11 +3,9 @@ name: Check
 on:
   pull_request:
   push:
-    branches:
-      - dev
   workflow_dispatch:
 
-# PRs cover dev → main and feature branches; pushes cover dev; manual runs cover work without a PR.
+# Checks run on pushes and pull requests on any branch, plus manual dispatch.
 concurrency:
   group: check-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true

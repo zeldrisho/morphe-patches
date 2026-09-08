@@ -18,6 +18,6 @@ Run the [QA checklist](qa-checklist.md) end to end:
 
 ## Release
 
-- [ ] After required QA passes, merge (no squash) `dev` → `main`, stage with
+- [ ] After required QA passes, merge (no squash) into `main`, stage with
       `scripts/prepare-release.sh`, and push the version tag for the stable
       release ([release process](release.md)).

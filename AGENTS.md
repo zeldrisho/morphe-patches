@@ -25,7 +25,7 @@
 
 ## Key Conventions
 
-- Work on `dev`; merge (no squash) `dev` → `main`, then stage + tag the release — see `docs/release.md`.
+- Work on a branch; open a PR to `main` and merge (no squash), then stage + tag the release — see `docs/release.md`.
 - Never hand-edit `patches-list.json`, `patches-bundle.json`, `README.md` patch list, `gradle.properties` version.
 - `CHANGELOG.md`: add bullets under `## Unreleased` only; never touch versioned entries (`prepare-release.sh` promotes them).
 - Never create releases, tags, or `.mpp` uploads by hand; `scripts/prepare-release.sh` stages the release and `release.yml` publishes it from the pushed tag.
