@@ -119,6 +119,7 @@ class FeedTargetTest {
         }
     }
 
+    /** Builds class fixtures for a reflection member set, optionally transforming methods. */
     private fun reflectionClasses(
         members: List<FeedReflectionMember> = feedReflectionMembers,
         transform: (FeedReflectionMember, ImmutableMethod) -> ImmutableMethod? = { _, m -> m },
@@ -143,18 +144,21 @@ class FeedTargetTest {
         )
     }
 
+    /** Verifies that each complete supported reflection contract is accepted. */
     @Test fun acceptsCompleteReflectionContract() {
         for (members in feedReflectionMemberSets) {
             validateFeedReflectionContract(reflectionClasses(members)::get)
         }
     }
 
+    /** Verifies that either supported version contract can be validated in isolation. */
     @Test fun acceptsEachVersionSetIndependently() {
         // 434 classes alone must pass even when no 445 class exists, and vice versa.
         validateFeedReflectionContract(reflectionClasses(feedReflectionMembers434)::get)
         validateFeedReflectionContract(reflectionClasses(feedReflectionMembers445)::get)
     }
 
+    /** Verifies that incomplete members combined across versions are rejected. */
     @Test fun rejectsMixedVersionSets() {
         // Half of each set (e.g. 434 Media.DED + 445 wrapper) must NOT validate:
         // a half-drifted app fails loudly instead of filtering with the wrong predicate.
@@ -179,6 +183,7 @@ class FeedTargetTest {
         assertFailsWith<IllegalStateException> { validateFeedReflectionContract(mixed::get) }
     }
 
+    /** Verifies that every missing member produces an actionable validation failure. */
     @Test fun rejectsEveryMissingMemberWithAnActionableMessage() {
         for (members in feedReflectionMemberSets) {
             for (missing in members) {

@@ -15,6 +15,7 @@ from pathlib import Path
 
 
 def main() -> int:
+    """Extract one version's nonempty release notes from the changelog."""
     changelog_path, version, output_path = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
     escaped = re.escape(version)
     heading = re.compile(

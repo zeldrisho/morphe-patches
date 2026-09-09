@@ -22,6 +22,7 @@ BULLET = "* **Threads:** A change.\n"
 
 
 def heading(version, linked=False):
+    """Build a dated release heading, optionally with an inline compare link."""
     label = (
         f"[{version}](https://github.com/{REPO}/compare/v1.0.0...v{version})"
         if linked
@@ -31,11 +32,13 @@ def heading(version, linked=False):
 
 
 def entry(version, linked=False):
+    """Build a complete changelog entry for a fixture version."""
     return heading(version, linked) + "\n\n### ✨ New Features\n" + BULLET
 
 
 class ReleaseFixtures(unittest.TestCase):
     def setUp(self):
+        """Create an isolated Git repository for each release fixture."""
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.cwd = Path(self.temp.name)
@@ -50,18 +53,21 @@ class ReleaseFixtures(unittest.TestCase):
         self.changelog = self.cwd / "CHANGELOG.md"
 
     def git(self, *args):
+        """Run Git in the fixture repository and return trimmed standard output."""
         return subprocess.run(
             ["git", *args], cwd=self.cwd, env=self.env, check=True,
             text=True, capture_output=True,
         ).stdout.strip()
 
     def write_changelog(self, rest=""):
+        """Write an Unreleased section followed by optional released entries."""
         self.changelog.write_text(
             "# Changelog\n\n## Unreleased\n\n### 🚀 Updated App Support\n"
             + BULLET + "\n" + rest, encoding="utf-8",
         )
 
     def preflight(self, version="1.1.0", success=True):
+        """Run release preflight and assert its result without modifying the changelog."""
         before = self.changelog.read_bytes()
         result = subprocess.run(
             [sys.executable, "-c", PREFLIGHT, version, REPO],
@@ -72,6 +78,7 @@ class ReleaseFixtures(unittest.TestCase):
         return result
 
     def promote(self, version, prev):
+        """Promote Unreleased notes and return the resulting changelog text."""
         subprocess.run(
             [sys.executable, "-c", PROMOTE, version, DATE, REPO, prev],
             cwd=self.cwd, env=self.env, check=True, capture_output=True,
@@ -79,10 +86,12 @@ class ReleaseFixtures(unittest.TestCase):
         return self.changelog.read_text(encoding="utf-8")
 
     def test_existing_shell_safeguards(self):
+        """Verify the original shell guards reject invalid release invocations."""
         # Execute only the original shell guards, never the real staging steps.
         guards = SCRIPT.split('REPO="', 1)[0]
 
         def check(version, error=None):
+            """Run the shell guards and assert the expected success or error."""
             result = subprocess.run(
                 ["bash", "-c", guards, "prepare-release.sh", version],
                 cwd=self.cwd, env=self.env, text=True, capture_output=True,
@@ -115,12 +124,14 @@ class ReleaseFixtures(unittest.TestCase):
         check("1.1.0", "Tag v1.1.0 already exists")
 
     def test_workflow_validation_precedes_build(self):
+        """Verify release-note validation runs before toolchain setup and build."""
         workflow = (ROOT / ".github/workflows/release.yml").read_text()
         extractor = workflow.index("python3 .github/scripts/extract_release_notes.py")
         self.assertLess(extractor, workflow.index("- name: Set up Java"))
         self.assertLess(extractor, workflow.index("- name: Test and build bundle"))
 
     def test_first_release(self):
+        """Verify the first release uses a bare heading without a compare link."""
         self.write_changelog()
         self.assertEqual(self.preflight("1.0.0").stdout.strip(), "")
         text = self.promote("1.0.0", "")
@@ -128,6 +139,7 @@ class ReleaseFixtures(unittest.TestCase):
         self.assertNotIn("/compare/", text)
 
     def test_subsequent_release_preserves_old_sections(self):
+        """Verify later releases add a compare link without rewriting history."""
         for linked in (False, True):
             with self.subTest(linked=linked):
                 self.git("tag", "-f", "-a", "v1.0.0", "-m", "fixture release")
@@ -145,39 +157,46 @@ class ReleaseFixtures(unittest.TestCase):
                 self.assertTrue(text.startswith("# Changelog\n\n## Unreleased\n\n"))
 
     def test_missing_tag(self):
+        """Verify preflight rejects a released changelog entry without its tag."""
         self.write_changelog(entry("1.0.0"))
         self.assertIn("Missing tag v1.0.0", self.preflight(success=False).stderr)
 
     def test_untagged_staging(self):
+        """Verify preflight rejects untagged history and duplicate version staging."""
         self.git("tag", "v1.0.0")
         self.write_changelog(entry("1.1.0", True) + "\n" + entry("1.0.0"))
         self.assertIn("Missing tag v1.1.0", self.preflight("1.2.0", False).stderr)
         self.assertIn("already contains", self.preflight("1.1.0", False).stderr)
 
     def test_out_of_order_requested_version(self):
+        """Verify the requested version must exceed the latest released version."""
         self.git("tag", "v1.0.0")
         self.write_changelog(entry("1.0.0"))
         self.assertIn("must be greater", self.preflight("0.9.0", False).stderr)
 
     def test_out_of_order_history(self):
+        """Verify released changelog entries remain in newest-first order."""
         self.git("tag", "v1.0.0")
         self.git("tag", "v1.1.0")
         self.write_changelog(entry("1.0.0") + "\n" + entry("1.1.0", True))
         self.assertIn("newest-first", self.preflight("1.2.0", False).stderr)
 
     def test_higher_reachable_tag(self):
+        """Verify preflight detects a reachable release tag omitted from history."""
         self.git("tag", "v1.0.0")
         self.git("tag", "v1.10.0")
         self.write_changelog(entry("1.0.0"))
         self.assertIn("highest reachable", self.preflight("1.11.0", False).stderr)
 
     def test_numeric_tag_order_and_prerelease_ignored(self):
+        """Verify tag ordering is numeric and ignores prerelease or unrelated tags."""
         for tag in ("v1.9.0", "v1.10.0", "v9.0.0-dev.1", "unrelated"):
             self.git("tag", tag)
         self.write_changelog(entry("1.10.0", True) + "\n" + entry("1.9.0"))
         self.assertEqual(self.preflight("1.11.0").stdout.strip(), "1.10.0")
 
     def test_unreachable_previous_tag(self):
+        """Verify the latest released tag must be reachable from the current branch."""
         self.git("checkout", "-b", "other")
         self.git("commit", "--allow-empty", "-m", "other")
         self.git("tag", "v1.0.0")
@@ -186,21 +205,25 @@ class ReleaseFixtures(unittest.TestCase):
         self.assertIn("not reachable", self.preflight(success=False).stderr)
 
     def test_tags_without_entries(self):
+        """Verify preflight rejects release tags when no released entries exist."""
         self.git("tag", "v1.0.0")
         self.write_changelog()
         self.assertIn("no released entries", self.preflight(success=False).stderr)
 
     def test_shallow_history(self):
+        """Verify preflight rejects repositories with incomplete shallow history."""
         self.write_changelog()
         (self.cwd / ".git/shallow").write_text(self.git("rev-parse", "HEAD") + "\n")
         self.assertIn("complete history", self.preflight(success=False).stderr)
 
     def test_empty_unreleased(self):
+        """Verify Unreleased must contain at least one changelog bullet."""
         self.write_changelog(entry("1.0.0"))
         self.changelog.write_text(self.changelog.read_text().replace(BULLET, "", 1))
         self.assertIn("no '*' bullets", self.preflight(success=False).stderr)
 
     def test_extraction_bare_and_linked_boundaries(self):
+        """Verify extraction supports both heading forms and stops at either boundary."""
         for target_linked in (False, True):
             for next_linked in (False, True):
                 with self.subTest(target=target_linked, boundary=next_linked):
@@ -216,6 +239,7 @@ class ReleaseFixtures(unittest.TestCase):
                     self.assertEqual(output.read_text(), "### ✨ New Features\n" + BULLET)
 
     def test_malformed_and_reference_headings_rejected(self):
+        """Verify malformed and reference-style release headings are rejected."""
         for bad in (
             f"## [1.1.0] ({DATE})",
             f"## [1.1.0][compare] ({DATE})",
@@ -235,6 +259,7 @@ class ReleaseFixtures(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
 
     def test_empty_extracted_body_rejected(self):
+        """Verify extraction fails when a matching heading has no release notes."""
         self.changelog.write_text(heading("1.1.0", True) + "\n\n" + entry("1.0.0"))
         result = subprocess.run(
             [sys.executable, str(EXTRACTOR), str(self.changelog),

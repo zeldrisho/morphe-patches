@@ -54,6 +54,7 @@ internal val feedReflectionMembers: List<FeedReflectionMember> = feedReflectionM
 internal val feedReflectionMemberSets: List<List<FeedReflectionMember>> =
     listOf(feedReflectionMembers434, feedReflectionMembers445)
 
+/** Returns the reflection members absent from the supplied class surface. */
 private fun missingMembers(
     members: List<FeedReflectionMember>,
     classByType: (String) -> ClassDef?,
