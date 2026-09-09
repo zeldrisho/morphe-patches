@@ -54,6 +54,13 @@ MPP="patches/build/libs/patches-<version>.mpp" VERIFY_SDK=1 \
 discovery; pass `VERIFY_SDK=/path/to/sdk` to pin a specific SDK. Record the
 verification result alongside the bundle/input hashes.
 
+If verification fails identically across the available toolchains with an
+internal D8 error (not a patch error), the owner may waive it after passing
+device QA: record the waiver, the reproduced versions, and the device
+evidence in [lessons learned](lessons-learned.md), and revisit only if Morphe
+ships a verifier fix. Do not block a release indefinitely on a broken
+verifier.
+
 Record the input APK version/code and hash, bundle path/hash, enabled patches,
 package ID, device/Android version, and signing certificate fingerprint (never
 passwords). Multiple local bundles can exist; do not assume the helper selected
