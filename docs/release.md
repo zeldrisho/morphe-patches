@@ -21,11 +21,13 @@ is fine) — nothing parses them; only pushed tags publish.
 
 ## Staging a release
 
-On a branch cut exactly at `origin/main` — never on `main` directly
-(`main` takes PR merges only) and never on a stale or divergent branch —
-with a clean tree and complete history (not a shallow clone),
+Stage on a branch based on the current `origin/main` — either cut fresh
+at it or any feature branch that already contains it, appending the
+staging as the final commit once ready for release. Never stage on `main`
+directly (`main` takes PR merges only) or on a stale or divergent branch.
+Work with a clean tree and complete history (not a shallow clone),
 synchronize the branch and release tags first. `prepare-release.sh` refuses
-any HEAD that is not `origin/main`. Stop if synchronization fails:
+any HEAD that is not based on current `origin/main`. Stop if synchronization fails:
 
 ```bash
 git fetch origin --tags &&
@@ -47,12 +49,16 @@ never the pre-merge branch commit:
 
 ```bash
 git checkout main && git pull --ff-only origin main &&
-  git tag -a v1.2.0 -m "Release v1.2.0" && git push origin v1.2.0
+  git tag v1.2.0 && git push origin v1.2.0
 ```
+
+Lightweight tags are fully supported — every tag check (name format,
+reachability, version match) is type-agnostic, so annotating with `-a -m`
+is optional.
 
 The tag must be stable semver (`vX.Y.Z`, no prerelease suffix) on the
 post-merge `main` tip containing the staging commit. `prepare-release.sh`
-refuses dirty trees, a HEAD that is not `origin/main`,
+refuses dirty trees, a HEAD that is not based on current `origin/main`,
 existing tags, a missing `## Unreleased` section, and an Unreleased section
 with no `*` bullets. Before modifying files it also rejects shallow history,
 malformed or out-of-order released headings, duplicate target entries, and

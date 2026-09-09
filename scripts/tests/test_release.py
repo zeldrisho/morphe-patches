@@ -129,14 +129,16 @@ class ReleaseFixtures(unittest.TestCase):
         self.git("reset", "--hard", "HEAD~1")
         result = self.guard_prefix("1.1.0")
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("is not origin/main", result.stderr)
+        self.assertIn("is not based on origin/main", result.stderr)
 
-    def test_branch_ahead_of_main_rejected(self):
-        """Verify staging fails when the branch carries commits beyond origin/main."""
-        self.git("commit", "--allow-empty", "-m", "unrelated work")
+    def test_branch_ahead_of_main_allowed(self):
+        """Verify guards and preflight pass when the branch is ahead of origin/main."""
+        self.git("commit", "--allow-empty", "-m", "reviewed tooling")
         result = self.guard_prefix("1.1.0")
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("is not origin/main", result.stderr)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.git("tag", "v1.0.0")
+        self.write_changelog(entry("1.0.0"))
+        self.assertEqual(self.preflight("1.1.0").stdout.strip(), "1.0.0")
 
     def test_missing_origin_main_rejected(self):
         """Verify staging fails clearly when origin/main is unknown."""
