@@ -75,10 +75,10 @@ lines = text.splitlines()
 if lines.count("## Unreleased") != 1:
     die("CHANGELOG.md must have exactly one '## Unreleased' section")
 heading = re.compile(
-    r"^##[ \t]+(?:\[(?P<linked>\d+\.\d+\.\d+)\]\([^)]*\)|"
+    r"^##[ \t]+(?:\[(?P<linked>\d+\.\d+\.\d+)\]\((?P<url>[^)]*)\)|"
     r"(?P<bare>\d+\.\d+\.\d+))[ \t]+\(\d{4}-\d{2}-\d{2}\)[ \t]*$"
 )
-versions = []
+entries = []
 unreleased = lines.index("## Unreleased")
 first_release = len(lines)
 for index, line in enumerate(lines):
@@ -89,15 +89,38 @@ for index, line in enumerate(lines):
         if index < unreleased:
             die("Released entries must follow Unreleased")
         first_release = min(first_release, index)
-        versions.append(match["linked"] or match["bare"])
+        entries.append((match["linked"] or match["bare"], match["url"]))
     elif re.match(r"^##\s", line):
         die(f"Unrecognized release heading: {line}")
+versions = [entry_version for entry_version, _ in entries]
 if not any(line.startswith("* ") for line in lines[unreleased + 1:first_release]):
     die("## Unreleased has no '*' bullets — add the app patch changes first")
 if version in versions:
     die(f"CHANGELOG.md already contains {version}; finish the staged release first")
 if any(number(a) <= number(b) for a, b in zip(versions, versions[1:])):
     die("Released changelog versions must be unique and newest-first")
+if entries:
+    oldest = entries[-1][0]
+    for position, (entry_version, url) in enumerate(entries):
+        if position == len(entries) - 1:
+            if url is not None:
+                die(
+                    f"Initial release {oldest} must use a bare heading "
+                    f"'## {oldest} (YYYY-MM-DD)' without a compare link"
+                )
+            continue
+        adjacent = entries[position + 1][0]
+        expected = f"https://github.com/{repo}/compare/v{adjacent}...v{entry_version}"
+        if url is None:
+            die(
+                f"Only the initial release ({oldest}) may use a bare heading; "
+                f"## {entry_version} must link '{expected}'"
+            )
+        if url != expected:
+            die(
+                f"## {entry_version} links '{url}' but must link its adjacent "
+                f"compare '{expected}'"
+            )
 reachable = [
     tag[1:] for tag in git("tag", "--merged", "HEAD").splitlines()
     if re.fullmatch(r"v\d+\.\d+\.\d+", tag)

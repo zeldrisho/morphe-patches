@@ -60,7 +60,7 @@ jobs:
 
           # Fail fast on an invalid bare/inline-linked heading or empty notes,
           # before toolchain setup and build/tests. The extractor owns the regex.
-          python3 .github/scripts/extract_release_notes.py CHANGELOG.md "$VERSION" /tmp/release-notes.md
+          python3 .github/scripts/extract_release_notes.py CHANGELOG.md "$VERSION" /tmp/release-notes.md "${{ github.repository }}"
           test -s /tmp/release-notes.md \
             || { echo "::error::No release notes found for $VERSION."; exit 1; }
           echo "Tag $TAG validated."
