@@ -1,8 +1,8 @@
 #!/bin/bash
-# prepare-release.sh — stage a stable release on main, then tag it.
+# prepare-release.sh — stage a stable release on a branch even with main, then tag it post-merge.
 # Usage: bash scripts/prepare-release.sh <X.Y.Z>
 #
-# On main with a clean tree, this:
+# On a branch whose HEAD equals origin/main with a clean tree, this:
 #   1. Sets gradle.properties to the version.
 #   2. Promotes CHANGELOG.md Unreleased to a dated version heading, with an
 #      inline compare link after the initial release (see docs/release.md).
@@ -10,8 +10,10 @@
 #      README.md patch table.
 #   4. Commits the release staging.
 #
-# Then publish with:
-#   git push origin main && git tag -a v<X.Y.Z> -m "Release v<X.Y.Z>" && git push origin v<X.Y.Z>
+# Then publish with (see docs/release.md#staging-a-release): push the staging
+# branch, open a PR, merge, sync main, and tag the post-merge main tip:
+#   git push origin <staging-branch>
+#   git tag -a v<X.Y.Z> -m "Release v<X.Y.Z>" && git push origin v<X.Y.Z>
 # Pushing the tag runs .github/workflows/release.yml, which tests, builds,
 # creates the GitHub release, and points patches-bundle.json at the download.
 set -euo pipefail
@@ -24,8 +26,19 @@ cd "$PROJECT_DIR"
     echo "❌ Version must be X.Y.Z (got '$VERSION')" >&2
     exit 1
 }
-[[ "$(git rev-parse --abbrev-ref HEAD)" == "main" ]] || {
-    echo "❌ Run on main (see docs/release.md)" >&2
+# Release staging must start from the current tip of main — never from a
+# stale, divergent, or unrelated branch. The branch name is irrelevant; only
+# its content matters, so this compares commits instead of names. Strict
+# equality (not merely "origin/main is an ancestor") additionally rejects
+# branches carrying unrelated commits, which must never enter a staging
+# commit (see docs/release.md#rules). Synchronize first; the script never
+# fetches (see docs/release.md#staging-a-release).
+MAIN_HEAD="$(git rev-parse --verify --quiet origin/main)" || {
+    echo "❌ origin/main is unknown; fetch origin first (see docs/release.md#staging-a-release)" >&2
+    exit 1
+}
+[[ "$(git rev-parse HEAD)" == "$MAIN_HEAD" ]] || {
+    echo "❌ HEAD ($(git rev-parse --short HEAD)) is not origin/main ($(git rev-parse --short "$MAIN_HEAD")); cut a fresh branch at origin/main first (see docs/release.md#staging-a-release)" >&2
     exit 1
 }
 if ! git diff --quiet || ! git diff --cached --quiet; then
@@ -188,5 +201,6 @@ git add gradle.properties CHANGELOG.md patches-list.json README.md
 git diff --cached --quiet && die "nothing to commit"
 git commit -m "Release v$VERSION"
 echo
-echo "✅ Staged v$VERSION. Review, then publish:"
-echo "   git push origin main && git tag -a v$VERSION -m \"Release v$VERSION\" && git push origin v$VERSION"
+echo "✅ Staged v$VERSION. Review, then publish (see docs/release.md#staging-a-release):"
+echo "   git push origin $(git rev-parse --abbrev-ref HEAD)  # open a PR, merge, sync main"
+echo "   git tag -a v$VERSION -m \"Release v$VERSION\"  # on post-merge main, then push the tag"

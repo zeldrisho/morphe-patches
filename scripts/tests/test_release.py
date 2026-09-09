@@ -50,6 +50,9 @@ class ReleaseFixtures(unittest.TestCase):
         self.git("config", "user.email", "fixture@example.invalid")
         self.git("config", "core.hooksPath", os.devnull)
         self.git("commit", "--allow-empty", "-m", "fixture")
+        # Fixtures have no remote; pin origin/main at the initial commit so
+        # the even-with-main staging guard has a ref to compare against.
+        self.git("update-ref", "refs/remotes/origin/main", "HEAD")
         self.changelog = self.cwd / "CHANGELOG.md"
 
     def git(self, *args):
@@ -98,6 +101,50 @@ class ReleaseFixtures(unittest.TestCase):
         self.assertEqual(result.returncode == 0, success, result.stderr)
         return result, output
 
+    def guard_prefix(self, version):
+        """Run the shell guard prefix and return the completed process."""
+        guards = SCRIPT.split('REPO="', 1)[0].replace(
+            'PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"',
+            'PROJECT_DIR="$PWD"',
+        )
+        return subprocess.run(
+            ["bash", "-c", guards, "prepare-release.sh", version],
+            cwd=self.cwd, env=self.env, text=True, capture_output=True,
+        )
+
+    def test_staging_branch_even_with_main(self):
+        """Verify guards and preflight pass on a branch even with origin/main."""
+        self.git("checkout", "-b", "release/1.2.0")
+        result = self.guard_prefix("1.2.0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.git("tag", "v1.0.0")
+        self.write_changelog(entry("1.0.0"))
+        self.assertEqual(self.preflight("1.1.0").stdout.strip(), "1.0.0")
+        self.git("checkout", "main")
+
+    def test_branch_behind_main_rejected(self):
+        """Verify staging fails when the branch is behind origin/main."""
+        self.git("commit", "--allow-empty", "-m", "main moved on")
+        self.git("update-ref", "refs/remotes/origin/main", "HEAD")
+        self.git("reset", "--hard", "HEAD~1")
+        result = self.guard_prefix("1.1.0")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("is not origin/main", result.stderr)
+
+    def test_branch_ahead_of_main_rejected(self):
+        """Verify staging fails when the branch carries commits beyond origin/main."""
+        self.git("commit", "--allow-empty", "-m", "unrelated work")
+        result = self.guard_prefix("1.1.0")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("is not origin/main", result.stderr)
+
+    def test_missing_origin_main_rejected(self):
+        """Verify staging fails clearly when origin/main is unknown."""
+        self.git("update-ref", "-d", "refs/remotes/origin/main")
+        result = self.guard_prefix("1.1.0")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("fetch origin first", result.stderr)
+
     def test_existing_shell_safeguards(self):
         """Verify the original shell guards reject invalid release invocations."""
         # Execute only the original shell guards, never the real staging steps.
@@ -123,13 +170,16 @@ class ReleaseFixtures(unittest.TestCase):
         )
         check("1.1.0")
         check("1.1.0-dev.1", "Version must be X.Y.Z")
-        self.git("checkout", "-b", "feature")
-        check("1.1.0", "Run on main")
+        self.git("checkout", "-b", "release/1.1.0")
+        check("1.1.0")
         self.git("checkout", "main")
         self.write_changelog()
         self.git("add", "CHANGELOG.md")
         check("1.1.0", "Working tree is dirty")
         self.git("commit", "-m", "fixture changelog")
+        # The commit moved main; sync the fake remote so later subcases
+        # exercise their own guards instead of the even-with-main check.
+        self.git("update-ref", "refs/remotes/origin/main", "HEAD")
         self.changelog.write_text(self.changelog.read_text() + "\n")
         check("1.1.0", "Working tree is dirty")
         self.git("checkout", "--", "CHANGELOG.md")
