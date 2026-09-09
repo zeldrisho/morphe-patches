@@ -8,7 +8,7 @@
 | `extensions/extension/` | Companion extension source; builds `extensions/extension.mpe` |
 | `scripts/` | Helper scripts (APK recon, re-patch, release staging, cleanup) |
 | `docs/` | Contributor docs (setup, development, release, QA) |
-| `config/` | Static-analysis config (`detekt.yml`) |
+| `config/` | Static-analysis config (`detekt/detekt.yml`) |
 | `analysis/` | Gitignored local APK analysis scratch |
 
 ## Commands

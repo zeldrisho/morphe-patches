@@ -47,8 +47,9 @@ tasks {
     // The extension module build only produces
     // extensions/extension/build/morphe/extensions/extension.mpe, but the
     // Hide-ads patch resolves extendWith("extensions/extension.mpe") relative
-    // to the patch working dir (repo root). This copy used to be manual (see
-    // docs/plan.md) — now it is part of the build so CI and local builds
+    // to the patch working dir (repo root). This copy used to be manual —
+    // now it is part of the build (see docs/architecture.md#extension-artifact-wiring)
+    // so CI and local builds
     // cannot silently ship a stale/missing dex. Single-file outputs keep
     // Gradle validation happy (no whole-directory ownership).
     register("copyExtensionMpe") {
