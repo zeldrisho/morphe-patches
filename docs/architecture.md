@@ -21,7 +21,7 @@ Plugin `app.morphe.patches` (see `settings.gradle.kts`, `gradle/libs.versions.to
 
 ```
 original APK ──▶ jadx + apktool ──▶ target (class + method + instruction seq)
-   (sibling analysis/ dir, outside repo)   smali is source of truth, never jadx alone
+   (in-repo analysis/, gitignored)         smali is source of truth, never jadx alone
                                            │
                  Fingerprint (named object)
                + bytecodePatch { execute { ... } }  (.kt sources, per-app folders)
