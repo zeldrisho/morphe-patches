@@ -65,8 +65,8 @@ sanitized notes in the release/PR record.
 - [ ] `aapt dump badging` shows no `AD_ID` permission
 - [ ] Fresh login works with the default package and default-on patches.
       An existing session is a separate smoke test, not fresh-login evidence.
-      Preserve it: ask before logout, clearing data, or uninstalling. Use a
-      clean test device/profile where possible; the user enters credentials.
+      Preserve it: ask before logout, clearing data, or uninstalling. The
+      user enters credentials.
 - [ ] Renamed package (`PACKAGE_NAME=...`) installs **alongside stock-signed**
       Threads, no `INSTALL_FAILED_DUPLICATE_PERMISSION`. Verify the stock
       copy's signing certificate against the original APK; a patched

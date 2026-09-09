@@ -9,9 +9,7 @@ Manager can parse them.
 ## Unreleased
 
 ### Added
-* **Threads:** Support 445.0.0.46.83 alongside 434.0.0.41.74 — Hide ads re-hunted for the new build (feed merge A0F → A0G, Media.DED → DGK) with runtime QA still pending; do not treat patch-success as ad-removal evidence.
-
-### Fixed
+* **Threads:** Support 445.0.0.46.83 alongside 434.0.0.41.74 — Hide ads re-hunted for the new build (feed merge A0F → A0G, Media.DED → DGK); device smoke QA passed on a single phone (feed, pagination, video, no crash, no AD_ID), fresh login still pending.
 
 ## 1.0.0 (2026-09-07)
 
