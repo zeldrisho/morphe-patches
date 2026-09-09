@@ -1,6 +1,6 @@
 name: Release
 
-# Stable-only releases. Pushing an annotated version tag on main tests,
+# Stable-only releases. Pushing a version tag on main tests,
 # builds, and publishes the GitHub release, then points patches-bundle.json
 # (main) at the new download. See docs/release.md#staging-a-release for the
 # staging flow (branch at origin/main, PR, merge, tag post-merge main).
