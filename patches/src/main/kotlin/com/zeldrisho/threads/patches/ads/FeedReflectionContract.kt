@@ -78,7 +78,7 @@ private fun missingMembers(
  */
 internal fun validateFeedReflectionContract(classByType: (String) -> ClassDef?) {
     val perSetMissing = feedReflectionMemberSets.map { missingMembers(it, classByType) }
-    check(perSetMissing.any { it.isEmpty() }) {
+    check(perSetMissing.count { it.isEmpty() } == 1) {
         "Threads feed reflection contract changed: " +
             perSetMissing.flatten().distinct().joinToString {
                 "${it.owner}->${it.name}()${it.returnType}"

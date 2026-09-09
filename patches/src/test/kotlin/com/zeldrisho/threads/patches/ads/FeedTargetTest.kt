@@ -181,6 +181,9 @@ class FeedTargetTest {
                 )
             }
         assertFailsWith<IllegalStateException> { validateFeedReflectionContract(mixed::get) }
+        // Both complete sets at once must also fail: exactly one version may match.
+        val bothComplete = reflectionClasses(feedReflectionMemberSets.flatten())
+        assertFailsWith<IllegalStateException> { validateFeedReflectionContract(bothComplete::get) }
     }
 
     /** Verifies that every missing member produces an actionable validation failure. */
