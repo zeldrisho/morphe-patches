@@ -4,7 +4,8 @@
 #
 # On main with a clean tree, this:
 #   1. Sets gradle.properties to the version.
-#   2. Promotes the CHANGELOG.md "## Unreleased" section to "## <version> (<today>)".
+#   2. Promotes CHANGELOG.md Unreleased to a dated version heading, with an
+#      inline compare link after the initial release (see docs/release.md).
 #   3. Regenerates patches-list.json, stamps its version, and refreshes the
 #      README.md patch table.
 #   4. Commits the release staging.
@@ -48,17 +49,87 @@ die() {
 command -v java >/dev/null 2>&1 || die "java not found"
 command -v python3 >/dev/null 2>&1 || die "python3 not found"
 
+# Validate history and promotion before modifying any files. Synchronize main
+# and release tags first; see docs/release.md#staging-a-release.
+PREV="$(
+    python3 - "$VERSION" "$REPO" <<'PY'
+import re, subprocess, sys
+from pathlib import Path
+
+version, repo = sys.argv[1:]
+def die(message):
+    sys.exit(message)
+
+def git(*args):
+    return subprocess.check_output(["git", *args], text=True).strip()
+
+def number(value):
+    return tuple(map(int, value.split(".")))
+
+if git("rev-parse", "--is-shallow-repository") != "false":
+    die("Release staging requires complete history; unshallow and synchronize tags first")
+if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+    die("Cannot resolve GitHub owner/repo for compare links")
+text = Path("CHANGELOG.md").read_text(encoding="utf-8")
+lines = text.splitlines()
+if lines.count("## Unreleased") != 1:
+    die("CHANGELOG.md must have exactly one '## Unreleased' section")
+heading = re.compile(
+    r"^##[ \t]+(?:\[(?P<linked>\d+\.\d+\.\d+)\]\([^)]*\)|"
+    r"(?P<bare>\d+\.\d+\.\d+))[ \t]+\(\d{4}-\d{2}-\d{2}\)[ \t]*$"
+)
+versions = []
+unreleased = lines.index("## Unreleased")
+first_release = len(lines)
+for index, line in enumerate(lines):
+    if not re.match(r"^#{1,3}\s", line) or line == "## Unreleased":
+        continue
+    match = heading.fullmatch(line)
+    if match:
+        if index < unreleased:
+            die("Released entries must follow Unreleased")
+        first_release = min(first_release, index)
+        versions.append(match["linked"] or match["bare"])
+    elif re.match(r"^##\s", line):
+        die(f"Unrecognized release heading: {line}")
+if not any(line.startswith("* ") for line in lines[unreleased + 1:first_release]):
+    die("## Unreleased has no '*' bullets — add the app patch changes first")
+if version in versions:
+    die(f"CHANGELOG.md already contains {version}; finish the staged release first")
+if any(number(a) <= number(b) for a, b in zip(versions, versions[1:])):
+    die("Released changelog versions must be unique and newest-first")
+reachable = [
+    tag[1:] for tag in git("tag", "--merged", "HEAD").splitlines()
+    if re.fullmatch(r"v\d+\.\d+\.\d+", tag)
+]
+prev = versions[0] if versions else ""
+if prev:
+    ref = f"refs/tags/v{prev}"
+    if subprocess.run(["git", "rev-parse", "--verify", "--quiet", ref + "^{commit}"],
+                      stdout=subprocess.DEVNULL).returncode:
+        die(f"Missing tag v{prev}; synchronize tags or finish the untagged staged release")
+    if subprocess.run(["git", "merge-base", "--is-ancestor", ref, "HEAD"]).returncode:
+        die(f"Tag v{prev} is not reachable from HEAD")
+    if prev != max(reachable, key=number):
+        die("Newest changelog entry does not match the highest reachable stable tag")
+    if number(version) <= number(prev):
+        die(f"Version {version} must be greater than {prev}")
+elif reachable:
+    die("Stable tags exist but CHANGELOG.md has no released entries")
+print(prev)
+PY
+)"
+
 # 1. Pin the build version (portable -i across GNU/BSD sed).
 sed -i.bak -E "s/^version *= *.*/version = $VERSION/" gradle.properties
 rm -f gradle.properties.bak
 grep -q "^version = $VERSION$" gradle.properties || die "failed to update gradle.properties"
 
 # 2. Promote Unreleased to a dated, Manager-compatible version heading.
-#    Keep-a-Changelog principles, but plain "## <version> (<date>)" syntax so
-#    Morphe Manager's changelog parser keeps working (no "[brackets] - date").
-python3 - "$VERSION" "$TODAY" <<'PY'
+#    Only subsequent releases get inline compare links; old entries stay intact.
+python3 - "$VERSION" "$TODAY" "$REPO" "$PREV" <<'PY'
 import re, sys
-version, today = sys.argv[1], sys.argv[2]
+version, today, repo, prev = sys.argv[1:]
 path = "CHANGELOG.md"
 text = open(path, encoding="utf-8").read()
 match = re.search(r"^## Unreleased\s*$", text, re.MULTILINE)
@@ -70,8 +141,9 @@ body = section[: next_heading.start() if next_heading else len(section)]
 if not re.search(r"^\* ", body, re.MULTILINE):
     sys.exit("## Unreleased has no '*' bullets — add the app patch changes first")
 rest = section[next_heading.start() if next_heading else len(section):]
+label = f"[{version}](https://github.com/{repo}/compare/v{prev}...v{version})" if prev else version
 open(path, "w", encoding="utf-8").write(
-    text[: match.start()] + "## Unreleased\n\n" + f"## {version} ({today})\n" + body.rstrip("\n") + "\n\n" + rest.lstrip("\n")
+    text[: match.start()] + "## Unreleased\n\n" + f"## {label} ({today})\n" + body.rstrip("\n") + "\n\n" + rest.lstrip("\n")
 )
 PY
 [[ -n "$(git diff -- CHANGELOG.md)" ]] || die "CHANGELOG promotion produced no change"

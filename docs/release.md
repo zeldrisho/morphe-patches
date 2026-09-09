@@ -21,15 +21,19 @@ is fine) — nothing parses them; only pushed tags publish.
 
 ## Staging a release
 
-On `main` with a clean tree:
+On `main` with a clean tree and complete history (not a shallow clone),
+synchronize the branch and release tags first. Stop if synchronization fails:
 
 ```bash
-bash scripts/prepare-release.sh 1.2.0
+git pull --ff-only origin main &&
+  git fetch origin --tags &&
+  bash scripts/prepare-release.sh 1.2.0
 ```
 
-This pins `gradle.properties` to the version, promotes `## Unreleased` to
-`## 1.2.0 (<today>)`, regenerates `patches-list.json` (stamped with the
-version) and the `README.md` patch table, and commits the staging. Then:
+This pins `gradle.properties` to the version, promotes `## Unreleased` to a
+dated version heading with an inline compare link (bare for the first release;
+see [changelog policy](#changelog-policy)), regenerates `patches-list.json`
+(stamped with the version) and the `README.md` patch table, and commits the staging. Then:
 
 ```bash
 git push origin main
@@ -40,7 +44,14 @@ git push origin v1.2.0
 The tag must be stable semver (`vX.Y.Z`, no prerelease suffix) on the
 `main`-branch release commit. `prepare-release.sh` refuses dirty trees,
 existing tags, a missing `## Unreleased` section, and an Unreleased section
-with no `*` bullets.
+with no `*` bullets. Before modifying files it also rejects shallow history,
+malformed or out-of-order released headings, duplicate target entries, and
+versions not greater than the previous release. The newest released changelog
+entry supplies PREV; its `vPREV` tag must exist, be reachable from `HEAD`, and
+match the highest reachable stable tag (numeric version order). Missing tags or
+an untagged staged release are errors, not a reason to fall back to a bare heading.
+A first release requires both no released entries and no reachable stable tags.
+Tag synchronization is a caller prerequisite; the script does not fetch tags.
 
 ## What `release.yml` does
 
@@ -88,10 +99,26 @@ Example:
 * **Threads:** Support 435.x; drop 433.x.
 ```
 
-Headings stay plain `## <version> (<YYYY-MM-DD>)` with `**App:**` bullets —
-this is what Morphe Manager's changelog parser understands, so Keep a
-Changelog's `[bracketed] - date` syntax is intentionally not used. The GitHub
-release notes and the `patches-bundle.json` description are the same section.
+Release headings use Morphe Manager's inline-link convention:
+
+- First-ever release, with no prior release tag: `## VERSION (YYYY-MM-DD)`.
+- Every subsequent release: `## [VERSION](https://github.com/<owner>/<repo>/compare/v<PREV>...v<VERSION>) (YYYY-MM-DD)`.
+  PREV is the previous stable release's version; both compare endpoints use `v` tags.
+
+For example (illustrative release bodies omitted):
+
+```markdown
+## [1.1.0](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0...v1.1.0) (2026-09-09)
+
+## 1.0.0 (2026-09-07)
+```
+
+The URL must immediately follow `[VERSION]` in parentheses. Keep a Changelog's
+`[VERSION] - date` syntax and reference-style footer links are incompatible with
+Manager's parser. Existing released headings are not retroactively converted;
+`1.0.0` stays bare. Compare links do not permit per-bullet commit/issue links.
+The GitHub release notes and the `patches-bundle.json` description are the same
+section body, excluding its version heading.
 
 ## Release recovery
 
