@@ -1,12 +1,9 @@
 name: Release
 
-# Stable-only releases. Push an annotated version tag on main and this
-# workflow tests, builds, and publishes the GitHub release, then points
-# patches-bundle.json (main) at the new download.
-#
-#   git checkout main && git pull
-#   bash scripts/prepare-release.sh 1.2.0
-#   git push origin main && git push origin v1.2.0
+# Stable-only releases. Pushing an annotated version tag on main tests,
+# builds, and publishes the GitHub release, then points patches-bundle.json
+# (main) at the new download. See docs/release.md#staging-a-release for the
+# staging flow (branch at origin/main, PR, merge, tag post-merge main).
 #
 # Ordinary branch pushes run Check only; nothing here fires on branches.
 # See docs/release.md for the full procedure.
@@ -60,7 +57,7 @@ jobs:
 
           # Fail fast on an invalid bare/inline-linked heading or empty notes,
           # before toolchain setup and build/tests. The extractor owns the regex.
-          python3 .github/scripts/extract_release_notes.py CHANGELOG.md "$VERSION" /tmp/release-notes.md
+          python3 .github/scripts/extract_release_notes.py CHANGELOG.md "$VERSION" /tmp/release-notes.md "${{ github.repository }}"
           test -s /tmp/release-notes.md \
             || { echo "::error::No release notes found for $VERSION."; exit 1; }
           echo "Tag $TAG validated."

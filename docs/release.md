@@ -21,12 +21,15 @@ is fine) — nothing parses them; only pushed tags publish.
 
 ## Staging a release
 
-On `main` with a clean tree and complete history (not a shallow clone),
-synchronize the branch and release tags first. Stop if synchronization fails:
+On a branch cut exactly at `origin/main` — never on `main` directly
+(`main` takes PR merges only) and never on a stale or divergent branch —
+with a clean tree and complete history (not a shallow clone),
+synchronize the branch and release tags first. `prepare-release.sh` refuses
+any HEAD that is not `origin/main`. Stop if synchronization fails:
 
 ```bash
-git pull --ff-only origin main &&
-  git fetch origin --tags &&
+git fetch origin --tags &&
+  git checkout -b release/1.2.0 origin/main &&
   bash scripts/prepare-release.sh 1.2.0
 ```
 
@@ -36,13 +39,20 @@ see [changelog policy](#changelog-policy)), regenerates `patches-list.json`
 (stamped with the version) and the `README.md` patch table, and commits the staging. Then:
 
 ```bash
-git push origin main
-git tag -a v1.2.0 -m "Release v1.2.0"
-git push origin v1.2.0
+git push origin release/1.2.0
+```
+
+Open a PR, merge (no squash), sync `main`, and tag the post-merge tip —
+never the pre-merge branch commit:
+
+```bash
+git checkout main && git pull --ff-only origin main &&
+  git tag -a v1.2.0 -m "Release v1.2.0" && git push origin v1.2.0
 ```
 
 The tag must be stable semver (`vX.Y.Z`, no prerelease suffix) on the
-`main`-branch release commit. `prepare-release.sh` refuses dirty trees,
+post-merge `main` tip containing the staging commit. `prepare-release.sh`
+refuses dirty trees, a HEAD that is not `origin/main`,
 existing tags, a missing `## Unreleased` section, and an Unreleased section
 with no `*` bullets. Before modifying files it also rejects shallow history,
 malformed or out-of-order released headings, duplicate target entries, and
