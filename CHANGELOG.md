@@ -5,7 +5,7 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 ## Unreleased
 
 ### 🚀 Updated App Support
-* **Threads:** Add experimental support for `445.0.0.46.83`.
+* **Threads:** Add support for `445.0.0.46.83`.
 
 ## 1.0.0 (2026-09-07)
 
