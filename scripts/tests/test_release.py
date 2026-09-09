@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = (ROOT / "scripts/prepare-release.sh").read_text(encoding="utf-8")
 PREFLIGHT, PROMOTE, _ = re.findall(r"<<'PY'\n(.*?)\nPY", SCRIPT, re.DOTALL)
+MANIFEST, = re.findall(r"<<'MANIFEST_PY'\n(.*?)\nMANIFEST_PY", SCRIPT, re.DOTALL)
 EXTRACTOR = ROOT / ".github/scripts/extract_release_notes.py"
 DATE = "2026-09-09"
 REPO = "example/patches"
@@ -87,6 +88,17 @@ class ReleaseFixtures(unittest.TestCase):
             cwd=self.cwd, env=self.env, check=True, capture_output=True,
         )
         return self.changelog.read_text(encoding="utf-8")
+
+    def manifest(self, version, created_at="2026-09-09T12:00:00"):
+        """Stage patches-bundle.json from extracted notes and return its data."""
+        _, notes = self.extract(version)
+        subprocess.run(
+            [sys.executable, "-c", MANIFEST, version, REPO,
+             created_at, str(notes)],
+            cwd=self.cwd, env=self.env, check=True, capture_output=True,
+        )
+        import json
+        return json.loads((self.cwd / "patches-bundle.json").read_text(encoding="utf-8"))
 
     def extract(self, target, success=True):
         """Extract a version's notes and assert the result without stale outputs."""
@@ -377,6 +389,42 @@ class ReleaseFixtures(unittest.TestCase):
              "1.1.0", str(self.cwd / "notes.md"), REPO], capture_output=True,
         )
         self.assertNotEqual(result.returncode, 0)
+
+    def test_manifest_staged_upfront(self):
+        """Verify staging writes a valid manifest matching version and notes."""
+        self.git("tag", "v1.0.0")
+        self.write_changelog(entry("1.0.0"))
+        prev = self.preflight("1.1.0").stdout.strip()
+        self.promote("1.1.0", prev)
+        data = self.manifest("1.1.0")
+        self.assertEqual(data["version"], "1.1.0")
+        # Unreleased fixtures use the Updated App Support category.
+        unreleased_body = "### \U0001F680 Updated App Support\n" + BULLET.rstrip("\n")
+        self.assertEqual(
+            data["download_url"],
+            f"https://github.com/{REPO}/releases/download/v1.1.0/patches-1.1.0.mpp",
+        )
+        self.assertEqual(data["description"], unreleased_body)
+        self.assertEqual(data["signature_download_url"], "")
+        self.assertRegex(data["created_at"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$")
+
+    def test_manifest_first_release(self):
+        """Verify the manifest works for a bare-heading initial release."""
+        self.write_changelog()
+        self.promote("1.0.0", "")
+        data = self.manifest("1.0.0")
+        self.assertEqual(data["version"], "1.0.0")
+        self.assertIn("v1.0.0/patches-1.0.0.mpp", data["download_url"])
+        self.assertEqual(
+            data["description"],
+            "### \U0001F680 Updated App Support\n" + BULLET.rstrip("\n"),
+        )
+
+    def test_staging_commit_includes_manifest(self):
+        """Verify the staging commit picks up patches-bundle.json."""
+        self.assertIn("patches-bundle.json", next(
+            line for line in SCRIPT.splitlines() if line.startswith("git add ")
+        ))
 
 
 if __name__ == "__main__":

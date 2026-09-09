@@ -125,6 +125,9 @@ gradle-app.setting
 # Dependency directories
 node_modules/
 
+# Python bytecode caches (created by unittest discovery)
+__pycache__/
+
 # gradle properties, due to Github token
 ./gradle.properties
 
