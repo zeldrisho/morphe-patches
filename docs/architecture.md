@@ -52,9 +52,10 @@ the per-update routine lives in the [QA checklist](qa-checklist.md#version-bump-
 
 ## Generated data flow
 
-1. `./gradlew generatePatchesList` runs `util/PatchListGenerator.kt`, which loads the `.mpp` and writes `patches-list.json`.
-2. Release staging (`scripts/prepare-release.sh`) stamps `version`, then regenerates the `README.md` patch table between `PATCHES_START` / `PATCHES_END`.
-3. `patches-bundle.json` is written by `release.yml` after the GitHub release exists, with the release download URL.
+`./gradlew generatePatchesList` runs `util/PatchListGenerator.kt`, which loads the
+`.mpp` and writes `patches-list.json`.
+For release-owned metadata updates, see [staging](release.md#staging-a-release)
+and the [release workflow](release.md#what-releaseyml-does).
 
 `patches-list.json` groups by `compatiblePackages[].packageName`; entries with null compatibility are universal.
 Generated-file ownership and the release pipeline live in the [release process](release.md).

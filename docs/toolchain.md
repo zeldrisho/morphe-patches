@@ -222,10 +222,7 @@ aapt version
 jadx --version
 apktool --version
 python3 -m unittest discover -s scripts/tests
-# Covers shellcheck + shfmt + actionlint via pinned hooks (no separate runs):
-uvx pre-commit run --all-files
-./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
 ```
 
-The final command builds the bundle and companion extension; a successful build
-still needs [device QA](qa-checklist.md).
+Then follow [canonical verification](development.md#verify).
+A successful build still needs [device QA](qa-checklist.md).
