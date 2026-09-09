@@ -4,6 +4,8 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+## [1.1.0](https://github.com/zeldrisho/morphe-patches/compare/v1.0.0...v1.1.0) (2026-09-09)
+
 ### 🚀 Updated App Support
 * **Threads:** Add support for `445.0.0.46.83`.
 
