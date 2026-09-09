@@ -25,7 +25,7 @@
 
 - Branching and publishing: follow the [release process](docs/release.md).
 - Generated-file ownership: follow [release rules](docs/release.md#rules).
-- `CHANGELOG.md`: user-visible app changes only, bullets under `## Unreleased` only; never touch versioned entries.
+- `CHANGELOG.md`: follow [changelog policy](docs/release.md#changelog-policy) and [release rules](docs/release.md#rules).
 - Risky-patch defaults and warnings: follow [patch authoring rules](docs/patch-development.md#file-layout).
 
 ## External References

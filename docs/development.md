@@ -45,8 +45,8 @@ The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the
 toolchain works — for the real loop (apply in Morphe Desktop, single-patch
 isolation, troubleshooting) see [patch development](patch-development.md#build-and-test).
 Generated-file ownership is defined in the [release rules](release.md#rules).
-In `CHANGELOG.md`, add bullets under `## Unreleased` only; versioned entries
-are promoted by `prepare-release.sh`, never edited by hand.
+For `CHANGELOG.md`, follow the [changelog policy](release.md#changelog-policy)
+and [release rules](release.md#rules).
 
 ## Code quality
 

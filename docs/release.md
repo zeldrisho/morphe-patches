@@ -63,15 +63,28 @@ replace a published asset — fix forward with a new version instead.
 
 User-visible app patch changes only: added/changed/fixed support, supported
 versions, removals, warnings. Omit CI, refactoring, reviewer fixes,
-dependencies, commit hashes, and contributor lists. One bullet per app change:
+dependencies, commit hashes/links, issue-number links, and contributor lists.
+Keep this hand-curated: one entry per stable release, no dev builds or permanent
+prerelease headings. Use one `* **App:**` or `* **App - Feature:**` bullet per change.
+
+Group bullets under these `###` category headings; omit empty categories:
+
+- `🐛 Bug Fixes` — fixed bugs.
+- `✨ New Features` — entirely new patches or new patch options.
+- `🚀 Updated App Support` — adding/dropping supported app versions, including experimental support.
+- `🔧 Improvements` — non-bug, non-feature refinements; use only when genuinely needed.
+
+Category names are display text, not parser keys; scoped bullet syntax is unchanged.
+
+Example:
 
 ```markdown
 ## Unreleased
 
-### Fixed
+### 🐛 Bug Fixes
 * **Threads - Hide ads:** Sponsored posts no longer appear in the feed.
 
-### Changed
+### 🚀 Updated App Support
 * **Threads:** Support 435.x; drop 433.x.
 ```
 
