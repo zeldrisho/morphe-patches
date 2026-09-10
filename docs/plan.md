@@ -4,30 +4,30 @@ Only outstanding actions. Procedure details live in the linked docs.
 
 ## Zalo 26.08.01 startup regression
 
-- [ ] Trace the exception that reaches Zalo's uncaught-exception handler during
-      cold start of the Morphe-patched APK. The process exits with
-      `System.exit(0)` before the first screen; the unmodified APK remains
-      alive. Verify the failing path in smali and identify whether the cause is
-      patch bytecode, merged-APKM packaging, re-signing/integrity validation,
-      or restored external data.
-- [ ] Produce a minimal patched control that launches, then re-enable the
-      Zalo patches one at a time. Do not bypass the startup kill branch without
-      identifying the underlying exception and preserving normal error handling.
-- [ ] Rebuild, install, and cold-start the fixed APK before restoring data or
-      claiming any feature result. Record input/bundle/options provenance and
-      certificate details in the QA/release record.
+- [ ] Re-hunt the complete native startup integrity path in
+      `lib/arm64-v8a/libnative_utils.so`. A narrowly patched
+      `apk_tampered → System.exit(0)` branch did not launch, so additional
+      validation/configuration failure paths remain.
+- [ ] Identify a safe, narrowly scoped mutation that preserves native
+      configuration initialization and normal error handling. Do not suppress
+      the shared exit helper or skip `InitializeConfig` wholesale.
+- [ ] Implement it as a version- and ABI-pinned `rawResourcePatch`, with exact
+      input-byte guards and `default = false` until validated.
+- [ ] Build and install a minimal patched control, then re-enable the four
+      Zalo feature patches cumulatively, one at a time. Cold-start each APK
+      before any data or feature QA.
+- [ ] Record input/bundle/options hashes, APK certificates, device/Android
+      version, native evidence, and startup logs in the QA/release record.
 
 ## Device QA (Zalo 26.08.01, all four patches)
 
-- [ ] After the startup regression is fixed, run the notification preservation
-      test: Timeline/Stories and Zalo Video are suppressed while message, call,
-      friend-request, and birthday notifications still arrive — follow the
-      [QA checklist](qa-checklist.md).
-- [ ] Exercise the non-destructive reinstall cycle on-device using the updated
-      backup/restore helpers, with Zalo's in-app message backup and the agreed
-      install → restore → login order. Confirm media and message associations,
-      and record provenance with the result.
-- [ ] Run the required SDK-verified re-patch, or document the verifier waiver
+- [ ] After startup passes, run notification preservation QA: Timeline/Stories
+      and Zalo Video are suppressed while message, call, friend-request, and
+      birthday notifications still arrive; follow the [QA checklist](qa-checklist.md).
+- [ ] Exercise the non-destructive reinstall cycle using the backup/restore
+      helpers, Zalo's in-app message backup, and install → restore → login
+      order. Confirm media and message associations and record provenance.
+- [ ] Run the required SDK-verified re-patch, or document a verifier waiver
       only after device QA and reproducible toolchain evidence.
 
 ## Awaiting go-ahead (do not implement unasked)
@@ -36,33 +36,27 @@ Only outstanding actions. Procedure details live in the linked docs.
       zcloud banner, Me rows, or bottom tabs); prefer a smaller surface before
       navigation-state changes.
 - [ ] If approved, compare the reference project's 260801903 base-APK hash
-      with our extracted original base APK, then independently re-verify its
-      candidate symbols. Record owner/signature, semantic anchor, callers and
-      consumers, proposed mutation, and regression risks in local analysis —
-      [external-reference workflow](reverse-engineering.md#learning-from-other-patch-projects).
-- [ ] Decide whether to add analytics DAO suppression (opt-in, off by default);
-      if approved, verify specific write paths and preserve unrelated database
-      operations rather than disabling the database wholesale.
-- [ ] Decide whether ACTIVITY_UPDATES / USER_INTERACTIONS channels stay out of
-      the promo-notifications patch; do not broaden filtering without explicit
-      scope approval and preservation tests.
+      with our extracted original base APK, independently re-verify candidate
+      symbols, and record owner/signature, semantic anchor, callers,
+      consumers, mutation, and regression risks in local analysis.
+- [ ] Decide whether to add analytics DAO suppression (opt-in, off by default)
+      and whether ACTIVITY_UPDATES / USER_INTERACTIONS remain out of the
+      promo-notifications patch. Preserve unrelated database operations and
+      genuine notifications.
 
 ## Local data-transfer patch (research only; implementation not approved)
 
-- [ ] Inspect Zalo 26.08.01 / 260801903 for native backup, restore, and
-      phone-transfer entry points; verify candidates in smali and determine
-      whether an existing flow can be exposed without replacing its machinery —
-      [data-migration investigation](reverse-engineering.md#investigating-data-migration-patches).
+- [ ] Inspect native backup, restore, and phone-transfer entry points for
+      Zalo 26.08.01 / 260801903; verify candidates in smali and determine
+      whether an existing flow can be exposed without replacing its machinery.
 - [ ] Trace message databases, attachment references, snapshot handling, and
-      encryption/key lifecycle; establish reinstall/device/account constraints
-      before proposing full chat restoration.
-- [ ] Choose a bounded patch scope from the evidence: prefer a usable native
-      transfer flow, with external-media export/import as the fallback. Obtain
-      explicit approval before implementation or introducing in-app UI under the
-      current [scope rules](maintenance.md#standing-rules).
-- [ ] Before claiming restore support, demonstrate a round trip on disposable
-      data, including attachment associations, interruption recovery, and
-      wrong-account/version rejection; separate media-only from full-chat
+      encryption/key lifecycle; establish reinstall/device/account constraints.
+- [ ] Choose a bounded scope from the evidence: prefer a usable native
+      transfer flow, with external-media export/import as fallback. Obtain
+      explicit approval before implementation or adding UI.
+- [ ] Before claiming restore support, demonstrate a disposable-data round
+      trip with attachment associations, interruption recovery, and
+      wrong-account/version rejection; distinguish media-only from full-chat
       results.
 
 ## Release

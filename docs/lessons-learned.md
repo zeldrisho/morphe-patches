@@ -57,6 +57,7 @@ Hunt and authoring owners: [hunt targets](reverse-engineering.md#hunt-targets),
 | A Zalo external-data copy is media transfer, not a complete app-data restore. | The VOZ procedure confirms that `Android/data/com.zing.zalo` contains useful media, while message state/indexes remain private and require Zalo's in-app backup/restore; inaccessible cache files are disposable and should not invalidate the media backup. |
 | For large Android external-data transfers, archive and stream the package directory rather than transferring thousands of files individually. | The direct restore was aborted after about 1,391 files; a compressed tar stream restored 18,870 files successfully. |
 | Zalo 26.08.01 patched APKs must pass a cold-start control before any data or feature QA. | The unmodified APK stayed alive, but patched variants exited during startup via Zalo's uncaught-exception handler (`System.exit(0)`); the original exception was hidden from the crash buffer, so patch-time success is not enough. |
+| A re-signed Zalo APK can fail before Java startup because `libnative_utils.so` validates the original certificate; patching one observed `apk_tampered` exit branch is not sufficient. | On Galaxy SM-S936B / Android 16, an all-patches-disabled Morphe build still exited immediately after loading `libnative_utils.so`; the stock APK remained alive. The safe response is to trace every validation/configuration path and preserve initialization, not suppress a shared exit helper. |
 
 ## TV / ABI / install issues
 

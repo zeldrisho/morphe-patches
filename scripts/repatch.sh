@@ -23,6 +23,8 @@
 #                    any other value is passed as --verify-with-sdk=<path>.
 #                    Empty/0/false disables verification (default).
 #   GITHUB_REPO    -> owner/repo used when downloading the latest release bundle
+#   PATCHES        -> optional comma-separated patch names to enable (all other
+#                     patches are disabled); useful for isolating startup regressions
 set -euo pipefail
 
 # Print an error message to stderr and exit with code 1.
@@ -150,16 +152,26 @@ echo "Using patch bundle: $MPP"
 # ---------- Build the options file (rename patches only if env vars set) ----------
 OPTS="$TMP/options.json"
 morphe options-create -p "$MPP" -o "$OPTS" >/dev/null
-APP_NAME="${APP_NAME:-}" PACKAGE_NAME="${PACKAGE_NAME:-}" python3 - "$OPTS" <<'PY'
+APP_NAME="${APP_NAME:-}" PACKAGE_NAME="${PACKAGE_NAME:-}" PATCHES="${PATCHES-__DEFAULT__}" python3 - "$OPTS" <<'PY'
 import json, os, sys
 path = sys.argv[1]
 data = json.load(open(path))
 patches = data[0]["patches"]
 app_name, pkg_name = os.environ["APP_NAME"], os.environ["PACKAGE_NAME"]
-if app_name and "Change app name" in patches:
+selected = os.environ["PATCHES"]
+if selected != "__DEFAULT__":
+    requested = {name.strip() for name in selected.split(",") if name.strip()}
+    unknown = requested - patches.keys()
+    if unknown:
+        raise SystemExit("unknown patch name(s): " + ", ".join(sorted(unknown)))
+    # An explicit allow-list is intentionally strict: it makes a minimal
+    # patched control reproducible instead of silently retaining defaults.
+    for name, patch in patches.items():
+        patch["enabled"] = name in requested
+if app_name and "Change app name" in patches and selected == "__DEFAULT__":
     patches["Change app name"]["enabled"] = True
     patches["Change app name"].setdefault("options", {})["appName"] = app_name
-if pkg_name and "Change package name" in patches:
+if pkg_name and "Change package name" in patches and selected == "__DEFAULT__":
     patches["Change package name"]["enabled"] = True
     patches["Change package name"].setdefault("options", {})["packageName"] = pkg_name
 json.dump(data, open(path, "w"), indent=1)

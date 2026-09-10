@@ -42,6 +42,21 @@ MPP="patches/build/libs/patches-<version>.mpp" \
 adb install -r /tmp/threads_patched.apk
 ```
 
+For startup isolation, `repatch.sh` accepts a strict comma-separated patch
+allow-list. Use `PATCHES=''` for a minimal patched control with every patch
+disabled. For Zalo, build controls in this
+order, installing and cold-starting each output before enabling the next patch:
+
+```bash
+PATCHES='Disable Zalo ads' bash scripts/repatch.sh /path/to/zalo.apkm /tmp/zalo-ads.apk
+PATCHES='Disable Zalo ads,Disable Zalo sponsored placements' bash scripts/repatch.sh /path/to/zalo.apkm /tmp/zalo-sponsored.apk
+PATCHES='Disable Zalo ads,Disable Zalo sponsored placements,Filter Zalo promo notifications' bash scripts/repatch.sh /path/to/zalo.apkm /tmp/zalo-notif.apk
+PATCHES='Disable Zalo ads,Disable Zalo sponsored placements,Filter Zalo promo notifications,Remove Zalo AD_ID permission' bash scripts/repatch.sh /path/to/zalo.apkm /tmp/zalo-adid.apk
+```
+
+`PATCHES` disables every bundle patch not named and rejects unknown names;
+this prevents a control from silently including default-on patches.
+
 Same-package reinstalls (e.g. Zalo `com.zing.zalo`) cannot install over the
 stock-signed original — mismatched signatures block install-over, so the
 original must be uninstalled first, wiping local data. Make that cycle
