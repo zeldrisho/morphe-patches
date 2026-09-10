@@ -86,13 +86,14 @@ It does **not** guarantee build-tools **36.1.0**, nor install `adb` just for a b
 Inspect first, then install packages needed for a fresh setup:
 
 ```fish
-android --sdk="$ANDROID_HOME" info
-android --sdk="$ANDROID_HOME" sdk list
-android --sdk="$ANDROID_HOME" sdk install platforms/android-36
-android --sdk="$ANDROID_HOME" sdk install platform-tools
+android info
+android sdk list
+android sdk install platforms/android-36
+android sdk install platform-tools
+android sdk install "ndk;29.0.14206865"
 # Explicit analysis/signature tools; not a repo build-tools pin:
-android --sdk="$ANDROID_HOME" sdk install build-tools/36.1.0
-fish_add_path "$ANDROID_HOME/build-tools/36.1.0" "$ANDROID_HOME/platform-tools" ~/.local/bin
+android sdk install build-tools/36.1.0
+fish_add_path "$ANDROID_HOME/build-tools/36.1.0" "$ANDROID_HOME/platform-tools" "$ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin" ~/.local/bin
 ```
 
 `build-tools/36.1.0` is valid [Android CLI package syntax](https://developer.android.com/tools/agents/android-cli#sdk-install).
@@ -228,7 +229,7 @@ Other mirrors are not sources for this project's original APKs.
 python3 --version
 java -version
 ./gradlew --version
-android --sdk="$ANDROID_HOME" sdk list
+android sdk list
 adb version
 aapt version
 jadx --version
