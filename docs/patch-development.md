@@ -190,7 +190,7 @@ Generated-file ownership is defined in the [release rules](release.md#rules).
 | `Fingerprint declared no instruction filters` | Using `instructionMatches` without `filters` | Add `filters`, or use `strings` + `stringMatches` |
 | `Failed to match the fingerprint` | Code moved / signature changed | Re-verify smali ([fingerprint debugging](bytecode-reference.md#fingerprint-debugging)) |
 | Patched app crashes on launch | Wrong register / wide-type (`J`/`D`) shift | `adb logcat`, recount registers from smali |
-| "Not compatible" / install fails | Split APK (`requiredSplitTypes`) | Pass the downloaded `.apkm` bundle through; keep `ApkFileType.APKS` in sync with what Desktop accepts |
+| "Not compatible" / install fails | Split APK (`requiredSplitTypes`) | Pass the downloaded `.apkm` bundle through; keep `ApkFileType.APKS` in sync with what Morphe accepts |
 | Google login / Drive broken | Signature mismatch after re-signing | Expected; not fixable without an account-spoof patch |
 | Server-gated features still locked | Server-side validation (credits, cloud) | Not bypassable client-side — document as limitation |
 | Gradle auth failure | Missing registry credentials | `gpr.user`/`gpr.key` (or `GITHUB_ACTOR`/`GITHUB_TOKEN`), see [toolchain setup](toolchain.md#4-repository-dependencies) |

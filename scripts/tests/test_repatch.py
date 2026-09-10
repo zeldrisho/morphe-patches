@@ -13,7 +13,10 @@ SCRIPT = Path(__file__).resolve().parents[1] / "repatch.sh"
 FAKE_JAVA = r'''#!/usr/bin/env python3
 import json, os, pathlib, sys
 args = sys.argv[1:]
-assert args[:2] == ["-jar", os.environ["MORPHE_CLI"]], args
+assert args[0] == "-jar" and args[1].endswith(".jar"), args
+capture = os.environ.get("JAR_CAPTURE")
+if capture:
+    pathlib.Path(capture).write_text(args[1])
 command, args = args[2], args[3:]
 with open(os.environ["CALLS"], "a") as log:
     log.write(json.dumps([command, args]) + "\n")
@@ -42,6 +45,28 @@ else:
 '''
 
 
+FAKE_MORPHE = r'''#!/usr/bin/env python3
+import json, os, pathlib, sys
+command, args = sys.argv[1], sys.argv[2:]
+with open(os.environ["CALLS"], "a") as log:
+    log.write(json.dumps([command, args]) + "\n")
+if command == "options-create":
+    patches = {
+        "Hide ads": {"enabled": True},
+        "Change app name": {"enabled": True, "options": {"appName": "Threads"}},
+        "Change package name": {"enabled": False, "options": {}},
+    }
+    pathlib.Path(args[args.index("-o") + 1]).write_text(json.dumps([{"patches": patches}]))
+elif command == "patch":
+    assert any(a.startswith("--keystore=") for a in args), args
+    options = pathlib.Path(args[args.index("--options-file") + 1]).read_text()
+    pathlib.Path(os.environ["OPTIONS_CAPTURE"]).write_text(options)
+    pathlib.Path(args[args.index("-o") + 1]).touch()
+else:
+    raise AssertionError(command)
+'''
+
+
 class RepatchTest(unittest.TestCase):
     """Test suite for the repatch.sh script, covering patch bundle discovery, signing options, and error paths."""
     def setUp(self):
@@ -55,6 +80,8 @@ class RepatchTest(unittest.TestCase):
         shutil.copyfile(SCRIPT, self.script)
         self.libs = self.root / "patches/build/libs"
         self.libs.mkdir(parents=True)
+        self.home = self.root / "home"
+        self.home.mkdir()
         bin_dir = self.root / "bin"
         bin_dir.mkdir()
         java = bin_dir / "java"
@@ -67,11 +94,13 @@ class RepatchTest(unittest.TestCase):
         }}
         self.env.update(
             PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
-            MORPHE_CLI=str(self.root / "cli.jar"),
+            HOME=str(self.home),
+            MORPHE_CLI=str(self.root / "morphe-desktop-test-all.jar"),
             KEYSTORE=str(self.root / "test.keystore"),
             MPP=str(self.root / "bundle.mpp"),
             CALLS=str(self.root / "calls.jsonl"),
             OPTIONS_CAPTURE=str(self.root / "options.json"),
+            JAR_CAPTURE=str(self.root / "jar.txt"),
         )
         for key in ("MORPHE_CLI", "KEYSTORE", "MPP"):
             Path(self.env[key]).touch()
@@ -80,14 +109,23 @@ class RepatchTest(unittest.TestCase):
         self.output = self.root / "output.apk"
 
     def run_helper(self, **overrides):
-        """Run the repatch.sh script with optional environment variable overrides and return the subprocess result."""
+        """Run the repatch.sh script with optional environment variable overrides and return the subprocess result.
+
+        An override value of None removes the variable from the environment.
+        """
+        env = dict(self.env)
+        for key, value in overrides.items():
+            if value is None:
+                env.pop(key, None)
+            else:
+                env[key] = value
         return subprocess.run(
             ["bash", str(self.script), str(self.input), str(self.output)],
-            env=self.env | overrides, capture_output=True, text=True, timeout=15,
+            env=env, capture_output=True, text=True, timeout=15,
         )
 
     def calls(self):
-        """Parse and return the list of Desktop CLI commands logged during script execution."""
+        """Parse and return the list of Morphe CLI commands logged during script execution."""
         return [json.loads(line) for line in Path(self.env["CALLS"]).read_text().splitlines()]
 
     def test_default_signing_and_patch_selection(self):
@@ -97,7 +135,7 @@ class RepatchTest(unittest.TestCase):
         calls = self.calls()
         args = calls[1][1]
         self.assertIn("--keystore-entry-alias=Morphe", args)
-        self.assertFalse(any(a.startswith("--keystore-password=") for a in args))
+        self.assertIn("--keystore-password=Morphe", args)
         self.assertFalse(any(a.startswith("--keystore-entry-password=") for a in args))
         self.assertEqual(args[args.index("-p") + 1], self.env["MPP"])
         self.assertEqual(args[-1], str(self.input))
@@ -179,6 +217,79 @@ class RepatchTest(unittest.TestCase):
         self.assertNotIn("✅ Patched APK", result.stdout)
         args = self.calls()[1][1]
         self.assertFalse(Path(args[args.index("-t") + 1]).parent.exists())
+
+    def test_jar_discovery_override_wins_over_share_dir(self):
+        """Verify an explicit MORPHE_CLI override beats a newer share-dir JAR."""
+        share = self.home / ".local/share/morphe-desktop"
+        share.mkdir(parents=True)
+        newcomer = share / "morphe-desktop-99-all.jar"
+        newcomer.touch()
+        os.utime(newcomer, (300, 300))
+        os.utime(self.env["MORPHE_CLI"], (100, 100))
+        result = self.run_helper()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), self.env["MORPHE_CLI"])
+
+    def test_jar_discovery_finds_newest_share_jar(self):
+        """Verify discovery picks the newest upstream JAR across standard share dirs."""
+        old_dir = self.home / ".local/share/morphe-desktop"
+        new_dir = self.home / ".local/share/morphe"
+        old_dir.mkdir(parents=True)
+        new_dir.mkdir(parents=True)
+        old = old_dir / "morphe-desktop-1-all.jar"
+        new = new_dir / "morphe-desktop-2-all.jar"
+        old.touch()
+        new.touch()
+        os.utime(old, (100, 100))
+        os.utime(new, (200, 200))
+        result = self.run_helper(MORPHE_CLI=None)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), str(new))
+
+    def test_jar_discovery_uses_path_wrapper(self):
+        """Verify a `morphe` executable on PATH is used when no JAR is found."""
+        bin_dir = Path(self.env["PATH"].split(os.pathsep)[0])
+        wrapper = bin_dir / "morphe"
+        wrapper.write_text(FAKE_MORPHE)
+        wrapper.chmod(0o755)
+        result = self.run_helper(MORPHE_CLI=None)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(self.calls()), 2)
+        self.assertFalse(Path(self.env["JAR_CAPTURE"]).exists())
+        self.assertTrue(self.output.is_file())
+
+    def test_jar_discovery_error_without_alias(self):
+        """Verify the missing-JAR error names standard locations, not an alias."""
+        clean_path = os.pathsep.join(
+            entry for entry in self.env["PATH"].split(os.pathsep)
+            if not Path(entry, "morphe").exists()
+        )
+        result = self.run_helper(MORPHE_CLI=None, PATH=clean_path)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Morphe JAR not found", result.stderr)
+        self.assertIn("~/.local/share/morphe-desktop/", result.stderr)
+        self.assertNotIn("morphe-cli", result.stderr)
+        self.assertFalse(Path(self.env["CALLS"]).exists())
+
+    def test_keystore_standard_location_fallback(self):
+        """Verify an imported keystore in the data dir is picked up automatically."""
+        data = self.home / ".local/share/morphe-desktop/morphe-data"
+        data.mkdir(parents=True)
+        (data / "morphe.keystore").touch()
+        imported = data / "imported.keystore"
+        imported.touch()
+        result = self.run_helper(KEYSTORE=None)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        args = self.calls()[1][1]
+        self.assertIn(f"--keystore={imported}", args)
+        self.assertIn("--keystore-password=Morphe", args)
+
+    def test_keystore_missing_error(self):
+        """Verify a clear error when no keystore exists in any standard location."""
+        result = self.run_helper(KEYSTORE=None)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("keystore not found", result.stderr)
+        self.assertFalse(Path(self.env["CALLS"]).exists())
 
 
 if __name__ == "__main__":

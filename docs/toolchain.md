@@ -104,14 +104,14 @@ required. `ANDROID_HOME` controls Gradle SDK discovery; PATH controls terminal t
 
 | Tool | Purpose |
 | --- | --- |
-| `java`, `javac`, `keytool` (`brew install openjdk@21`) | Build, run Morphe Desktop, inspect signing keys |
+| `java`, `javac`, `keytool` (`brew install openjdk@21`) | Build, run Morphe, inspect signing keys |
 | `android` (`brew install android-cli`) | Manage SDK packages |
 | `adb` (`android sdk install platform-tools`) | Device pairing, install, logcat |
 | `aapt`, `aapt2`, `apksigner`, `zipalign` (`android sdk install build-tools/36.1.0`, or an installed suitable version) | APK metadata and signing/alignment checks |
 | `git`, `curl`, `unzip`, `zip`, `bash`, `fish`, `python3` (host commands in [Python and host tools](#1-python-and-host-tools)) | Host/script prerequisites |
 | Gradle (checked-in `./gradlew`; no separate install) | Build/test bundles and extensions |
 | `gh`, `jq` (Fedora: `sudo dnf install -y gh jq`; macOS: `brew install gh jq`) | GitHub releases/PRs and JSON |
-| Morphe Desktop CLI/GUI (see [Morphe Desktop is also the CLI](#5-morphe-desktop-is-also-the-cli)) | Apply bundles and sign APKs |
+| Morphe CLI/GUI (see [Morphe CLI and GUI share one JAR](#5-morphe-cli-and-gui-share-one-jar)) | Apply bundles and sign APKs |
 
 ### Needed only for reverse engineering
 
@@ -162,50 +162,76 @@ Use a GitHub PAT with `read:packages` for the Morphe Gradle registry:
 `GITHUB_ACTOR` / `GITHUB_TOKEN`, or `gpr.user` / `gpr.key` in your private
 `~/.gradle/gradle.properties`. Never commit credentials.
 
-## 5. Morphe Desktop is also the CLI
+## 5. Morphe CLI and GUI share one JAR
 
 Upstream distributes **`morphe-desktop-*-all.jar`**, not a separate CLI package.
-The same JAR launches the GUI without a subcommand and the CLI with one.
+The same JAR launches the Morphe GUI without a subcommand and the Morphe CLI with one.
 See the [upstream README](https://github.com/MorpheApp/morphe-desktop) and
 [CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
-In this repo, `morphe-cli.jar` is only the local filename alias for that JAR.
+In this repo nothing needs to be exported: `scripts/repatch.sh` discovers the
+newest `morphe-desktop-*-all.jar` in the share dirs below, else a `morphe`
+executable on PATH. `$MORPHE_CLI` remains available as an explicit JAR override.
 
 Download the latest stable official JAR (requires `gh auth login`):
 
 ```fish
-mkdir -p ~/.local/share/morphe-desktop ~/.local/bin
-gh release download --repo MorpheApp/morphe-desktop --pattern 'morphe-desktop-*-all.jar' --dir ~/.local/share/morphe-desktop
+mkdir -p ~/.local/share/morphe ~/.local/bin
+gh release download --repo MorpheApp/morphe-desktop --pattern 'morphe-desktop-*-all.jar' --dir ~/.local/share/morphe
 ```
 
-Choose the exact downloaded filename and either set `MORPHE_CLI` to it, or copy it
-to `~/.local/bin/morphe-cli.jar`. Do not replace a JAR during an active patch run.
+Do not replace a JAR during an active patch run.
 
-```fish
-# Substitute the actual downloaded version; keep this in config.fish if desired.
-set -gx MORPHE_CLI "$HOME/.local/share/morphe-desktop/morphe-desktop-VERSION-all.jar"
-java -jar "$MORPHE_CLI" --version
-java -jar "$MORPHE_CLI" --help
-# GUI:
-java -jar "$MORPHE_CLI"
-# CLI via this repo's helper (bash):
-# bash scripts/repatch.sh /path/to/app.apkm /tmp/app-patched.apk
+Create the executable wrapper at `~/.local/bin/morphe`:
+
+```bash
+cat > ~/.local/bin/morphe <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+JAR=$(ls "$HOME/.local/share/morphe"/morphe-desktop-*-all.jar 2>/dev/null | sort -V | tail -n 1)
+if [[ -z "$JAR" ]]; then
+  echo "Error: No morphe-desktop-*-all.jar found in ~/.local/share/morphe/" >&2
+  exit 1
+fi
+exec java -jar "$JAR" "$@"
+EOF
+chmod +x ~/.local/bin/morphe
 ```
 
-`scripts/repatch.sh` uses `java -jar`, `options-create`, and `patch`.
+```bash
+morphe --version
+morphe --help
+# Morphe GUI:
+morphe
+# Helper (no environment variables needed):
+bash scripts/repatch.sh /path/to/app.apkm /tmp/app-patched.apk
+```
+
+`scripts/repatch.sh` works out of the box with zero environment variable
+configuration: it discovers the newest `morphe-desktop-*-all.jar`, the signing
+keystore, and the patch bundle from their standard locations.
+
+Morphe keeps its runtime data (cached patches, logs, scratch, default keystore)
+under `MORPHE_DATA_DIR` when set to a writable directory, else
+`<jar-dir>/morphe-data/`, else `~/morphe/` — see [CLI patching](cli.md) for the
+full priority and the startup-log line that reports the winner.
+
+`scripts/repatch.sh` uses `java -jar`, `options-create`, and `patch` (or the
+`morphe` wrapper when that is what discovery finds).
 Full flag reference and terminal flows (discovery, single-patch isolation,
 signing, updates): [CLI patching](cli.md).
-It needs a JAR path, **not** a shell wrapper. It explicitly selects the patch
-bundle, temporary directory, and keystore; its keystore default is the repo's
-`Morphe.keystore`, not the Desktop data directory. Set `KEYSTORE` to your
-existing signing key and preserve its alias/password settings; see
+It explicitly selects the patch
+bundle and temporary directory, and passes the discovered keystore
+(`imported.keystore` preferred, `--keystore-password=Morphe` by default);
+use `KEYSTORE=`/`KEYSTORE_PASSWORD=` only to override what discovery finds
+and preserve its alias/password settings; see
 [signing incidents](lessons-learned.md#signing).
-Desktop's data-directory defaults can change between versions; check startup
-logs or GUI **Tools → Open App Data**, rather than guessing a key location.
+Morphe's data-directory defaults can change between versions; check startup
+logs or the Morphe GUI **Tools → Open App Data**, rather than guessing a key location.
 
 ## 6. Original APK source
 
 Download original APKs/APKMs **only from [APKMirror](https://www.apkmirror.com/)**.
-Pass the downloaded split bundle (`.apkm`) directly to Morphe Desktop or
+Pass the downloaded split bundle (`.apkm`) directly to Morphe or
 `scripts/repatch.sh`; never pre-extract `base.apk`. Record the page
 URL, version name, versionCode, ABI/variant, and SHA-256 of the downloaded input.
 Other mirrors are not sources for this project's original APKs.

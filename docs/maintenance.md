@@ -23,7 +23,7 @@ decisions, not duplicate instructions.
 
 ## Standing rules
 
-- Check the installed Morphe Desktop CLI's help when flags fail. Temporary patch
+- Check the installed Morphe CLI's help when flags fail. Temporary patch
   files are purged by default; keep errors visible when diagnosing helper failures.
 - Inspect keystore aliases rather than guessing capitalization; keytool-made
   stores may contain lowercase `morphe`. Test keys must stay out of Git and

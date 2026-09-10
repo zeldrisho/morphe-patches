@@ -60,7 +60,7 @@ Device procedure owner: [QA checklist](qa-checklist.md).
 | An arm64-only "universal" APK fails `INSTALL_FAILED_NO_MATCHING_ABIS` on 32-bit (armeabi-v7a) TVs; merge the ABI splits into one universal before patching. | An APK shipping only `arm64-v8a` `.so` files failed to install on an armeabi-v7a TV. |
 | Morphe Manager auto-selects the config split matching the PATCHING phone, so patching a multi-ABI TV bundle on an arm64 phone drops the other ABI split; feed the Manager a pre-merged universal instead (a patch cannot override split selection). | Phone-patched TV output wouldn't install on a differently-ABI'd Android TV. |
 | "Not compatible with your TV" = a REQUIRED `<uses-feature>` the device lacks; check `aapt dump badging` (e.g. `android.software.live_tv required=true` blocks tuner-less devices). Mark it optional — distinct from the touchscreen phone→TV case. | A TV build's required `live_tv` feature blocked Chromecast/Google TV installs. |
-| Verify native-lib page-alignment with the REAL tool (`zipalign -c -p 4`), never a hand-rolled offset calc; the Desktop CLI already page-aligns `.so` on rebuild. | A python offset check falsely flagged aligned `.so` files; `zipalign -c` said OK. |
+| Verify native-lib page-alignment with the REAL tool (`zipalign -c -p 4`), never a hand-rolled offset calc; the Morphe CLI already page-aligns `.so` on rebuild. | A python offset check falsely flagged aligned `.so` files; `zipalign -c` said OK. |
 | Mark TV-only apps with an `(Android TV)` suffix in `Compatibility(name)`, verified by a `LEANBACK_LAUNCHER` / `android.software.leanback` manifest check. | TV builds were indistinguishable from phone apps in the Manager list. |
 
 ## Signing
@@ -69,7 +69,7 @@ Helper owner: `scripts/repatch.sh`. CLI reference: run `java -jar "$MORPHE_CLI" 
 
 | Observation (historical) | Why |
 | ---- | --- |
-| Morphe.keystore is **BKS**: empty store password, alias `Morphe`, key password `Morphe`. Read/convert it with keytool only via `-provider org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath <desktop-jar>`; plain keytool says "Unrecognized keystore format". | Recovered by listing with the BC provider. |
+| Morphe.keystore is **BKS**: empty store password, alias `Morphe`, key password `Morphe`. Read/convert it with keytool only via `-provider org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath <morphe-jar>`; plain keytool says "Unrecognized keystore format". | Recovered by listing with the BC provider. |
 | The repo's default keystore historically signed with NO password/alias flags; that applied to that BKS store, not to every keystore. `scripts/repatch.sh` supports `KEYSTORE_ALIAS`, `KEYSTORE_PASSWORD`, and `KEYSTORE_ENTRY_PASSWORD` overrides — use them for keytool-made stores (which often lowercase the alias to `morphe`). CLI options need the `=` form (`--keystore-entry-alias=Morphe`), not space-separated. | Both the missing-flag and wrong-alias mistakes cost real build cycles. |
 | The CLI's "Keystore does not contain entry with alias Morphe Key" is a MASK for a swallowed earlier error; when signing masks the real failure, build `--unsigned` then sign with `apksigner` (export key to PKCS12 first). If `apksigner` then fails reading the manifest, `zipalign -p -f 4` the APK and pass `--min-sdk-version <N>`. | ~10 cycles chased on a phantom alias error. |
 

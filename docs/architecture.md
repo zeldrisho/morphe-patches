@@ -27,7 +27,7 @@ original APK ──▶ jadx + apktool ──▶ target (class + method + instruc
                + bytecodePatch { execute { ... } }  (.kt sources, per-app folders)
                                            │ ./gradlew buildAndroid
                                            ▼
-                 patches-*.mpp ──▶ Morphe Desktop ──▶ patched APK ──▶ adb install
+                 patches-*.mpp ──▶ Morphe ──▶ patched APK ──▶ adb install
 ```
 
 ## Extension artifact wiring

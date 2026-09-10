@@ -6,7 +6,7 @@ For environment setup see [toolchain setup](toolchain.md).
 ## Reading order
 
 1. [Toolchain setup](toolchain.md) — install once per host.
-2. [CLI patching](cli.md) — terminal flows (Desktop JAR flags, `repatch.sh`, signing).
+2. [CLI patching](cli.md) — terminal flows (Morphe CLI flags, `repatch.sh`, signing).
 3. [Architecture](architecture.md) — module and data-flow overview.
 4. [Reverse engineering workflow](reverse-engineering.md) — finding targets.
 5. [Fingerprint guide](fingerprint-guide.md) — writing fingerprints.
@@ -18,7 +18,7 @@ For environment setup see [toolchain setup](toolchain.md).
 
 ## Prerequisites
 
-All tools, SDK packages, Python (`uv`/`uvx`) tooling, GitHub Packages credentials, and Morphe Desktop
+All tools, SDK packages, Python (`uv`/`uvx`) tooling, GitHub Packages credentials, and Morphe
 come from [toolchain setup](toolchain.md). Original APKs/APKMs come only from
 [APKMirror](https://www.apkmirror.com/).
 
@@ -48,7 +48,7 @@ uvx --from pre-commit==4.6.2 --with shellcheck-py==0.11.0.1 pre-commit run --all
 ```
 
 The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the
-toolchain works — for the real loop (apply in Morphe Desktop, single-patch
+toolchain works — for the real loop (apply with Morphe, single-patch
 isolation, troubleshooting) see [patch development](patch-development.md#build-and-test).
 
 ## Code quality

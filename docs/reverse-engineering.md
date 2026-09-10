@@ -15,7 +15,7 @@ RECON → DECOMPILE → HUNT → WRITE → TEST
 | Decompile | What does it do? | `decompiled/` (jadx Java) + `smali/` (apktool) |
 | Hunt | Where is the check? | Smali-verified target (class, method, instruction sequence) |
 | Write | How to bypass it? | `Fingerprints.kt` + `*Patch.kt` under `patches/src/main/kotlin/com/zeldrisho/threads/patches/` |
-| Test | Does it match? | `./gradlew buildAndroid`, then apply the `.mpp` in Morphe Desktop |
+| Test | Does it match? | `./gradlew buildAndroid`, then apply the `.mpp` in Morphe |
 
 Analysis work lives in this repo's **gitignored `analysis/` scratch workspace**,
 for example `analysis/<app>/` with `apk/`, `decompiled/`, `smali/`, and `notes/`.
@@ -27,8 +27,8 @@ relative paths from the repo root).
 
 See [toolchain setup](toolchain.md) for the complete inventory and install commands
 for Fedora WSL and macOS, including fish PATH setup and the `uv tool` versus `uvx`
-decision. Morphe Desktop's CLI mode applies `.mpp` bundles;
-`morphe-cli.jar` is only this repo's local filename alias for the Desktop JAR.
+decision. The Morphe CLI applies `.mpp` bundles; `scripts/repatch.sh` finds
+the Morphe JAR in its standard locations with no setup.
 
 `scripts/apk-recon.sh` wraps the recon step (framework, HTTP/DI/billing
 stack signals via DEX strings, obfuscation estimate, split-aware native libs,
@@ -245,7 +245,7 @@ Covered in the [fingerprint guide](fingerprint-guide.md) and
 ./gradlew buildAndroid
 ```
 
-Check the patch is registered (`list-patches` in Morphe Desktop/CLI against
+Check the patch is registered (`list-patches` in the Morphe CLI against
 `patches/build/libs/patches-*.mpp`), apply to the **downloaded split bundle**
 (never an extracted `base.apk`), install via `adb install -r`. If a fingerprint fails to
 match, go back to the hunt step and re-verify smali — the app version probably
