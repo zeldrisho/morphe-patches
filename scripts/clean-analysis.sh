@@ -3,7 +3,7 @@
 # reverse-engineering work. Nothing tracked by git is touched.
 #
 # Usage:
-#   scripts/clean-analysis.sh            # builds + generated .mpe copy + .kotlin (safe, rebuildable)
+#   scripts/clean-analysis.sh            # builds + legacy .mpe copy + .kotlin (safe, rebuildable)
 #   scripts/clean-analysis.sh --analysis # ... plus analysis/ (DESTRUCTIVE to scratch work)
 #   scripts/clean-analysis.sh --all      # everything above
 #   scripts/clean-analysis.sh --dry-run  # print what would be removed, remove nothing
@@ -39,6 +39,7 @@ TARGETS=(
     "$PROJECT_DIR/build"
     "$PROJECT_DIR/.gradle"
     "$PROJECT_DIR/.kotlin"
+    # Legacy repo-root extension copy (build no longer generates it).
     "$PROJECT_DIR/extensions/extension.mpe"
 )
 if [ "$WITH_ANALYSIS" -eq 1 ]; then
@@ -60,7 +61,7 @@ done
 if [ "$DRY_RUN" -eq 1 ]; then
     echo "dry run — nothing removed."
 elif [ "$WITH_ANALYSIS" -eq 1 ]; then
-    echo "✅ Cleaned build dirs, generated .mpe copy, .kotlin/, and analysis/."
+    echo "✅ Cleaned build dirs, legacy .mpe copy, .kotlin/, and analysis/."
 else
-    echo "✅ Cleaned build dirs, generated .mpe copy, and .kotlin/ (analysis/ kept; re-run with --analysis to drop it)."
+    echo "✅ Cleaned build dirs, legacy .mpe copy, and .kotlin/ (analysis/ kept; re-run with --analysis to drop it)."
 fi

@@ -12,10 +12,28 @@ Non-goal: server-side bypasses — client-side only (see
 
 | Module | Entry | Output |
 | ------ | ----- | ------ |
-| `patches` | `patches/build.gradle.kts`, `patches/src/main/kotlin/` | `patches/build/libs/patches-*.mpp` |
-| `extensions/extension` | `extensions/extension/build.gradle.kts`, `extensions/extension/src/main/java/` | `extensions/extension.mpe`, embedded via `extendWith` |
+| `patches` | `patches/build.gradle.kts`, `patches/src/main/kotlin/com/zeldrisho/patches/` | `patches/build/libs/patches-*.mpp` |
+| `extensions/extension` | `extensions/extension/build.gradle.kts`, `extensions/extension/src/main/java/` | embedded `extensions/extension.mpe` via `extendWith` |
 
 Plugin `app.morphe.patches` (see `settings.gradle.kts`, `gradle/libs.versions.toml`) builds both.
+
+## Patch sources (multi-app)
+
+```
+patches/src/main/kotlin/com/zeldrisho/patches/
+├── shared/
+│   ├── bytecode/MethodExtensions.kt  # clearBody/ensureRegisters (all apps)
+│   └── resources/AdIdStrip.kt        # AD_ID manifest helper (all apps)
+├── threads/shared/Constants.kt       # Threads compatibility only
+├── threads/ads/                      # Hide ads (+ feed helpers)
+├── threads/misc/{analytics,branding,packagename}/
+├── zalo/shared/Constants.kt          # Zalo compatibility only
+└── zalo/{ads,notif}/
+```
+
+App-specific compatibility lives with its app; only truly app-agnostic
+bytecode/resource helpers live in `shared/`. Tests mirror production packages;
+bundle-wide guards live in `com.zeldrisho.patches.bundle`.
 
 ## Patch flow (APK to device)
 
@@ -32,16 +50,20 @@ original APK ──▶ jadx + apktool ──▶ target (class + method + instruc
 
 ## Extension artifact wiring
 
-`extendWith("extensions/extension.mpe")` resolves relative to the patch
-working dir (repo root), but the extension module only emits
-`extensions/extension/build/morphe/extensions/extension.mpe`.
-`:patches:copyExtensionMpe` bridges the gap automatically and
-`:patches:verifyExtensionMpe` fails fast when the dex is missing
-(`extendWith` is a load-time reference, so the bundle builds fine without
-it — the failure would otherwise surface on-device). `buildAndroid`
-depends on both; CI runs the verify step explicitly. The repo-root copy
-stays git-ignored. Never commit `extensions/extension.mpe` or analysis work
-(see `scripts/clean-analysis.sh`).
+The Morphe Gradle plugin publishes the extension module's `build/morphe`
+directory and consumes it as `patches` resources, so the built `.mpp` already
+embeds `extensions/extension.mpe`. `extendWith("extensions/extension.mpe")`
+loads it through the bundle classloader (`ClassLoader.getResourceAsStream`),
+not from a repo-relative filesystem path — no root-level copy participates in
+the build. `:patches:verifyBundleExtension` (which runs `buildAndroid`) is the
+authoritative signal on the embedded dex — it fails when
+`extensions/extension.mpe` is missing from the built `.mpp` (an `extendWith`
+miss would otherwise surface on-device as a silent no-op).
+`:patches:checkExtensionArtifact` is a lightweight pre-check that runs before
+`buildAndroid` and fails in seconds when the extension module produced no
+artifact, shortening the failure loop without reintroducing a file-on-disk
+verification. Never commit analysis work (see `scripts/clean-analysis.sh`); a legacy
+repo-root `extensions/extension.mpe` copy is neither generated nor consumed.
 
 Authoring rules for fingerprints, patches, and extensions live in
 [fingerprint guide](fingerprint-guide.md) and

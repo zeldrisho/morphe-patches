@@ -16,23 +16,33 @@ See the [reverse engineering workflow](reverse-engineering.md) (finding targets)
 
 ## File layout
 
-One app = one folder; one concern = one subfolder with its fingerprints next to the patch:
+One app = one folder under `com/zeldrisho/patches/`; one concern = one subfolder with its fingerprints next to the patch. Shared, app-agnostic helpers live in `shared/`; app compatibility lives with its app:
 
 ```
-patches/src/main/kotlin/com/zeldrisho/threads/patches/
-├── shared/Constants.kt          # Compatibility records (package, file type, versions)
-├── ads/
-│   ├── FeedMergeRegisters.kt    # Register helpers
-│   ├── FeedReflectionContract.kt # Patch-time reflection ABI validation
-│   ├── Fingerprints.kt         # Structural feed-merge fingerprint
-│   └── HideAdsPatch.kt         # Injection
-└── misc/
-    ├── analytics/
-    ├── branding/
-    └── packagename/
+patches/src/main/kotlin/com/zeldrisho/patches/
+├── shared/
+│   ├── bytecode/MethodExtensions.kt  # clearBody/ensureRegisters
+│   └── resources/AdIdStrip.kt        # AD_ID manifest helper
+├── threads/
+│   ├── shared/Constants.kt           # COMPATIBILITY_THREADS only
+│   ├── ads/
+│   │   ├── FeedMergeRegisters.kt    # Register helpers
+│   │   ├── FeedReflectionContract.kt # Patch-time reflection ABI validation
+│   │   ├── Fingerprints.kt         # Structural feed-merge fingerprint
+│   │   └── HideAdsPatch.kt         # Injection
+│   └── misc/
+│       ├── analytics/               # RemoveAdIdPatch (uses shared AdIdStrip)
+│       ├── branding/
+│       └── packagename/
+└── zalo/
+    ├── shared/Constants.kt           # COMPATIBILITY_ZALO only
+    ├── ads/
+    └── notif/
 ```
 
-- Shared targets go in `shared/Constants.kt` (see [architecture](architecture.md) for the fields).
+- Shared implementation does not imply shared compatibility: Threads and Zalo
+  patches may call the same `shared/` helper while declaring separate
+  `COMPATIBILITY_*` records.
 - Pin **exact** `AppTarget` versions you fingerprinted and tested — never ship
   `version = null` as the only target. Morphe Manager rejects a null ("any")
   version (the whole source fails to load), and R8-obfuscated bytecode

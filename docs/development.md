@@ -24,8 +24,13 @@ come from [toolchain setup](toolchain.md). Original APKs/APKMs come only from
 
 ## Repo state
 
-Template init is complete; this repo is already renamed to `com.zeldrisho.threads`.
-Only re-scaffold from the upstream template when starting a new bundle repo.
+Template init is complete. Current coordinates: Gradle `group` is
+`com.zeldrisho.patches`; Kotlin patch sources live under
+`com.zeldrisho.patches.threads` / `com.zeldrisho.patches.zalo` (app-agnostic
+helpers in `com.zeldrisho.patches.shared`); the extension Java package
+intentionally stays `com.zeldrisho.threads.extension` (its class descriptor
+is embedded in injected smali). Only re-scaffold from the upstream template
+when starting a new bundle repo.
 
 ## Adding a patch
 
@@ -44,10 +49,12 @@ Canonical local verification (bash):
 
 ```bash
 uvx --from pre-commit==4.6.2 --with shellcheck-py==0.11.0.1 pre-commit run --all-files --show-diff-on-failure
-./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
+./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
 ```
 
-The `.mpp` lands in `patches/build/libs/patches-*.mpp`. This only proves the
+The `.mpp` lands in `patches/build/libs/patches-*.mpp` (`verifyBundleExtension`
+runs `buildAndroid`, then fails fast when the embedded
+`extensions/extension.mpe` is missing). This only proves the
 toolchain works — for the real loop (apply with Morphe, single-patch
 isolation, troubleshooting) see [patch development](patch-development.md#build-and-test).
 

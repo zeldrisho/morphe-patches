@@ -69,7 +69,9 @@ local.properties
 # Per-app reverse-engineering work (APK, smali, decompiled)
 analysis/
 
-# Local build copy of the extension dex used by morphe-cli extendWith
+# Legacy repo-root copy of the extension dex (no longer generated nor consumed;
+# the .mpp embeds extensions/extension.mpe via plugin resources). Kept ignored
+# so a stale local copy can never be committed.
 /extensions/extension.mpe
 
 # Local signing keys (never commit private keys)

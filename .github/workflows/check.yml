@@ -64,15 +64,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :patches:test :extensions:extension:testDebugUnitTest --no-daemon
 
-      - name: Build extension dex
+      - name: Build bundle and verify embedded extension
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:verifyExtensionMpe --no-daemon && test -f extensions/extension.mpe
-
-      - name: Build bundle
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew buildAndroid --no-daemon
+        run: ./gradlew :patches:verifyBundleExtension --no-daemon
 
       # Only the distributable bundle, never APKs, signing keys, or analysis data.
       - name: Upload bundle for device QA

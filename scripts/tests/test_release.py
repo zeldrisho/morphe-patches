@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = (ROOT / "scripts/prepare-release.sh").read_text(encoding="utf-8")
 PREFLIGHT, PROMOTE, _ = re.findall(r"<<'PY'\n(.*?)\nPY", SCRIPT, re.DOTALL)
 (MANIFEST,) = re.findall(r"<<'MANIFEST_PY'\n(.*?)\nMANIFEST_PY", SCRIPT, re.DOTALL)
-EXTRACTOR = ROOT / ".github/scripts/extract_release_notes.py"
+EXTRACTOR = ROOT / "scripts/extract_release_notes.py"
 DATE = "2026-09-09"
 REPO = "example/patches"
 BULLET = "* **Threads:** A change.\n"
@@ -235,7 +235,7 @@ class ReleaseFixtures(unittest.TestCase):
     def test_workflow_validation_precedes_build(self):
         """Verify release-note validation runs before toolchain setup and build."""
         workflow = (ROOT / ".github/workflows/release.yml").read_text()
-        extractor = workflow.index("python3 .github/scripts/extract_release_notes.py")
+        extractor = workflow.index("python3 scripts/extract_release_notes.py")
         self.assertLess(extractor, workflow.index("- name: Set up Java"))
         self.assertLess(extractor, workflow.index("- name: Test and build bundle"))
 

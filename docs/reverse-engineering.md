@@ -14,7 +14,7 @@ RECON → DECOMPILE → HUNT → WRITE → TEST
 | Recon | What app is this? | Identity + protections + framework notes |
 | Decompile | What does it do? | `decompiled/` (jadx Java) + `smali/` (apktool) |
 | Hunt | Where is the check? | Smali-verified target (class, method, instruction sequence) |
-| Write | How to bypass it? | `Fingerprints.kt` + `*Patch.kt` under `patches/src/main/kotlin/com/zeldrisho/threads/patches/` |
+| Write | How to bypass it? | `Fingerprints.kt` + `*Patch.kt` under `patches/src/main/kotlin/com/zeldrisho/patches/<app>/` |
 | Test | Does it match? | `./gradlew buildAndroid`, then apply the `.mpp` in Morphe |
 
 Analysis work lives in this repo's **gitignored `analysis/` scratch workspace**,

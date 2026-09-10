@@ -5,7 +5,7 @@ import app.morphe.patcher.Match
 import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.Opcode
-import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_ZALO
+import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
 /**
  * Skips Zalo Timeline/Stories and Zalo Video push notifications in the push

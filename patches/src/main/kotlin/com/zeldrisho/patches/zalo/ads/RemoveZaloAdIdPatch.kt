@@ -1,8 +1,8 @@
 package com.zeldrisho.patches.zalo.ads
 
 import app.morphe.patcher.patch.resourcePatch
-import com.zeldrisho.threads.patches.misc.analytics.stripAdIdPermissions
-import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_ZALO
+import com.zeldrisho.patches.shared.resources.stripAdIdPermissions
+import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
 /**
  * Strips Zalo's advertising-id manifest entries so the Play advertising ID

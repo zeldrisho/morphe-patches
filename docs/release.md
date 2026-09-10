@@ -76,8 +76,9 @@ Tag synchronization is a caller prerequisite; the script does not fetch tags.
 1. Validates the tag: stable `vX.Y.Z`, reachable from `main`, and matching
    `gradle.properties`, `patches-list.json`, `patches-bundle.json`, and the
    `CHANGELOG.md` heading. Extracts that version's section as the release notes.
-2. Runs unit tests and `buildAndroid`; the single `.mpp` must be named
-   `patches-<version>.mpp`.
+2. Runs unit tests and `:patches:verifyBundleExtension` (runs `buildAndroid`, then
+   fails fast when the embedded `extensions/extension.mpe` is missing); the single
+   `.mpp` must be named `patches-<version>.mpp`.
 3. Creates the GitHub release (marked latest) with the notes and the `.mpp`.
    A retry reuses the existing release and uploads a missing asset instead
    of failing. `attest-build-provenance` attests the bundle.

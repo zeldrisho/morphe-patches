@@ -6,8 +6,8 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
-import com.zeldrisho.threads.patches.shared.Constants.COMPATIBILITY_ZALO
-import com.zeldrisho.threads.patches.shared.clearBody
+import com.zeldrisho.patches.shared.bytecode.clearBody
+import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
 /**
  * Disables Zalo's first-party/offline and Google ad networks.
