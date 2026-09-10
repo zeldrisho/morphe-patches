@@ -35,20 +35,38 @@ class PatchesListShapeTest {
         assertTrue(json.contains("434.0.0.41.74"), "Threads target version must stay pinned")
     }
 
+    @Test fun zaloBundleShape() {
+        val json = listJson()
+        for (name in listOf("Disable Zalo ads", "Disable Zalo sponsored placements", "Filter Zalo promo notifications", "Remove Zalo AD_ID permission")) {
+            assertTrue(json.contains("\"name\": \"$name\""), "missing patch: $name")
+        }
+        assertTrue(json.contains("com.zing.zalo"), "missing Zalo package group")
+        assertTrue(json.contains("26.08.01"), "Zalo target version must stay pinned")
+    }
+
     /**
      * Verify that exactly 4 Threads patches are present with no leftover template scaffolding.
      */
     @Test fun patchCountMatchesSources() {
-        // Exactly 4 Threads patches — template scaffolding was removed, so any
-        // extra entry (e.g. a resurrected "Example Patch") fails loudly.
-        // Note: "name" also appears on compatiblePackages entries ("Threads"),
+        // Exactly 8 patches (4 Threads + 4 Zalo) — template scaffolding was removed,
+        // so any extra entry (e.g. a resurrected "Example Patch") fails loudly.
+        // Note: "name" also appears on compatiblePackages entries ("Threads", "Zalo"),
         // so only top-level patch names are counted (6-space indent in output).
         val json = listJson()
         val names = Regex("(?m)^      \"name\": \"(.*?)\"").findAll(json).map { it.groupValues[1] }.toList()
         assertEquals(
-            listOf("Change app name", "Change package name", "Hide ads", "Remove AD_ID permission"),
+            listOf(
+                "Change app name",
+                "Change package name",
+                "Disable Zalo ads",
+                "Disable Zalo sponsored placements",
+                "Filter Zalo promo notifications",
+                "Hide ads",
+                "Remove AD_ID permission",
+                "Remove Zalo AD_ID permission",
+            ),
             names.sorted(),
-            "expected exactly 4 Threads patches, found: $names",
+            "expected exactly 8 patches, found: $names",
         )
     }
 

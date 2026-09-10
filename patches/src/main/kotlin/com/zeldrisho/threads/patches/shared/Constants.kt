@@ -23,6 +23,25 @@ object Constants {
     // version anyway — it aborts the whole bundle). The feed merge is structurally matched in
     // BarcelonaFeedCache, but the extension's reflection ABI still uses pinned R8 names.
     // Patch-time ABI validation detects missing members, not changed ad-predicate semantics.
+
+    /** Zalo 26.08.01 (versionCode 260801903, APKMirror arm64-v8a) fingerprint target.
+     * Obfuscated members (Lvx/s2, Ljt classes, synthetic A6) are pinned to this exact
+     * version; re-verify smali per update. See analysis/zalo-26.08.01/notes/. */
+    const val TESTED_ZALO_VERSION_CODE = 260801903
+
+    val COMPATIBILITY_ZALO = Compatibility(
+        name = "Zalo",
+        packageName = "com.zing.zalo",
+        apkFileType = ApkFileType.APKM,
+        appIconColor = 0x0068FF,
+        targets = listOf(
+            AppTarget(
+                version = "26.08.01",
+                minSdk = 24,
+            ),
+        ),
+    )
+
     val COMPATIBILITY_THREADS = Compatibility(
         name = "Threads",
         packageName = "com.instagram.barcelona",

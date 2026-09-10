@@ -26,6 +26,8 @@ Authoring policy: [patch development](patch-development.md#file-layout).
 | Block screens rendered from server widgets (protobuf-driven fragments re-fetched on every navigation) are not client-patchable; the block text isn't in the APK. | "Go to home" just re-ran the server's own actions → same screen loop. |
 | Telemetry-only signals (`isRooted`/`isEmulator`/attestation logged but never gating) must NOT be patched — risk for zero benefit. | Operator feared a block that didn't exist; nothing gated login/playback on those signals. |
 | Re-signing + VPN/proxy + client spoofs on a REAL streaming/social/paid account = ban risk; recommend a throwaway account early, official app for the real one. | Re-signed build + VPN got a real account locked 24h. |
+| Before killing a notification/ad channel, decode the FULL type→channel table — genuine types share promo channels (`friend_request` rode with engagement pushes; only a complete map proved the kill set safe). | Zalo push dispatcher routed 52 types through one packed-switch; the channel names alone could not distinguish promo from genuine. |
+| A declared permission with zero smali string refs is not automatically unused — check API usage (`NfcAdapter`, `AlarmManager`, `AccountManager`) before proposing removal. | Permission audit found 8 zero-string permissions, every one backed by live API calls; string refs alone would have lied. |
 
 ## Patching pitfalls
 

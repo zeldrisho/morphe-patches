@@ -42,6 +42,23 @@ MPP="patches/build/libs/patches-<version>.mpp" \
 adb install -r /tmp/threads_patched.apk
 ```
 
+Same-package reinstalls (e.g. Zalo `com.zing.zalo`) cannot install over the
+stock-signed original — mismatched signatures block install-over, so the
+original must be uninstalled first, wiping local data. Make that cycle
+non-destructive (backup covers the external media folder only; message text
+still needs Zalo's own in-app backup, run manually first):
+
+```bash
+bash scripts/backup-zalo-data.sh            # pull to ./backup_zalo_<timestamp>/
+# manually: Zalo Settings > Sao lưu & đồng bộ tin nhắn, then uninstall stock
+adb install -r /tmp/zalo_patched.apk
+# log in FIRST, then:
+bash scripts/restore-zalo-data.sh           # pushes newest ./backup_zalo_*/
+```
+
+Both scripts require exactly one connected device and fail loudly otherwise;
+restore verifies the on-device result and reports counts. No root needed.
+
 Release QA must include one SDK-verified re-patch (compilation alone only
 proves the toolchain ran; the patcher verifier defaults to existence checks):
 
