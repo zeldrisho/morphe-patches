@@ -20,9 +20,9 @@ DRY_RUN=0
 WITH_ANALYSIS=0
 for arg in "$@"; do
     case "$arg" in
-        --dry-run|-n) DRY_RUN=1 ;;
-        --analysis|--all) WITH_ANALYSIS=1 ;;
-        -h|--help)
+        --dry-run | -n) DRY_RUN=1 ;;
+        --analysis | --all) WITH_ANALYSIS=1 ;;
+        -h | --help)
             sed -n '2,14p' "${BASH_SOURCE[0]}"
             exit 0
             ;;
