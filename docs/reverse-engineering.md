@@ -154,7 +154,7 @@ invariants rather than copying framework infrastructure.
    substantial portions. Remote catalogs, settings, recording, and diagnostics
    infrastructure require separate scope decisions, not automatic adoption.
 
-Reference inspected: local `~/Projects/zalo-patch/` at commit `deadb56` (MIT).
+Reference inspected: the separate `zalo-patch` checkout at commit `deadb56` (MIT).
 Useful entry points, relative to that repository:
 
 - `app/src/main/assets/symbol-schema.json`: versioned symbols and artifact
@@ -176,7 +176,7 @@ in gitignored `analysis/`, not in feature-specific session documents.
 ### Investigating data-migration patches
 
 External transfer utilities can suggest a user workflow without supplying any
-patch targets. Reference inspected: local `~/Projects/zalo-transfer-data/` at
+patch targets. Reference inspected: the separate `zalo-transfer-data` checkout at
 `3672218`, source only; no execution or device validation. Its `app/services.py`
 copies the external `Android/data/com.zing.zalo` tree through ADB and still relies
 on Zalo's own message backup. It does not demonstrate private-database recovery,
@@ -253,8 +253,13 @@ entry points), static smali evidence alone is acceptable; dynamic confirmation
 stays recommended but optional.
 
 Prerequisites: USB debugging on, target device visible via `adb`, `frida-server`
-matching the device ABI running. Stop with `Ctrl-C` (no device state is modified
-by the hooks below). Setup lives in [toolchain setup](toolchain.md#python-applications-persistent-tools-versus-one-shot-runs).
+matching the device ABI running. On a non-rooted, non-debuggable Android build,
+ADB visibility alone is insufficient for Frida attach: use an early-loaded
+Gadget in a disposable repackaged build instead. An integrity check may terminate
+that build before an attached script runs; autonomous Gadget script mode or a
+rooted `frida-server` is required for earliest hooks. Keep instrumentation builds
+and signing keys outside the release pipeline. Stop with `Ctrl-C` (no device
+state is modified by the hooks below). Setup lives in [toolchain setup](toolchain.md#python-applications-persistent-tools-versus-one-shot-runs).
 
 ```bash
 adb devices && frida-ps -U                 # device + target process visible

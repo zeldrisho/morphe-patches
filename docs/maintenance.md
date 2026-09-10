@@ -27,6 +27,28 @@ decisions, not duplicate instructions.
   durable cross-feature lessons here; retain sanitized release evidence in the
   release/PR record rather than creating feature-specific session documents.
 
+## Current Zalo work guardrails
+
+- Zalo 26.08.01 re-signed builds currently fail during native startup on the
+  tested Galaxy SM-S936B / Android 16, even with all feature patches disabled.
+  The native path must be fully traced before any mutation is considered; no
+  native patch or shared-exit-helper suppression is approved.
+- Static analysis confirms a PackageManager signature path, while native file
+  I/O and the complete `apk_tampered` predicate set remain unresolved. The next
+  trace must use the supplied rooted device. Do not substitute LSPatch-style
+  signature spoofing or guess at a raw-resource mutation.
+- Pending UI and analytics decisions may consult the separate `zalo-patch`
+  reference at commit `deadb56`
+  ([upstream](https://github.com/amarinne/zalo-patch)): `symbol-schema.json`,
+  `BottomTabsFeature`, `InboxFeature`, `MeCleanupFeature`, and
+  `ZcloudBannerFeature` cover UI candidates; `TelemetryFeature` and
+  `TelemetryDaoShape` cover analytics DAO handling. These are reference
+  implementations, not compatibility or device-validation evidence.
+- External storage transfer is limited to media; message recovery still
+  requires Zalo's own backup/restore flow. The repository's backup/restore
+  helpers and the [QA checklist](qa-checklist.md) are the current workflow;
+  the former transfer checkout is not a dependency.
+
 ## Standing rules
 
 - Check the installed Morphe CLI's help when flags fail. Temporary patch
