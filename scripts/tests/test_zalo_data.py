@@ -127,9 +127,7 @@ class ZaloDataScripts(unittest.TestCase):
         backup = self.root / "backup_zalo_20260101_000000" / "com.zing.zalo"
         backup.mkdir(parents=True)
         (backup / "photo0.jpg").write_text("x")
-        proc = self.run_script(
-            "restore-zalo-data.sh", str(backup.parent)
-        )
+        proc = self.run_script("restore-zalo-data.sh", str(backup.parent))
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("Restore complete", proc.stdout)
 

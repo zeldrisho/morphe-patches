@@ -26,7 +26,10 @@ def main() -> int:
         )
         return 2
     changelog_path, version, output_path, repo = (
-        Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]), sys.argv[4],
+        Path(sys.argv[1]),
+        sys.argv[2],
+        Path(sys.argv[3]),
+        sys.argv[4],
     )
     escaped = re.escape(version)
     target_heading = re.compile(
@@ -49,8 +52,11 @@ def main() -> int:
         if match:
             entries.append((match["linked"] or match["bare"], match["linked_url"]))
     position = next(
-        (index for index, (entry_version, _) in enumerate(entries)
-         if entry_version == version),
+        (
+            index
+            for index, (entry_version, _) in enumerate(entries)
+            if entry_version == version
+        ),
         None,
     )
     if position is None:

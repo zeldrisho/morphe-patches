@@ -10,7 +10,7 @@ import unittest
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "repatch.sh"
-FAKE_JAVA = r'''#!/usr/bin/env python3
+FAKE_JAVA = r"""#!/usr/bin/env python3
 import json, os, pathlib, sys
 args = sys.argv[1:]
 assert args[0] == "-jar" and args[1].endswith(".jar"), args
@@ -42,11 +42,12 @@ elif command == "patch":
     pathlib.Path(args[args.index("-o") + 1]).touch()
 else:
     raise AssertionError(command)
-'''
+"""
 
 
 class RepatchTest(unittest.TestCase):
     """Test suite for the repatch.sh script, covering patch bundle discovery, signing options, and error paths."""
+
     def setUp(self):
         """Set up a temporary test environment with a fake java executable and mock project structure."""
         self.temp = tempfile.TemporaryDirectory(prefix="repatch test ")
@@ -65,11 +66,24 @@ class RepatchTest(unittest.TestCase):
         java = bin_dir / "java"
         java.write_text(FAKE_JAVA)
         java.chmod(0o755)
-        self.env = {k: v for k, v in os.environ.items() if k not in {
-            "APP_NAME", "PACKAGE_NAME", "MPP", "KEYSTORE", "KEYSTORE_ALIAS",
-            "KEYSTORE_PASSWORD", "KEYSTORE_ENTRY_PASSWORD", "GITHUB_REPO",
-            "VERIFY_SDK", "FAIL_OPTIONS", "FAIL_PATCH",
-        }}
+        self.env = {
+            k: v
+            for k, v in os.environ.items()
+            if k
+            not in {
+                "APP_NAME",
+                "PACKAGE_NAME",
+                "MPP",
+                "KEYSTORE",
+                "KEYSTORE_ALIAS",
+                "KEYSTORE_PASSWORD",
+                "KEYSTORE_ENTRY_PASSWORD",
+                "GITHUB_REPO",
+                "VERIFY_SDK",
+                "FAIL_OPTIONS",
+                "FAIL_PATCH",
+            }
+        }
         self.env.update(
             PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
             HOME=str(self.home),
@@ -104,12 +118,18 @@ class RepatchTest(unittest.TestCase):
                 env[key] = value
         return subprocess.run(
             ["bash", str(self.script), *cli_args, str(self.input), str(self.output)],
-            env=env, capture_output=True, text=True, timeout=15,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
 
     def calls(self):
         """Parse and return the list of Morphe CLI commands logged during script execution."""
-        return [json.loads(line) for line in Path(self.env["CALLS"]).read_text().splitlines()]
+        return [
+            json.loads(line)
+            for line in Path(self.env["CALLS"]).read_text().splitlines()
+        ]
 
     def test_default_signing_and_patch_selection(self):
         """Verify the script uses default signing parameters and selects the correct patch bundle."""
@@ -122,7 +142,9 @@ class RepatchTest(unittest.TestCase):
         self.assertFalse(any(a.startswith("--keystore-entry-password=") for a in args))
         self.assertEqual(args[args.index("-p") + 1], self.env["MPP"])
         self.assertEqual(args[-1], str(self.input))
-        patches = json.loads(Path(self.env["OPTIONS_CAPTURE"]).read_text())[0]["patches"]
+        patches = json.loads(Path(self.env["OPTIONS_CAPTURE"]).read_text())[0][
+            "patches"
+        ]
         self.assertTrue(patches["Hide ads"]["enabled"])
         self.assertFalse(patches["Change package name"]["enabled"])
         self.assertTrue(self.output.is_file())
@@ -131,25 +153,40 @@ class RepatchTest(unittest.TestCase):
     def test_signing_and_rename_overrides(self):
         """Verify that keystore and app/package rename options pass through correctly to the CLI."""
         result = self.run_helper(
-            KEYSTORE_ALIAS="morphe", KEYSTORE_PASSWORD="store pass=word",
-            KEYSTORE_ENTRY_PASSWORD="entry pass=word", APP_NAME="Threads Test",
+            KEYSTORE_ALIAS="morphe",
+            KEYSTORE_PASSWORD="store pass=word",
+            KEYSTORE_ENTRY_PASSWORD="entry pass=word",
+            APP_NAME="Threads Test",
             PACKAGE_NAME="com.example.threads",
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         args = self.calls()[1][1]
-        for option in ("--keystore-entry-alias=morphe", "--keystore-password=store pass=word",
-                       "--keystore-entry-password=entry pass=word"):
+        for option in (
+            "--keystore-entry-alias=morphe",
+            "--keystore-password=store pass=word",
+            "--keystore-entry-password=entry pass=word",
+        ):
             self.assertIn(option, args)
-        patches = json.loads(Path(self.env["OPTIONS_CAPTURE"]).read_text())[0]["patches"]
-        self.assertEqual(patches["Change app name"]["options"]["appName"], "Threads Test")
+        patches = json.loads(Path(self.env["OPTIONS_CAPTURE"]).read_text())[0][
+            "patches"
+        ]
+        self.assertEqual(
+            patches["Change app name"]["options"]["appName"], "Threads Test"
+        )
         self.assertTrue(patches["Change package name"]["enabled"])
-        self.assertEqual(patches["Change package name"]["options"]["packageName"],
-                         "com.example.threads")
+        self.assertEqual(
+            patches["Change package name"]["options"]["packageName"],
+            "com.example.threads",
+        )
 
     def test_newest_local_bundle_excludes_documentation(self):
         """Verify the script selects the newest .mpp bundle while excluding javadoc and sources artifacts."""
-        for name, mtime in (("patches-1.mpp", 100), ("patches-2.mpp", 200),
-                            ("patches-2-sources.mpp", 300), ("patches-2-javadoc.mpp", 400)):
+        for name, mtime in (
+            ("patches-1.mpp", 100),
+            ("patches-2.mpp", 200),
+            ("patches-2-sources.mpp", 300),
+            ("patches-2-javadoc.mpp", 400),
+        ):
             path = self.libs / name
             path.touch()
             os.utime(path, (mtime, mtime))

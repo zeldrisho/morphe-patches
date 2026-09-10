@@ -46,8 +46,11 @@ jobs:
           enable-cache: false
 
       - name: Scripts, workflows, and conflict/line-ending checks
-        # Include pinned ShellCheck on PATH for actionlint's embedded shell checks.
-        run: uvx --from pre-commit==4.6.2 --with shellcheck-py==0.11.0.1 pre-commit run --all-files --show-diff-on-failure
+        # Same minimal command developers run locally: every hook is
+        # self-contained (pinned revs in .pre-commit-config.yaml), so no
+        # --from/--with flags are needed. Bump minimum_pre_commit_version
+        # in .pre-commit-config.yaml if a newer pre-commit is required.
+        run: uvx pre-commit run --all-files --show-diff-on-failure
 
       - name: JVM formatting and static analysis
         env:

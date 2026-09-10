@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = (ROOT / "scripts/prepare-release.sh").read_text(encoding="utf-8")
 PREFLIGHT, PROMOTE, _ = re.findall(r"<<'PY'\n(.*?)\nPY", SCRIPT, re.DOTALL)
-MANIFEST, = re.findall(r"<<'MANIFEST_PY'\n(.*?)\nMANIFEST_PY", SCRIPT, re.DOTALL)
+(MANIFEST,) = re.findall(r"<<'MANIFEST_PY'\n(.*?)\nMANIFEST_PY", SCRIPT, re.DOTALL)
 EXTRACTOR = ROOT / ".github/scripts/extract_release_notes.py"
 DATE = "2026-09-09"
 REPO = "example/patches"
@@ -44,8 +44,9 @@ class ReleaseFixtures(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.cwd = Path(self.temp.name)
         # Ignore host Git configuration/hooks; all commits/tags are fixtures.
-        self.env = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull,
-                        GIT_CONFIG_NOSYSTEM="1")
+        self.env = dict(
+            os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1"
+        )
         self.git("init", "-b", "main")
         self.git("config", "user.name", "Release Fixture")
         self.git("config", "user.email", "fixture@example.invalid")
@@ -59,15 +60,22 @@ class ReleaseFixtures(unittest.TestCase):
     def git(self, *args):
         """Run Git in the fixture repository and return trimmed standard output."""
         return subprocess.run(
-            ["git", *args], cwd=self.cwd, env=self.env, check=True,
-            text=True, capture_output=True,
+            ["git", *args],
+            cwd=self.cwd,
+            env=self.env,
+            check=True,
+            text=True,
+            capture_output=True,
         ).stdout.strip()
 
     def write_changelog(self, rest=""):
         """Write an Unreleased section followed by optional released entries."""
         self.changelog.write_text(
             "# Changelog\n\n## Unreleased\n\n### 🚀 Updated App Support\n"
-            + BULLET + "\n" + rest, encoding="utf-8",
+            + BULLET
+            + "\n"
+            + rest,
+            encoding="utf-8",
         )
 
     def preflight(self, version="1.1.0", success=True):
@@ -75,7 +83,10 @@ class ReleaseFixtures(unittest.TestCase):
         before = self.changelog.read_bytes()
         result = subprocess.run(
             [sys.executable, "-c", PREFLIGHT, version, REPO],
-            cwd=self.cwd, env=self.env, text=True, capture_output=True,
+            cwd=self.cwd,
+            env=self.env,
+            text=True,
+            capture_output=True,
         )
         self.assertEqual(result.returncode == 0, success, result.stderr)
         self.assertEqual(self.changelog.read_bytes(), before)
@@ -85,7 +96,10 @@ class ReleaseFixtures(unittest.TestCase):
         """Promote Unreleased notes and return the resulting changelog text."""
         subprocess.run(
             [sys.executable, "-c", PROMOTE, version, DATE, REPO, prev],
-            cwd=self.cwd, env=self.env, check=True, capture_output=True,
+            cwd=self.cwd,
+            env=self.env,
+            check=True,
+            capture_output=True,
         )
         return self.changelog.read_text(encoding="utf-8")
 
@@ -93,12 +107,17 @@ class ReleaseFixtures(unittest.TestCase):
         """Stage patches-bundle.json from extracted notes and return its data."""
         _, notes = self.extract(version)
         subprocess.run(
-            [sys.executable, "-c", MANIFEST, version, REPO,
-             created_at, str(notes)],
-            cwd=self.cwd, env=self.env, check=True, capture_output=True,
+            [sys.executable, "-c", MANIFEST, version, REPO, created_at, str(notes)],
+            cwd=self.cwd,
+            env=self.env,
+            check=True,
+            capture_output=True,
         )
         import json
-        return json.loads((self.cwd / "patches-bundle.json").read_text(encoding="utf-8"))
+
+        return json.loads(
+            (self.cwd / "patches-bundle.json").read_text(encoding="utf-8")
+        )
 
     def extract(self, target, success=True):
         """Extract a version's notes and assert the result without stale outputs."""
@@ -106,9 +125,16 @@ class ReleaseFixtures(unittest.TestCase):
         if output.exists():
             output.unlink()
         result = subprocess.run(
-            [sys.executable, str(EXTRACTOR), str(self.changelog),
-             target, str(output), REPO],
-            capture_output=True, text=True,
+            [
+                sys.executable,
+                str(EXTRACTOR),
+                str(self.changelog),
+                target,
+                str(output),
+                REPO,
+            ],
+            capture_output=True,
+            text=True,
         )
         self.assertEqual(result.returncode == 0, success, result.stderr)
         return result, output
@@ -121,7 +147,10 @@ class ReleaseFixtures(unittest.TestCase):
         )
         return subprocess.run(
             ["bash", "-c", guards, "prepare-release.sh", version],
-            cwd=self.cwd, env=self.env, text=True, capture_output=True,
+            cwd=self.cwd,
+            env=self.env,
+            text=True,
+            capture_output=True,
         )
 
     def test_staging_branch_even_with_main(self):
@@ -168,7 +197,10 @@ class ReleaseFixtures(unittest.TestCase):
             """Run the shell guards and assert the expected success or error."""
             result = subprocess.run(
                 ["bash", "-c", guards, "prepare-release.sh", version],
-                cwd=self.cwd, env=self.env, text=True, capture_output=True,
+                cwd=self.cwd,
+                env=self.env,
+                text=True,
+                capture_output=True,
             )
             if error:
                 self.assertNotEqual(result.returncode, 0)
@@ -227,7 +259,8 @@ class ReleaseFixtures(unittest.TestCase):
         self.assertTrue(text.endswith(old))
         self.assertIn(
             "## [1.2.0](https://github.com/example/patches/compare/"
-            f"v1.1.0...v1.2.0) ({DATE})", text,
+            f"v1.1.0...v1.2.0) ({DATE})",
+            text,
         )
         self.assertTrue(text.startswith("# Changelog\n\n## Unreleased\n\n"))
 
@@ -309,7 +342,9 @@ class ReleaseFixtures(unittest.TestCase):
             with self.subTest(url=bad_url):
                 self.write_changelog(
                     f"## [1.1.0]({bad_url}) ({DATE})\n\n### ✨ New Features\n"
-                    + BULLET + "\n" + entry("1.0.0")
+                    + BULLET
+                    + "\n"
+                    + entry("1.0.0")
                 )
                 result = self.preflight("1.2.0", success=False)
                 self.assertIn("adjacent", result.stderr)
@@ -333,9 +368,7 @@ class ReleaseFixtures(unittest.TestCase):
         """Verify the oldest released entry must stay bare."""
         self.git("tag", "v1.0.0")
         self.git("tag", "v1.1.0")
-        self.write_changelog(
-            entry("1.1.0", "1.0.0") + "\n" + entry("1.0.0", "0.9.0")
-        )
+        self.write_changelog(entry("1.1.0", "1.0.0") + "\n" + entry("1.0.0", "0.9.0"))
         result = self.preflight("1.2.0", success=False)
         self.assertIn("bare", result.stderr)
         result, _ = self.extract("1.0.0", success=False)
@@ -354,8 +387,11 @@ class ReleaseFixtures(unittest.TestCase):
     def test_extraction_validates_target_heading(self):
         """Verify extraction enforces bare-initial and exact-URL-subsequent headings."""
         self.write_changelog(
-            entry("1.2.0", "1.1.0") + "\n" + entry("1.1.0", "1.0.0")
-            + "\n" + entry("1.0.0")
+            entry("1.2.0", "1.1.0")
+            + "\n"
+            + entry("1.1.0", "1.0.0")
+            + "\n"
+            + entry("1.0.0")
         )
         for target in ("1.2.0", "1.1.0", "1.0.0"):
             _, output = self.extract(target)
@@ -373,11 +409,23 @@ class ReleaseFixtures(unittest.TestCase):
             f"## 1x1x0 ({DATE})",
         ):
             with self.subTest(heading=bad):
-                self.write_changelog(bad + "\n" + BULLET + "\n[compare]: https://example.com\n")
-                self.assertIn("Unrecognized release heading", self.preflight("1.2.0", False).stderr)
+                self.write_changelog(
+                    bad + "\n" + BULLET + "\n[compare]: https://example.com\n"
+                )
+                self.assertIn(
+                    "Unrecognized release heading",
+                    self.preflight("1.2.0", False).stderr,
+                )
                 result = subprocess.run(
-                    [sys.executable, str(EXTRACTOR), str(self.changelog),
-                     "1.1.0", str(self.cwd / "notes.md"), REPO], capture_output=True,
+                    [
+                        sys.executable,
+                        str(EXTRACTOR),
+                        str(self.changelog),
+                        "1.1.0",
+                        str(self.cwd / "notes.md"),
+                        REPO,
+                    ],
+                    capture_output=True,
                 )
                 self.assertNotEqual(result.returncode, 0)
 
@@ -385,8 +433,15 @@ class ReleaseFixtures(unittest.TestCase):
         """Verify extraction fails when a matching heading has no release notes."""
         self.changelog.write_text(heading("1.1.0", "1.0.0") + "\n\n" + entry("1.0.0"))
         result = subprocess.run(
-            [sys.executable, str(EXTRACTOR), str(self.changelog),
-             "1.1.0", str(self.cwd / "notes.md"), REPO], capture_output=True,
+            [
+                sys.executable,
+                str(EXTRACTOR),
+                str(self.changelog),
+                "1.1.0",
+                str(self.cwd / "notes.md"),
+                REPO,
+            ],
+            capture_output=True,
         )
         self.assertNotEqual(result.returncode, 0)
 
@@ -399,7 +454,7 @@ class ReleaseFixtures(unittest.TestCase):
         data = self.manifest("1.1.0")
         self.assertEqual(data["version"], "1.1.0")
         # Unreleased fixtures use the Updated App Support category.
-        unreleased_body = "### \U0001F680 Updated App Support\n" + BULLET.rstrip("\n")
+        unreleased_body = "### \U0001f680 Updated App Support\n" + BULLET.rstrip("\n")
         self.assertEqual(
             data["download_url"],
             f"https://github.com/{REPO}/releases/download/v1.1.0/patches-1.1.0.mpp",
@@ -417,14 +472,15 @@ class ReleaseFixtures(unittest.TestCase):
         self.assertIn("v1.0.0/patches-1.0.0.mpp", data["download_url"])
         self.assertEqual(
             data["description"],
-            "### \U0001F680 Updated App Support\n" + BULLET.rstrip("\n"),
+            "### \U0001f680 Updated App Support\n" + BULLET.rstrip("\n"),
         )
 
     def test_staging_commit_includes_manifest(self):
         """Verify the staging commit picks up patches-bundle.json."""
-        self.assertIn("patches-bundle.json", next(
-            line for line in SCRIPT.splitlines() if line.startswith("git add ")
-        ))
+        self.assertIn(
+            "patches-bundle.json",
+            next(line for line in SCRIPT.splitlines() if line.startswith("git add ")),
+        )
 
 
 if __name__ == "__main__":
