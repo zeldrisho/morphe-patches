@@ -3,21 +3,22 @@ package com.zeldrisho.patches.threads.misc.packagename
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.patch.stringOption
 import com.zeldrisho.patches.threads.shared.Constants.COMPATIBILITY_THREADS
+import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 import org.w3c.dom.Element
 
 @Suppress("unused")
 val changePackageNamePatch = resourcePatch(
     name = "Change package name",
     description = "Changes the app package name so the patched app installs alongside the " +
-        "original Threads. Set the desired package name in the patch options. WARNING: Meta apps " +
-        "hardcode many component/provider references — renaming the package can break Facebook " +
-        "login (SSO), content providers, or push. Disable this patch if you hit such issues.",
+        "original. Set the desired name in the patch options. WARNING: hardcoded component/provider " +
+        "references can break login, content providers, or push. Disable this patch if needed.",
     // Off by default: renaming breaks package+cert-bound flows (web-OAuth/App-Links/Google
     // sign-in, providers, push). Opt in only if you need side-by-side install; see
     // docs/lessons-learned.md (rename risk) and docs/qa-checklist.md §2.
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_THREADS)
+    compatibleWith(COMPATIBILITY_ZALO)
 
     val packageName by stringOption(
         key = "packageName",
@@ -32,7 +33,11 @@ val changePackageNamePatch = resourcePatch(
 
     finalize {
         document("AndroidManifest.xml").use { document ->
-            rewritePackage(document, packageName!!)
+            rewritePackage(
+                document,
+                packageName!!,
+                document.documentElement.getAttribute("package"),
+            )
         }
     }
 }

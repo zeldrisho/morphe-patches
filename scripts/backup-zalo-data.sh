@@ -4,10 +4,11 @@
 # Requires: adb on PATH, exactly one connected device (no root needed).
 #
 # Creates <parent>/backup_zalo_YYYYMMDD_HHMMSS/com.zing.zalo via
-# `adb pull /sdcard/Android/data/com.zing.zalo`. Timestamped so repeated
-# test cycles never overwrite prior backups. Covers the external media
-# folder only — message text needs Zalo's own in-app backup (see reminder
-# printed on success).
+# `adb pull /sdcard/Android/data/com.zing.zalo/files`. The cache tree is
+# intentionally skipped because Android may deny cache entries and caches are
+# disposable. Timestamped so repeated test cycles never overwrite prior
+# backups. Covers external media only — message text needs Zalo's own in-app
+# backup (see reminder printed on success).
 set -euo pipefail
 
 PKG="com.zing.zalo"
@@ -31,8 +32,8 @@ require_one_device() {
 main() {
     require_one_device
 
-    if ! adb shell test -d "$SRC" >/dev/null 2>&1; then
-        echo "❌ Source path missing on device: ${SRC}" >&2
+    if ! adb shell test -d "$SRC/files" >/dev/null 2>&1; then
+        echo "❌ Source path missing on device: ${SRC}/files" >&2
         echo "   Nothing to back up — is Zalo installed with external data?" >&2
         exit 1
     fi
@@ -41,8 +42,9 @@ main() {
     stamp="$(date +%Y%m%d_%H%M%S)"
     dir="${PARENT}/backup_zalo_${stamp}"
     mkdir -p "$dir"
-    echo "⬇️  Pulling ${SRC} → ${dir}/"
-    adb pull "$SRC" "${dir}/"
+    mkdir -p "${dir}/${PKG}"
+    echo "⬇️  Pulling ${SRC}/files → ${dir}/${PKG}/"
+    adb pull "$SRC/files" "${dir}/${PKG}/"
 
     files="$(find "$dir" -type f | wc -l | tr -d ' ')"
     size="$(du -sh "$dir" | cut -f1)"

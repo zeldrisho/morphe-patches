@@ -19,7 +19,11 @@ fun isValidPackageName(name: String?): Boolean = name != null && PACKAGE_NAME_RE
  * original package, and renames the app's own custom permissions so a renamed
  * build installs alongside stock without INSTALL_FAILED_DUPLICATE_PERMISSION.
  */
-fun rewritePackage(document: org.w3c.dom.Document, newPackage: String) {
+fun rewritePackage(
+    document: org.w3c.dom.Document,
+    newPackage: String,
+    originalPackage: String = ORIGINAL_PACKAGE,
+) {
     document.documentElement.setAttribute("package", newPackage)
 
     val providers = document.getElementsByTagName("provider")
@@ -29,10 +33,10 @@ fun rewritePackage(document: org.w3c.dom.Document, newPackage: String) {
         // Each authority is independent. Preserve third-party names and resource
         // references; only rewrite our package prefix, never occurrences in a suffix.
         val rewritten = authorities.split(';').joinToString(";") { authority ->
-            if (authority == ORIGINAL_PACKAGE) {
+            if (authority == originalPackage) {
                 newPackage
-            } else if (authority.startsWith("$ORIGINAL_PACKAGE.")) {
-                authority.replaceFirst("$ORIGINAL_PACKAGE.", "$newPackage.")
+            } else if (authority.startsWith("$originalPackage.")) {
+                authority.replaceFirst("$originalPackage.", "$newPackage.")
             } else {
                 authority
             }
@@ -47,9 +51,26 @@ fun rewritePackage(document: org.w3c.dom.Document, newPackage: String) {
         for (i in 0 until nodes.length) {
             val node = nodes.item(i) as Element
             val name = node.getAttribute("android:name")
-            if (name.startsWith("$ORIGINAL_PACKAGE.")) {
-                node.setAttribute("android:name", name.replaceFirst("$ORIGINAL_PACKAGE.", "$newPackage."))
+            if (name.startsWith("$originalPackage.")) {
+                node.setAttribute("android:name", name.replaceFirst("$originalPackage.", "$newPackage."))
+            } else if (name.startsWith("zing.zalo.permission.")) {
+                node.setAttribute("android:name", name.replaceFirst("zing.zalo.permission.", "$newPackage.permission."))
             }
+        }
+    }
+
+    // Zalo's legacy ZALO_SERVICE permission uses a package-like prefix that
+    // differs from its application id. Rewrite references as well as its
+    // declaration so a renamed copy does not collide with stock Zalo.
+    val allElements = document.getElementsByTagName("*")
+    for (i in 0 until allElements.length) {
+        val element = allElements.item(i) as Element
+        val permission = element.getAttribute("android:permission")
+        if (permission.startsWith("zing.zalo.permission.")) {
+            element.setAttribute(
+                "android:permission",
+                permission.replaceFirst("zing.zalo.permission.", "$newPackage.permission."),
+            )
         }
     }
 }

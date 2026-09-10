@@ -2,19 +2,33 @@
 
 Only outstanding actions. Procedure details live in the linked docs.
 
+## Zalo 26.08.01 startup regression
+
+- [ ] Trace the exception that reaches Zalo's uncaught-exception handler during
+      cold start of the Morphe-patched APK. The process exits with
+      `System.exit(0)` before the first screen; the unmodified APK remains
+      alive. Verify the failing path in smali and identify whether the cause is
+      patch bytecode, merged-APKM packaging, re-signing/integrity validation,
+      or restored external data.
+- [ ] Produce a minimal patched control that launches, then re-enable the
+      Zalo patches one at a time. Do not bypass the startup kill branch without
+      identifying the underlying exception and preserving normal error handling.
+- [ ] Rebuild, install, and cold-start the fixed APK before restoring data or
+      claiming any feature result. Record input/bundle/options provenance and
+      certificate details in the QA/release record.
+
 ## Device QA (Zalo 26.08.01, all four patches)
 
-- [ ] Install the patched APKM on the test phone and confirm promo pushes
-      (Timeline/Stories, Zalo Video) are suppressed while message, call,
-      friend-request, and birthday notifications still arrive —
-      [QA checklist](qa-checklist.md). Record input/bundle/options provenance
-      with the result.
-- [ ] Exercise the non-destructive reinstall cycle on-device
-      (`scripts/backup-zalo-data.sh` → uninstall stock → install patched →
-      log in → `scripts/restore-zalo-data.sh`); media present afterwards,
-      no first-run wipe — follow the [reinstall procedure](qa-checklist.md#re-patch--install).
-- [ ] Record the APKMirror download page URL for the Zalo 26.08.01 input
-      (hash and variant already on file; URL still missing).
+- [ ] After the startup regression is fixed, run the notification preservation
+      test: Timeline/Stories and Zalo Video are suppressed while message, call,
+      friend-request, and birthday notifications still arrive — follow the
+      [QA checklist](qa-checklist.md).
+- [ ] Exercise the non-destructive reinstall cycle on-device using the updated
+      backup/restore helpers, with Zalo's in-app message backup and the agreed
+      install → restore → login order. Confirm media and message associations,
+      and record provenance with the result.
+- [ ] Run the required SDK-verified re-patch, or document the verifier waiver
+      only after device QA and reproducible toolchain evidence.
 
 ## Awaiting go-ahead (do not implement unasked)
 
@@ -29,9 +43,9 @@ Only outstanding actions. Procedure details live in the linked docs.
 - [ ] Decide whether to add analytics DAO suppression (opt-in, off by default);
       if approved, verify specific write paths and preserve unrelated database
       operations rather than disabling the database wholesale.
-- [ ] Decide whether ACTIVITY_UPDATES / USER_INTERACTIONS channels stay out
-      of the promo-notifications patch; do not broaden filtering without
-      explicit scope approval and preservation tests.
+- [ ] Decide whether ACTIVITY_UPDATES / USER_INTERACTIONS channels stay out of
+      the promo-notifications patch; do not broaden filtering without explicit
+      scope approval and preservation tests.
 
 ## Local data-transfer patch (research only; implementation not approved)
 
@@ -48,7 +62,8 @@ Only outstanding actions. Procedure details live in the linked docs.
       current [scope rules](maintenance.md#standing-rules).
 - [ ] Before claiming restore support, demonstrate a round trip on disposable
       data, including attachment associations, interruption recovery, and
-      wrong-account/version rejection; separate media-only from full-chat results.
+      wrong-account/version rejection; separate media-only from full-chat
+      results.
 
 ## Release
 

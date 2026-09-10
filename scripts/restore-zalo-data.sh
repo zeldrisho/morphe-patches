@@ -3,11 +3,12 @@
 # Usage: scripts/restore-zalo-data.sh [backup_dir]
 # Requires: adb on PATH, exactly one connected device (no root needed).
 #
-# PRECONDITION: install the patched APK and LOG IN first. Restoring into a
-# fresh install before first login risks Zalo wiping or rejecting the folder.
-# With no argument, uses the most recent backup_zalo_* directory in the
-# current working directory. Pushes <backup_dir>/com.zing.zalo to
-# /sdcard/Android/data/ and verifies the result on-device.
+# PRECONDITION: install the patched APK before restoring. This helper supports
+# restoring before first login when that is explicitly desired; Zalo may still
+# wipe or reject the folder during first-run migration. With no argument, uses
+# the most recent backup_zalo_* directory in the current working directory.
+# Compresses the backup locally and extracts it as one ADB stream, avoiding
+# per-file transfer overhead, then verifies the result on-device.
 set -euo pipefail
 
 PKG="com.zing.zalo"
@@ -71,8 +72,11 @@ main() {
 
     require_one_device
 
-    echo "⬆️  Pushing ${src_dir} → ${DST}/"
-    adb push "$src_dir" "${DST}/"
+    echo "⬆️  Compressing and streaming ${src_dir} → ${DST}/"
+    # tar/gzip are available in Android toybox. Keep the archive in a pipe so
+    # no second multi-gigabyte temporary copy is created on either side.
+    tar -czf - -C "$backup" "$PKG" |
+        adb shell "cd '$DST' && tar -xzf -"
 
     target="${DST}/${PKG}"
     if ! adb shell test -d "$target" >/dev/null 2>&1; then

@@ -30,12 +30,13 @@ def main(args):
     elif args[:2] == ["shell", "test"]:
         sys.exit(0 if os.environ.get("FAKE_HAS_SRC", "1") == "1" else 1)
     elif args[0] == "pull":
-        dst = pathlib.Path(args[2]) / "com.zing.zalo"
+        dst = pathlib.Path(args[2])
         dst.mkdir(parents=True, exist_ok=True)
         for i in range(int(os.environ.get("FAKE_PULL_FILES", "3"))):
             (dst / f"photo{i}.jpg").write_text("x")
-    elif args[0] == "push":
-        pass
+    elif args[0] == "shell" and "tar -xzf -" in " ".join(args):
+        # Consume the streamed archive; the fake device does not need to unpack it.
+        sys.stdin.buffer.read()
     elif args[:2] == ["shell", "ls"]:
         for _ in range(int(os.environ.get("FAKE_LS_LINES", "5"))):
             print("photo0.jpg")
