@@ -1,9 +1,10 @@
 #!/bin/bash
 # repatch.sh — re-patch an APK/APKM with this repo's patch set and sign it.
-# Usage: scripts/repatch.sh <app.apk|apkm|xapk|apks> [output.apk]
+# Usage: scripts/repatch.sh [--jar <path>] <app.apk|apkm|xapk|apks> [output.apk]
 # Requires: java, python3, Morphe (morphe-desktop-*-all.jar), signing keystore (curl for downloads).
 # No environment setup needed: the script discovers the Morphe JAR and a
 # signing keystore from their standard locations (see below).
+# Pass --jar <path> to override JAR discovery for manual testing.
 # Template adapted from chiggi_morphe_patches/scripts/repatch_sonyliv.sh.
 #
 # Overridable via environment variables:
@@ -17,10 +18,6 @@
 #   KEYSTORE_PASSWORD       -> keystore password (default: Morphe; set to empty
 #                       for the legacy repo Morphe.keystore: KEYSTORE_PASSWORD="")
 #   KEYSTORE_ENTRY_PASSWORD -> key entry password (default: CLI default; flag omitted)
-#   MORPHE_CLI     -> optional Morphe JAR override (default: automatic discovery:
-#                    newest morphe-desktop-*-all.jar in ~/.local/share/morphe-desktop/
-#                    or ~/.local/share/morphe/, then `morphe` on PATH,
-#                    then ~/.local/bin/morphe.jar)
 #   VERIFY_SDK     -> opt-in DEX/APK verification: 1 uses SDK discovery
 #                    ($ANDROID_HOME -> $ANDROID_SDK_ROOT -> OS default),
 #                    any other value is passed as --verify-with-sdk=<path>.
@@ -28,40 +25,68 @@
 #   GITHUB_REPO    -> owner/repo used when downloading the latest release bundle
 set -euo pipefail
 
-INPUT="${1:?Usage: scripts/repatch.sh <apk-file> [output.apk]}"
+# Print an error message to stderr and exit with code 1.
+die() {
+    echo "❌ $*" >&2
+    exit 1
+}
+
+JAR_OVERRIDE=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --jar)
+            JAR_OVERRIDE="${2:?--jar requires a path}"
+            shift 2
+            ;;
+        --jar=*)
+            JAR_OVERRIDE="${1#--jar=}"
+            shift
+            ;;
+        -h | --help)
+            echo "Usage: scripts/repatch.sh [--jar <path>] <apk-file> [output.apk]"
+            exit 0
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*) die "unknown option: $1 (Usage: scripts/repatch.sh [--jar <path>] <apk-file> [output.apk])" ;;
+        *) break ;;
+    esac
+done
+
+INPUT="${1:?Usage: scripts/repatch.sh [--jar <path>] <apk-file> [output.apk]}"
 OUT="${2:-${INPUT%.*}_patched.apk}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# ---------- Locate the Morphe JAR (no env vars required) ----------
-# Priority: $MORPHE_CLI override, newest upstream artifact in the standard
-# share dirs, `morphe` on PATH, then ~/.local/bin/morphe.jar.
-JAR="${MORPHE_CLI:-}"
-MORPHE_BIN=""
+# ---------- Locate the Morphe JAR (pure filesystem discovery) ----------
+# Priority: --jar <path> flag, newest upstream artifact in
+# ~/.local/share/morphe/, then newest in ~/.local/share/morphe-desktop/,
+# then ~/.local/bin/morphe.jar.
+JAR="$JAR_OVERRIDE"
 if [[ -z "$JAR" ]]; then
-    for dir in "$HOME/.local/share/morphe-desktop" "$HOME/.local/share/morphe"; do
-        for f in "$dir"/morphe-desktop-*-all.jar; do
-            [[ -f "$f" ]] || continue
-            if [[ -z "$JAR" || "$f" -nt "$JAR" ]]; then
-                JAR="$f"
-            fi
-        done
+    for f in "$HOME/.local/share/morphe"/morphe-desktop-*-all.jar; do
+        [[ -f "$f" ]] || continue
+        if [[ -z "$JAR" || "$f" -nt "$JAR" ]]; then
+            JAR="$f"
+        fi
     done
 fi
 if [[ -z "$JAR" ]]; then
-    if cmd="$(command -v morphe 2>/dev/null)"; then
-        MORPHE_BIN="$cmd"
-    elif [[ -f "$HOME/.local/bin/morphe.jar" ]]; then
-        JAR="$HOME/.local/bin/morphe.jar"
-    fi
+    for f in "$HOME/.local/share/morphe-desktop"/morphe-desktop-*-all.jar; do
+        [[ -f "$f" ]] || continue
+        if [[ -z "$JAR" || "$f" -nt "$JAR" ]]; then
+            JAR="$f"
+        fi
+    done
+fi
+if [[ -z "$JAR" && -f "$HOME/.local/bin/morphe.jar" ]]; then
+    JAR="$HOME/.local/bin/morphe.jar"
 fi
 
-# Run Morphe: wrapper executable when discovered on PATH, else `java -jar`.
+# Run Morphe directly via `java -jar` (only execution path).
 morphe() {
-    if [[ -n "$MORPHE_BIN" ]]; then
-        "$MORPHE_BIN" "$@"
-    else
-        java -jar "$JAR" "$@"
-    fi
+    java -jar "$JAR" "$@"
 }
 
 # ---------- Locate the signing keystore (no env vars required) ----------
@@ -91,19 +116,11 @@ GITHUB_REPO="${GITHUB_REPO:-zeldrisho/morphe-patches}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-# Print an error message to stderr and exit with code 1.
-die() {
-    echo "❌ $*" >&2
-    exit 1
-}
-
-if [[ -z "$MORPHE_BIN" ]]; then
-    command -v java >/dev/null 2>&1 || die "java not found"
-fi
+command -v java >/dev/null 2>&1 || die "java not found"
 command -v python3 >/dev/null 2>&1 || die "python3 not found"
 [[ -f "$INPUT" ]] || die "input not found: $INPUT"
-if [[ -z "$MORPHE_BIN" && ! -f "${JAR:-}" ]]; then
-    die "Morphe JAR not found. Download morphe-desktop-*-all.jar to ~/.local/share/morphe-desktop/ or place 'morphe' in PATH."
+if [[ ! -f "${JAR:-}" ]]; then
+    die "Morphe JAR not found. Download morphe-desktop-*-all.jar to ~/.local/share/morphe/ (or ~/.local/share/morphe-desktop/), place it at ~/.local/bin/morphe.jar, or pass --jar <path>."
 fi
 [[ -f "${KEYSTORE:-}" ]] || die "keystore not found (set KEYSTORE= or import one into morphe-data/)"
 

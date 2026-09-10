@@ -17,20 +17,19 @@ the Morphe GUI; with a subcommand it is the Morphe CLI. Full upstream reference:
 [Morphe documentation](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
 
 ```bash
-morphe --version
-morphe --help
-morphe patch --help
-morphe list-patches --help
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --version
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --help
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch --help
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-patches --help
 ```
 
-`morphe` is the wrapper from [toolchain setup](toolchain.md) (JAR kept at
-`~/.local/share/morphe/morphe-desktop-*-all.jar`); without
-it, substitute `java -jar ~/.local/share/morphe/morphe-desktop-<version>-all.jar`
-for `morphe` in every command below. `scripts/repatch.sh` works out of the box
+The JAR is kept at `~/.local/share/morphe/morphe-desktop-*-all.jar` (see
+[toolchain setup](toolchain.md)). `scripts/repatch.sh` works out of the box
 with zero environment variable configuration:
-it discovers the JAR itself (optional `$MORPHE_CLI` override, else the newest
-`morphe-desktop-*-all.jar` in the standard share dirs, else `morphe` on PATH,
-else `~/.local/bin/morphe.jar`).
+it discovers the JAR itself from the filesystem — newest
+`morphe-desktop-*-all.jar` in `~/.local/share/morphe/`, then newest in
+`~/.local/share/morphe-desktop/`, else `~/.local/bin/morphe.jar`
+(`--jar <path>` overrides discovery for manual testing).
 
 Data root (patches cache, logs, scratch, default keystore): `MORPHE_DATA_DIR`
 when set to a writable directory, else `morphe-data/` next to the JAR
@@ -48,9 +47,9 @@ Morphe CLI use this folder; in the GUI open it via Tools → Open App Data.
 
 ```bash
 MPP="patches/build/libs/patches-<version>.mpp"
-morphe list-versions --patches "$MPP"
-morphe list-patches --patches "$MPP" --with-packages --with-versions --with-options
-morphe list-patches --patches "$MPP" -f com.instagram.barcelona
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-versions --patches "$MPP"
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-patches --patches "$MPP" --with-packages --with-versions --with-options
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-patches --patches "$MPP" -f com.instagram.barcelona
 ```
 
 `-p/--patches` also accepts repeatable bundles and repo/release URLs
@@ -60,9 +59,9 @@ address the combined list. `options-create` generates the editable JSON that
 `--options-file` consumes:
 
 ```bash
-morphe options-create -p "$MPP" -o /tmp/options.json
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar options-create -p "$MPP" -o /tmp/options.json
 # edit enabled/options, then:
-morphe patch -p "$MPP" --options-file /tmp/options.json --options-update app.apkm
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --options-file /tmp/options.json --options-update app.apkm
 ```
 
 CLI flags beat the options file when both set one patch. A nonexistent
@@ -98,7 +97,7 @@ via `GITHUB_REPO`), runs `options-create`, applies `APP_NAME` /
 `PACKAGE_NAME` into the options JSON (rename patches only), then `patch -p`
 with `--options-file`, `-o`, `-t`, and `--keystore*`. Optional overrides:
 `APP_NAME PACKAGE_NAME MPP KEYSTORE KEYSTORE_ALIAS KEYSTORE_PASSWORD
-KEYSTORE_ENTRY_PASSWORD MORPHE_CLI VERIFY_SDK GITHUB_REPO` — unset means
+KEYSTORE_ENTRY_PASSWORD VERIFY_SDK GITHUB_REPO` — unset means
 automatic discovery (newest local `.mpp`, standard-dir JAR, data-dir keystore
 with password `Morphe`).
 `VERIFY_SDK` is opt-in SDK verification: `1` uses SDK discovery, a path value
@@ -109,16 +108,16 @@ Raw equivalents when the helper hides what you need:
 
 ```bash
 # Full suite, defaults:
-morphe patch -p "$MPP" -o /tmp/threads_patched.apk /path/to/threads.apkm
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" -o /tmp/threads_patched.apk /path/to/threads.apkm
 # One patch in isolation (debug one fingerprint without others masking it):
-morphe patch -p "$MPP" --exclusive -e "Hide ads" -o /tmp/threads_one.apk /path/to/threads.apkm
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --exclusive -e "Hide ads" -o /tmp/threads_one.apk /path/to/threads.apkm
 # Rename + label via flags instead of env:
-morphe patch -p "$MPP" \
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" \
   -e "Change app name" -OappName="Threads+" \
   -e "Change package name" -OpackageName="com.example.threads" \
   -o /tmp/threads_renamed.apk /path/to/threads.apkm
 # Risky surface: force + keep going + record what happened:
-morphe patch -p "$MPP" --force --continue-on-error \
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --force --continue-on-error \
   -r /tmp/patch-result.json -o /tmp/threads_forced.apk /path/to/threads.apkm
 ```
 
@@ -148,17 +147,17 @@ truth, not this file).
 ## Signing (keystore flags need `=`)
 
 ```bash
-morphe patch -p "$MPP" \
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" \
   --keystore="<jar-dir>/morphe-data/morphe.keystore" \
   --keystore-entry-alias=Morphe \
   -o /tmp/out.apk /path/to/threads.apkm
 # Custom store (space-separated form FAILS — use =):
-morphe patch -p "$MPP" \
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" \
   --keystore=/path/to/mine.bks --keystore-entry-alias=morphe \
   --keystore-password=... --keystore-entry-password=... \
   -o /tmp/out.apk /path/to/threads.apkm
 # Diagnose signing without patching noise:
-morphe patch -p "$MPP" --unsigned -o /tmp/unsigned.apk /path/to/threads.apkm
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --unsigned -o /tmp/unsigned.apk /path/to/threads.apkm
 apksigner verify --print-certs /tmp/out.apk
 ```
 

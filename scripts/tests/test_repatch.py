@@ -45,28 +45,6 @@ else:
 '''
 
 
-FAKE_MORPHE = r'''#!/usr/bin/env python3
-import json, os, pathlib, sys
-command, args = sys.argv[1], sys.argv[2:]
-with open(os.environ["CALLS"], "a") as log:
-    log.write(json.dumps([command, args]) + "\n")
-if command == "options-create":
-    patches = {
-        "Hide ads": {"enabled": True},
-        "Change app name": {"enabled": True, "options": {"appName": "Threads"}},
-        "Change package name": {"enabled": False, "options": {}},
-    }
-    pathlib.Path(args[args.index("-o") + 1]).write_text(json.dumps([{"patches": patches}]))
-elif command == "patch":
-    assert any(a.startswith("--keystore=") for a in args), args
-    options = pathlib.Path(args[args.index("--options-file") + 1]).read_text()
-    pathlib.Path(os.environ["OPTIONS_CAPTURE"]).write_text(options)
-    pathlib.Path(args[args.index("-o") + 1]).touch()
-else:
-    raise AssertionError(command)
-'''
-
-
 class RepatchTest(unittest.TestCase):
     """Test suite for the repatch.sh script, covering patch bundle discovery, signing options, and error paths."""
     def setUp(self):
@@ -89,28 +67,33 @@ class RepatchTest(unittest.TestCase):
         java.chmod(0o755)
         self.env = {k: v for k, v in os.environ.items() if k not in {
             "APP_NAME", "PACKAGE_NAME", "MPP", "KEYSTORE", "KEYSTORE_ALIAS",
-            "KEYSTORE_PASSWORD", "KEYSTORE_ENTRY_PASSWORD", "MORPHE_CLI", "GITHUB_REPO",
+            "KEYSTORE_PASSWORD", "KEYSTORE_ENTRY_PASSWORD", "GITHUB_REPO",
             "VERIFY_SDK", "FAIL_OPTIONS", "FAIL_PATCH",
         }}
         self.env.update(
             PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
             HOME=str(self.home),
-            MORPHE_CLI=str(self.root / "morphe-desktop-test-all.jar"),
             KEYSTORE=str(self.root / "test.keystore"),
             MPP=str(self.root / "bundle.mpp"),
             CALLS=str(self.root / "calls.jsonl"),
             OPTIONS_CAPTURE=str(self.root / "options.json"),
             JAR_CAPTURE=str(self.root / "jar.txt"),
         )
-        for key in ("MORPHE_CLI", "KEYSTORE", "MPP"):
+        for key in ("KEYSTORE", "MPP"):
             Path(self.env[key]).touch()
+        # Seed JAR discovery: newest morphe-desktop-*-all.jar in the primary share dir.
+        self.share = self.home / ".local/share/morphe"
+        self.share.mkdir(parents=True)
+        self.share_jar = self.share / "morphe-desktop-test-all.jar"
+        self.share_jar.touch()
         self.input = self.root / "app input.apkm"
         self.input.touch()
         self.output = self.root / "output.apk"
 
-    def run_helper(self, **overrides):
-        """Run the repatch.sh script with optional environment variable overrides and return the subprocess result.
+    def run_helper(self, *cli_args, **overrides):
+        """Run the repatch.sh script with optional CLI args and environment variable overrides.
 
+        Positional args are passed to the script before the input/output paths.
         An override value of None removes the variable from the environment.
         """
         env = dict(self.env)
@@ -120,7 +103,7 @@ class RepatchTest(unittest.TestCase):
             else:
                 env[key] = value
         return subprocess.run(
-            ["bash", str(self.script), str(self.input), str(self.output)],
+            ["bash", str(self.script), *cli_args, str(self.input), str(self.output)],
             env=env, capture_output=True, text=True, timeout=15,
         )
 
@@ -218,57 +201,52 @@ class RepatchTest(unittest.TestCase):
         args = self.calls()[1][1]
         self.assertFalse(Path(args[args.index("-t") + 1]).parent.exists())
 
-    def test_jar_discovery_override_wins_over_share_dir(self):
-        """Verify an explicit MORPHE_CLI override beats a newer share-dir JAR."""
-        share = self.home / ".local/share/morphe-desktop"
-        share.mkdir(parents=True)
-        newcomer = share / "morphe-desktop-99-all.jar"
-        newcomer.touch()
-        os.utime(newcomer, (300, 300))
-        os.utime(self.env["MORPHE_CLI"], (100, 100))
+    def test_jar_flag_overrides_discovery(self):
+        """Verify --jar <path> beats the share-dir JAR for manual testing."""
+        override = self.root / "manual-test-all.jar"
+        override.touch()
+        os.utime(self.share_jar, (300, 300))
+        os.utime(override, (100, 100))
+        result = self.run_helper("--jar", str(override))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), str(override))
+
+    def test_jar_discovery_prefers_primary_share_dir(self):
+        """Verify discovery prefers ~/.local/share/morphe/ over morphe-desktop/."""
+        self.share_jar.unlink()
+        primary = self.share / "morphe-desktop-1-all.jar"
+        fallback_dir = self.home / ".local/share/morphe-desktop"
+        fallback_dir.mkdir(parents=True)
+        fallback = fallback_dir / "morphe-desktop-2-all.jar"
+        primary.touch()
+        fallback.touch()
+        os.utime(primary, (100, 100))
+        os.utime(fallback, (200, 200))
         result = self.run_helper()
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), self.env["MORPHE_CLI"])
+        self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), str(primary))
 
     def test_jar_discovery_finds_newest_share_jar(self):
-        """Verify discovery picks the newest upstream JAR across standard share dirs."""
-        old_dir = self.home / ".local/share/morphe-desktop"
-        new_dir = self.home / ".local/share/morphe"
-        old_dir.mkdir(parents=True)
-        new_dir.mkdir(parents=True)
-        old = old_dir / "morphe-desktop-1-all.jar"
-        new = new_dir / "morphe-desktop-2-all.jar"
+        """Verify discovery picks the newest upstream JAR within a share dir."""
+        self.share_jar.unlink()
+        old = self.share / "morphe-desktop-1-all.jar"
+        new = self.share / "morphe-desktop-2-all.jar"
         old.touch()
         new.touch()
         os.utime(old, (100, 100))
         os.utime(new, (200, 200))
-        result = self.run_helper(MORPHE_CLI=None)
+        result = self.run_helper()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), str(new))
 
-    def test_jar_discovery_uses_path_wrapper(self):
-        """Verify a `morphe` executable on PATH is used when no JAR is found."""
-        bin_dir = Path(self.env["PATH"].split(os.pathsep)[0])
-        wrapper = bin_dir / "morphe"
-        wrapper.write_text(FAKE_MORPHE)
-        wrapper.chmod(0o755)
-        result = self.run_helper(MORPHE_CLI=None)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(len(self.calls()), 2)
-        self.assertFalse(Path(self.env["JAR_CAPTURE"]).exists())
-        self.assertTrue(self.output.is_file())
-
-    def test_jar_discovery_error_without_alias(self):
-        """Verify the missing-JAR error names standard locations, not an alias."""
-        clean_path = os.pathsep.join(
-            entry for entry in self.env["PATH"].split(os.pathsep)
-            if not Path(entry, "morphe").exists()
-        )
-        result = self.run_helper(MORPHE_CLI=None, PATH=clean_path)
+    def test_jar_discovery_missing_error(self):
+        """Verify the missing-JAR error names the filesystem locations and --jar."""
+        self.share_jar.unlink()
+        result = self.run_helper()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Morphe JAR not found", result.stderr)
-        self.assertIn("~/.local/share/morphe-desktop/", result.stderr)
-        self.assertNotIn("morphe-cli", result.stderr)
+        self.assertIn("~/.local/share/morphe/", result.stderr)
+        self.assertIn("--jar", result.stderr)
         self.assertFalse(Path(self.env["CALLS"]).exists())
 
     def test_keystore_standard_location_fallback(self):

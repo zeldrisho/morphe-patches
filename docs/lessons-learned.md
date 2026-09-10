@@ -67,7 +67,7 @@ Device procedure owner: [QA checklist](qa-checklist.md).
 
 ## Signing
 
-Helper owner: `scripts/repatch.sh`. CLI reference: run `java -jar "$MORPHE_CLI" --help`.
+Helper owner: `scripts/repatch.sh`. CLI reference: run `java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --help`.
 
 | Observation (historical) | Why |
 | ---- | --- |

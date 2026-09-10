@@ -169,39 +169,26 @@ The same JAR launches the Morphe GUI without a subcommand and the Morphe CLI wit
 See the [upstream README](https://github.com/MorpheApp/morphe-desktop) and
 [CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
 In this repo nothing needs to be exported: `scripts/repatch.sh` discovers the
-newest `morphe-desktop-*-all.jar` in the share dirs below, else a `morphe`
-executable on PATH. `$MORPHE_CLI` remains available as an explicit JAR override.
+newest `morphe-desktop-*-all.jar` purely from the filesystem — first in
+`~/.local/share/morphe/`, then in `~/.local/share/morphe-desktop/`, else
+`~/.local/bin/morphe.jar`. For manual testing, `scripts/repatch.sh --jar <path>`
+overrides discovery.
 
-Download the latest stable official JAR (requires `gh auth login`):
+Download the latest stable official JAR to `~/.local/share/morphe/`
+(requires `gh auth login`):
 
 ```fish
-mkdir -p ~/.local/share/morphe ~/.local/bin
+mkdir -p ~/.local/share/morphe
 gh release download --repo MorpheApp/morphe-desktop --pattern 'morphe-desktop-*-all.jar' --dir ~/.local/share/morphe
 ```
 
 Do not replace a JAR during an active patch run.
 
-Create the executable wrapper at `~/.local/bin/morphe`:
-
 ```bash
-cat > ~/.local/bin/morphe <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-JAR=$(ls "$HOME/.local/share/morphe"/morphe-desktop-*-all.jar 2>/dev/null | sort -V | tail -n 1)
-if [[ -z "$JAR" ]]; then
-  echo "Error: No morphe-desktop-*-all.jar found in ~/.local/share/morphe/" >&2
-  exit 1
-fi
-exec java -jar "$JAR" "$@"
-EOF
-chmod +x ~/.local/bin/morphe
-```
-
-```bash
-morphe --version
-morphe --help
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --version
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --help
 # Morphe GUI:
-morphe
+java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar
 # Helper (no environment variables needed):
 bash scripts/repatch.sh /path/to/app.apkm /tmp/app-patched.apk
 ```
@@ -215,8 +202,7 @@ under `MORPHE_DATA_DIR` when set to a writable directory, else
 `<jar-dir>/morphe-data/`, else `~/morphe/` — see [CLI patching](cli.md) for the
 full priority and the startup-log line that reports the winner.
 
-`scripts/repatch.sh` uses `java -jar`, `options-create`, and `patch` (or the
-`morphe` wrapper when that is what discovery finds).
+`scripts/repatch.sh` uses `java -jar`, `options-create`, and `patch`.
 Full flag reference and terminal flows (discovery, single-patch isolation,
 signing, updates): [CLI patching](cli.md).
 It explicitly selects the patch
