@@ -197,7 +197,7 @@ data["version"] = sys.argv[1]
 json.dump(data, open(path, "w", encoding="utf-8"), indent=2)
 open(path, "a", encoding="utf-8").write("\n")
 PY
-python3 .github/scripts/generate_patches_readme.py "$REPO" main patches-list.json README.md
+python3 scripts/generate_patches_readme.py "$REPO" main patches-list.json README.md
 
 # 4. Stage the Manager manifest upfront. The download URL is fully determined
 #    by the tag name, so the manifest is committed in the staging PR and
