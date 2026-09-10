@@ -141,6 +141,12 @@ Extension methods called from patched bytecode must be `public static`; mark the
 `@SuppressWarnings("unused")` since nothing references them at compile time.
 Settings are best read once at class-load time (`static final`) for performance.
 
+Extension modules are 1:1 with target apps: `:extensions:extension` serves
+Threads only. Keep each extension dex minimal and never reference another app's
+classes from injected smali — cross-app class descriptors contaminate the dex
+and couple unrelated patches. A new app needing runtime bytecode gets its own
+sibling subproject instead.
+
 ### Defensive extension convention
 
 Extensions run inside someone else's app on versions you never tested — a layout

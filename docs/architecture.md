@@ -65,6 +65,14 @@ artifact, shortening the failure loop without reintroducing a file-on-disk
 verification. Never commit analysis work (see `scripts/clean-analysis.sh`); a legacy
 repo-root `extensions/extension.mpe` copy is neither generated nor consumed.
 
+## Extension scoping
+
+`:extensions:extension` is deliberately scoped to Threads runtime
+(`com.zeldrisho.threads.extension`). Any future app (e.g. Zalo) requiring
+runtime extension bytecode must declare its own independent sibling subproject
+(e.g. `:extensions:zalo-extension`) rather than sharing or overloading this
+module.
+
 Authoring rules for fingerprints, patches, and extensions live in
 [fingerprint guide](fingerprint-guide.md) and
 [patch development](patch-development.md#extensions-vs-inline-smali).

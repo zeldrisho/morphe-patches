@@ -125,6 +125,101 @@ changes, update the script first, then the recipe that motivated the change in
 - **Modern Kotlin stacks** (when Retrofit patterns miss — KMP/Kotlin-only apps):
   Ktor, Apollo, Koin, and request-signing signals.
 
+### Learning from other patch projects
+
+Treat another project's hooks and symbol maps as candidate evidence, not a
+compatibility guarantee. Runtime-hook frameworks (such as LibXposed) and Morphe
+APK rewriting have different capabilities; transfer target knowledge and safety
+invariants rather than copying framework infrastructure.
+
+1. Record the reference repository revision and exact target profile. Compare
+   like-for-like artifact hashes: a profile's base-APK hash must be compared with
+   our extracted original `base.apk`, not the enclosing APKM or re-signed output.
+   A matching versionCode alone is insufficient.
+2. Independently verify candidates in our input's smali. Record owner/signature,
+   semantic anchors, field relationships, callers/consumers, intended mutation,
+   and regression risks in local analysis. Reject ambiguous matches; heuristic
+   scores and upstream verification labels do not replace evidence.
+3. Trace the state around the target. UI removal can require consistent lists,
+   counts, indices, parallel arrays, adapters, and startup selection. Suppression
+   should target specific branches or writes, preserving unrelated operations
+   and unknown inputs rather than disabling whole subsystems.
+4. Borrow negative test cases as well as intended behavior: operational alerts
+   and ordinary messages must survive notification filtering, for example.
+   Do not silently import the reference project's broader feature scope.
+5. Distinguish fingerprint match, patch application, app launch, target-path
+   execution, and observed behavior in the [QA record](qa-checklist.md).
+   An installed hook or successful build does not prove the feature worked.
+6. Check licensing before copying code; retain required notices for copied
+   substantial portions. Remote catalogs, settings, recording, and diagnostics
+   infrastructure require separate scope decisions, not automatic adoption.
+
+Reference inspected: local `~/Projects/zalo-patch/` at commit `deadb56` (MIT).
+Useful entry points, relative to that repository:
+
+- `app/src/main/assets/symbol-schema.json`: versioned symbols and artifact
+  identities. Its 260801903 profile is labeled static-verified; the 260802903
+  profile is labeled device-verified. These are upstream claims, not our QA.
+- `app/src/main/java/com/ez/zalopatch/xposed/features/`: target semantics and
+  surrounding state, especially `BottomTabsFeature.java` and `TelemetryFeature.java`.
+- `app/src/main/java/com/ez/zalopatch/NotificationPromoClassifier.java`:
+  notification preservation rules; its content classifier is not equivalent to
+  our dispatcher-branch filtering.
+- `app/src/main/java/com/ez/zalopatch/FingerprintResolver.java`: evidence and
+  ambiguity checks. It explicitly implements a shadow resolver, not runtime
+  hook selection; its scoring thresholds are not established confidence levels.
+
+This was a source inspection, not a build or device validation. Recheck these
+references if the checkout changes. Keep extracted symbol tables and APK evidence
+in gitignored `analysis/`, not in feature-specific session documents.
+
+### Investigating data-migration patches
+
+External transfer utilities can suggest a user workflow without supplying any
+patch targets. Reference inspected: local `~/Projects/zalo-transfer-data/` at
+`3672218`, source only; no execution or device validation. Its `app/services.py`
+copies the external `Android/data/com.zing.zalo` tree through ADB and still relies
+on Zalo's own message backup. It does not demonstrate private-database recovery,
+decryption, or a native transfer hook. Do not copy its source-video deletion,
+destination wipe, or unconditional deletion of the recovery archive on failure.
+
+Apply these principles when investigating any app's local-data patch:
+
+- **Execution context changes feasibility, not portability.** An injected
+  extension runs with the host app's permissions and can access its own app data
+  without ADB. This does not grant access to another installation's sandbox or
+  make encrypted files portable across devices, accounts, or reinstalls.
+- **Prefer native machinery.** Find existing backup/import/phone-transfer flows
+  before designing a replacement. Verify entry points, prerequisites, callers,
+  and restore ordering in smali and on-device; a hidden screen alone does not
+  establish a working local export. New UI needs explicit scope approval under
+  the [standing rules](maintenance.md#standing-rules).
+- **Separate media from messages.** External-file copies do not establish chat
+  recovery or attachment associations. Trace databases, attachment references,
+  consistent snapshot handling (including SQLite WAL), and key lifecycle.
+  Android Keystore or device/account-bound keys can prevent raw-copy restoration;
+  in-process file access alone is insufficient evidence.
+- **Account for the first migration.** A re-signed APK normally cannot update
+  over stock. An in-app patch cannot recover stock private data after uninstall;
+  initial migration needs a supported stock export/backup route. Distinguish
+  stock-to-patched, patched-to-patched, and cross-device recovery claims.
+- **Design for recovery before convenience.** Export through a user-selected
+  document destination outside app-owned storage so uninstall does not remove
+  the backup. Preserve source data and recovery copies; validate archive paths,
+  integrity, account/schema compatibility, and storage capacity before writes.
+  Use bounded extraction and recoverable staging rather than wiping live data.
+  Treat archives as sensitive; keep chat contents, credentials, and keys out of
+  logs and committed analysis.
+- **Prove a round trip.** Test with disposable data: same-device reinstall,
+  cross-device recovery if claimed, media-to-message associations, incompatible
+  accounts/versions, corrupt archives, and interrupted transfers. Archive size,
+  successful extraction, and app launch are not restoration proof. Do not change
+  the existing [reinstall order](qa-checklist.md#re-patch--install) based only on
+  an external utility's instructions.
+
+Keep app-specific symbols and experimental results in gitignored `analysis/`;
+keep outstanding scope decisions in [the plan](plan.md), not a session transcript.
+
 ### Recover Kotlin names for obfuscated Kotlin apps
 
 R8 renames JVM symbols, but builds that keep `@DebugMetadata`/`@Metadata` strings

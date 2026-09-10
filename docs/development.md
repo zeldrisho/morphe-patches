@@ -29,7 +29,11 @@ Template init is complete. Current coordinates: Gradle `group` is
 `com.zeldrisho.patches.threads` / `com.zeldrisho.patches.zalo` (app-agnostic
 helpers in `com.zeldrisho.patches.shared`); the extension Java package
 intentionally stays `com.zeldrisho.threads.extension` (its class descriptor
-is embedded in injected smali). Only re-scaffold from the upstream template
+is embedded in injected smali). `:extensions:extension` is deliberately scoped
+to Threads runtime; any future app (e.g. Zalo) requiring runtime extension
+bytecode must declare its own independent sibling subproject
+(e.g. `:extensions:zalo-extension`) rather than sharing or overloading this
+module. Only re-scaffold from the upstream template
 when starting a new bundle repo.
 
 ## Adding a patch

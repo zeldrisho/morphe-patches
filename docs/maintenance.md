@@ -15,6 +15,12 @@ decisions, not duplicate instructions.
   [QA checklist](qa-checklist.md). Record input/bundle/options provenance with
   every device result; a passing build without provenance does not validate the
   current bundle.
+- External patch repositories are recon references, not compatibility proof:
+  [external-reference workflow](reverse-engineering.md#learning-from-other-patch-projects)
+  covers artifact identity, independent verification, state invariants, and licensing.
+- Data-migration patch feasibility, sandbox/signing limits, and recovery evidence:
+  [investigation principles](reverse-engineering.md#investigating-data-migration-patches).
+  External media transfer is not proof of full chat restoration.
 - Incident context: [lessons learned](lessons-learned.md).
 - `docs/plan.md` contains only remaining actionable work, not completed checks
   or session transcripts. Keep recurring procedures in the QA checklist and
