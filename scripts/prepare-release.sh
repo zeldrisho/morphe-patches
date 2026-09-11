@@ -203,9 +203,11 @@ python3 scripts/generate_patches_readme.py "$REPO" main patches-list.json README
 #    by the tag name, so the manifest is committed in the staging PR and
 #    release.yml never pushes to main (which also avoids branch-ruleset
 #    status-check conflicts from bot commits).
-python3 scripts/extract_release_notes.py CHANGELOG.md "$VERSION" /tmp/staging-notes.md "$REPO"
+tmp_notes="$(mktemp "${TMPDIR:-/tmp}/morphe-staging-notes.XXXXXX")"
+trap 'rm -f "$tmp_notes"' EXIT
+python3 scripts/extract_release_notes.py CHANGELOG.md "$VERSION" "$tmp_notes" "$REPO"
 CREATED_AT="$(date -u +%Y-%m-%dT%H:%M:%S)"
-python3 - "$VERSION" "$REPO" "$CREATED_AT" /tmp/staging-notes.md <<'MANIFEST_PY'
+python3 - "$VERSION" "$REPO" "$CREATED_AT" "$tmp_notes" <<'MANIFEST_PY'
 import json, sys
 version, repo, created_at, notes_path = sys.argv[1:]
 notes = open(notes_path, encoding="utf-8").read().strip()

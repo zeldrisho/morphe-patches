@@ -20,10 +20,13 @@ the Morphe GUI; with a subcommand it is the Morphe CLI. Full upstream reference:
 [Morphe documentation](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
 
 ```bash
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --version
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --help
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch --help
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-patches --help
+MORPHE="${MORPHE:-$(find ~/.local/share/morphe -maxdepth 1 -type f \
+  -name 'morphe-desktop-*-all.jar' -print0 |
+  xargs -0 ls -t | head -n1)}"
+java -jar "$MORPHE" --version
+java -jar "$MORPHE" --help
+java -jar "$MORPHE" patch --help
+java -jar "$MORPHE" list-patches --help
 ```
 
 The JAR is kept at `~/.local/share/morphe/morphe-desktop-1.15.0-all.jar` (see
@@ -49,9 +52,9 @@ Morphe CLI use this folder; in the GUI open it via Tools → Open App Data.
 
 ```bash
 MPP="patches/build/libs/patches-<version>.mpp"
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-versions --patches "$MPP"
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-patches --patches "$MPP" --with-packages --with-versions --with-options
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-patches --patches "$MPP" -f com.instagram.barcelona
+java -jar "$MORPHE" list-versions --patches "$MPP"
+java -jar "$MORPHE" list-patches --patches "$MPP" --with-packages --with-versions --with-options
+java -jar "$MORPHE" list-patches --patches "$MPP" -f com.instagram.barcelona
 ```
 
 `-p/--patches` also accepts repeatable bundles and repo/release URLs
@@ -61,9 +64,9 @@ address the combined list. `options-create` generates the editable JSON that
 `--options-file` consumes:
 
 ```bash
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar options-create -p "$MPP" -o /tmp/options.json
+java -jar "$MORPHE" options-create -p "$MPP" -o /tmp/options.json
 # edit enabled/options, then:
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --options-file /tmp/options.json --options-update app.apkm
+java -jar "$MORPHE" patch -p "$MPP" --options-file /tmp/options.json --options-update app.apkm
 ```
 
 CLI flags beat the options file when both set one patch. A nonexistent
@@ -110,16 +113,16 @@ Raw equivalents when the helper hides what you need:
 
 ```bash
 # Full suite, defaults:
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" -o /tmp/threads_patched.apk /path/to/threads.apkm
+java -jar "$MORPHE" patch -p "$MPP" -o /tmp/threads_patched.apk /path/to/threads.apkm
 # One patch in isolation (debug one fingerprint without others masking it):
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --exclusive -e "Hide ads" -o /tmp/threads_one.apk /path/to/threads.apkm
+java -jar "$MORPHE" patch -p "$MPP" --exclusive -e "Hide ads" -o /tmp/threads_one.apk /path/to/threads.apkm
 # Rename + label via flags instead of env:
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" \
+java -jar "$MORPHE" patch -p "$MPP" \
   -e "Change app name" -OappName="Threads+" \
   -e "Change package name" -OpackageName="com.example.threads" \
   -o /tmp/threads_renamed.apk /path/to/threads.apkm
 # Risky surface: force + keep going + record what happened:
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --force --continue-on-error \
+java -jar "$MORPHE" patch -p "$MPP" --force --continue-on-error \
   -r /tmp/patch-result.json -o /tmp/threads_forced.apk /path/to/threads.apkm
 ```
 
@@ -149,17 +152,17 @@ truth, not this file).
 ## Signing (keystore flags need `=`)
 
 ```bash
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" \
+java -jar "$MORPHE" patch -p "$MPP" \
   --keystore="<jar-dir>/morphe-data/morphe.keystore" \
   --keystore-entry-alias=Morphe \
   -o /tmp/out.apk /path/to/threads.apkm
 # Custom store (space-separated form FAILS — use =):
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" \
+java -jar "$MORPHE" patch -p "$MPP" \
   --keystore=/path/to/mine.bks --keystore-entry-alias=morphe \
   --keystore-password=... --keystore-entry-password=... \
   -o /tmp/out.apk /path/to/threads.apkm
 # Diagnose signing without patching noise:
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --unsigned -o /tmp/unsigned.apk /path/to/threads.apkm
+java -jar "$MORPHE" patch -p "$MPP" --unsigned -o /tmp/unsigned.apk /path/to/threads.apkm
 apksigner verify --print-certs /tmp/out.apk
 ```
 

@@ -81,8 +81,8 @@ private fun replaceWithAccountPicker(method: MutableMethod) {
             move-result-object v2
             check-cast v2, Landroid/app/Activity;
             invoke-static { v2 }, $MICROG_EXTENSION_CLASS->checkGmsCore(Landroid/app/Activity;)Z
-            move-result v0
-            if-eqz v0, :microg_missing
+            move-result v1
+            if-eqz v1, :microg_missing
             const/16 v1, $ACCOUNT_PICKER_REQUEST_CODE
             invoke-virtual { v2, v0, v1 }, Landroid/app/Activity;->startActivityForResult(Landroid/content/Intent;I)V
             :microg_missing

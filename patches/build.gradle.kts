@@ -91,10 +91,11 @@ tasks {
                     !file.name.contains("sources") &&
                     !file.name.contains("javadoc")
             }?.toList().orEmpty()
-            check(mpps.size == 1) {
-                "Expected one distributable .mpp in $libs, found: ${mpps.map { it.name }}"
+            val currentMpps = mpps.filter { it.name == "patches-${project.version}.mpp" }
+            check(currentMpps.size == 1) {
+                "Expected one distributable patches-${project.version}.mpp in $libs, found: ${mpps.map { it.name }}"
             }
-            val mpp = mpps.single()
+            val mpp = currentMpps.single()
             ZipFile(mpp).use { zip ->
                 extensionArtifacts.values.forEach { paths ->
                     check(zip.getEntry(paths.second) != null) {

@@ -93,7 +93,10 @@ android sdk install platform-tools
 android sdk install "ndk;29.0.14206865"
 # Explicit analysis/signature tools; not a repo build-tools pin:
 android sdk install build-tools/36.1.0
+# Fedora WSL:
 fish_add_path "$ANDROID_HOME/build-tools/36.1.0" "$ANDROID_HOME/platform-tools" "$ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin" ~/.local/bin
+# macOS:
+fish_add_path "$ANDROID_HOME/build-tools/36.1.0" "$ANDROID_HOME/platform-tools" "$ANDROID_HOME/ndk/29.0.14206865/toolchains/llvm/prebuilt/darwin-x86_64/bin" ~/.local/bin
 ```
 
 `build-tools/36.1.0` is valid [Android CLI package syntax](https://developer.android.com/tools/agents/android-cli#sdk-install).
@@ -184,10 +187,13 @@ gh release download --repo MorpheApp/morphe-desktop --pattern 'morphe-desktop-*-
 Do not replace a JAR during an active patch run.
 
 ```bash
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --version
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar --help
+MORPHE="${MORPHE:-$(find ~/.local/share/morphe -maxdepth 1 -type f \
+  -name 'morphe-desktop-*-all.jar' -print0 |
+  xargs -0 ls -t | head -n1)}"
+java -jar "$MORPHE" --version
+java -jar "$MORPHE" --help
 # Morphe GUI:
-java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar
+java -jar "$MORPHE"
 # Helper (no environment variables needed):
 bash scripts/repatch.sh /path/to/app.apkm /tmp/app-patched.apk
 ```
