@@ -52,7 +52,7 @@ and [release rules](release.md#rules).
 Canonical local verification (bash):
 
 ```bash
-pre-commit run --all-files --show-diff-on-failure
+uvx pre-commit run --all-files --show-diff-on-failure
 ./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
 ```
 
@@ -94,9 +94,9 @@ These checks cannot establish real-APK fingerprint compatibility or device behav
 ### Optional commit hooks
 
 ```bash
-uvx --from pre-commit==4.6.2 pre-commit install
+uvx pre-commit install
 # Remove only the pre-commit-managed hook:
-uvx --from pre-commit==4.6.2 pre-commit uninstall
+uvx pre-commit uninstall
 ```
 
 The first run downloads isolated hook environments (including Go for actionlint

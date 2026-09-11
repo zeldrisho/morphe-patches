@@ -24,6 +24,11 @@ Short, reusable rules from incidents in this repository. Procedures belong in
 | Prefer fail-loud diagnostic probes over broad hooks. | Broad instrumentation can perturb timing, loading, or register state. |
 | Do not retain a diagnostic mutation as a production patch. | Stubs and NOPs commonly remove registration, cleanup, or required state. |
 | When isolating native startup failures, preserve setup and neutralize only the failing dispatch. | Bypassing an entire initializer can remove required TLS/JNI state and create misleading secondary crashes. |
+| Treat native calls that populate shared configuration as required initialization until proven otherwise. | Replacing a configuration call with a NOP can leave downstream key/API fields null and turn the original failure into unrelated request-construction crashes. |
+| When a native routine resolves a framework method through JNI, trace the JNIEnv table call and its argument setup before changing Java callers. | Nearby smali `System.exit` callers may be unrelated; a JNI-dispatched exit can survive broad bytecode suppression. |
+| For a surgical native fix, validate both the preserved prerequisite instruction and the replaced terminal dispatch bytes. | Checking only the mutation can silently break required initialization or apply to the wrong ABI/build. |
+| Treat process survival and UI reachability as separate from initialization correctness. | A suppressed exit can expose later null shared state; validate required fields and request construction before calling the run successful. |
+| Restore the stock initializer before diagnosing later lifecycle or authentication failures. | A valid control distinguishes a patch regression from the app's independent integrity or device behavior. |
 
 ## Device diagnostics
 
@@ -35,6 +40,9 @@ Short, reusable rules from incidents in this repository. Procedures belong in
 | Record device state, app state, exact commands, and bounded log evidence for runtime findings. | This makes failures reproducible without turning feature-specific observations into permanent QA procedure. |
 | Start logcat capture before reproducing an error and stop it immediately afterward. | A post hoc buffer can omit the request, response, and client decision that caused the visible error. |
 | Treat a startup-integrity bypass and authentication trust as separate gates. | A re-signed app can boot normally while a Java or server-side certificate check rejects login. |
+| Treat third-party account/Drive authorization as a separate signing-identity gate. | A re-signed client may reach its UI and authenticate to its own service while Google token issuance still rejects its certificate. |
+| Trace the provider boundary before redirecting a third-party SDK. | A client can use standard `AccountManager` account types and a hard-coded GMS component even when the installed implementation uses a different package identity; blind string replacement can break account selection or service binding. |
+| If a request fails with a local exception before an HTTP response is logged, classify it as client-side first. | Generic UI error numbers do not establish a server response; capture the request lifecycle before attributing a failure to the endpoint. |
 | Confirm the runtime path before attributing a string or native offset to a failure. | Native strings and nearby helpers can be unused, while the active path may be ordinary Java code. |
 
 ## Compatibility and QA

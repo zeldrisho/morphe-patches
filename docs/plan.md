@@ -3,20 +3,16 @@
 Procedure details live in the linked docs, including the [native patching
 workflow](native-patching.md).
 
-## Authentication and device QA
+## Device QA and restore
 
-- [ ] Capture a fresh failed-login trace on SM-S936B with logcat started before
-      pressing Login; identify the auth endpoint and server/client response for
-      error 101. The current trace has no app-side 101 or HTTP payload.
-- [ ] Decide whether the re-signed build can support authentication after
-      confirming the Java signature payload path; do not claim login support from
-      startup success alone.
-- [ ] With a successful logged-in session, verify feed/story/community ad
-      suppression and preserve message, call, friend-request, and birthday
-      notifications using the [QA checklist](qa-checklist.md). Requires a
-      disposable/test account and controlled fixtures.
-- [ ] Monitor the logged-in session for crashes, crypto/DAO exceptions, and
-      integrity warnings.
+- [ ] Investigate the Google Drive restore authorization failure on SM-S936B;
+      capture bounded client/GMS logs and confirm whether the failure is token
+      issuance, account selection, or Drive API access. Do not record
+      credentials, OAuth tokens, or private key material.
+- [ ] Verify the authenticated session for crashes, crypto/DAO exceptions,
+      integrity warnings, and the required feed/story/community ad behavior;
+      preserve message, call, friend-request, and birthday notifications using
+      the [QA checklist](qa-checklist.md).
 - [ ] Run SDK-verified re-patching, or document a verifier waiver only after
       device QA and reproducible toolchain evidence.
 
