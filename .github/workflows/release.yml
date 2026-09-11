@@ -80,7 +80,7 @@ jobs:
       - name: Test and build bundle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:test :extensions:extension:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
+        run: ./gradlew :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
 
       - name: Locate bundle
         run: |

@@ -83,7 +83,7 @@ adb install -r /tmp/threads_patched.apk
 Build first — the `.mpp` lands in `patches/build/libs/`:
 
 ```bash
-./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
+./gradlew :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest buildAndroid --no-daemon
 ```
 
 Full re-patch via the helper (preferred — pins bundle, tmp dir, keystore):
@@ -163,6 +163,8 @@ java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch -p "$MPP" --unsig
 apksigner verify --print-certs /tmp/out.apk
 ```
 
+Aliases are case-sensitive: `morphe` and `Morphe` select different key
+entries. Verify the exact alias and matching key password before patching.
 Defaults: shared BKS `morphe.keystore`, alias `Morphe`, key password
 `Morphe`, store password empty (`<jar-dir>` is the Morphe JAR's
 directory — e.g. `~/.local/share/morphe/` per [toolchain §5](toolchain.md);

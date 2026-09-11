@@ -53,8 +53,9 @@ patches/src/main/kotlin/com/zeldrisho/patches/
   other mirrors can carry different codes.
 - Internal-only helpers stay unnamed (`bytecodePatch { ... }` without `name`) and are
   wired in via `dependsOn(...)`.
-- Complex runtime logic goes in `extensions/extension/src/main/java/` and is linked with
-  `extendWith("extensions/extension.mpe")` (when to use it: below).
+- Complex runtime logic goes in the target's extension module (for example
+  `extensions/threads/src/main/java/`) and is linked with its matching
+  `extendWith(...)` artifact (when to use it: below).
 - Every user-visible patch needs an honest `description`: state what it does AND
   its limits (e.g. "client-side IMA ads only; server-stitched SSAI on live streams
   may remain", "UI only — content stays server + Widevine gated", "rename may
@@ -141,11 +142,11 @@ Extension methods called from patched bytecode must be `public static`; mark the
 `@SuppressWarnings("unused")` since nothing references them at compile time.
 Settings are best read once at class-load time (`static final`) for performance.
 
-Extension modules are 1:1 with target apps: `:extensions:extension` serves
-Threads only. Keep each extension dex minimal and never reference another app's
-classes from injected smali — cross-app class descriptors contaminate the dex
-and couple unrelated patches. A new app needing runtime bytecode gets its own
-sibling subproject instead.
+Extension modules are 1:1 with target apps: `:extensions:threads` serves
+Threads and `:extensions:zalo` serves Zalo. Keep each extension dex minimal and
+never reference another app's classes from injected smali — cross-app class
+descriptors contaminate the dex and couple unrelated patches. Truly shared
+runtime code belongs in a separate shared module.
 
 ### Defensive extension convention
 
@@ -191,7 +192,7 @@ keystore discovery, aliases, passwords, and integrity checks are documented in
 here.
 
 ```bash
-./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
+./gradlew :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest buildAndroid --no-daemon
 # .mpp -> patches/build/libs/patches-*.mpp
 ```
 
@@ -219,8 +220,29 @@ Generated-file ownership is defined in the [release rules](release.md#rules).
 | Server-gated features still locked | Server-side validation (credits, cloud) | Not bypassable client-side — document as limitation |
 | Gradle auth failure | Missing registry credentials | `gpr.user`/`gpr.key` (or `GITHUB_ACTOR`/`GITHUB_TOKEN`), see [toolchain setup](toolchain.md#4-repository-dependencies) |
 
+## Signing and microG OAuth notes
+
+Morphe keystore aliases are case-sensitive: `morphe` is not the same entry as
+`Morphe`. Pass the exact alias and matching key password to `repatch.sh`, then
+confirm the output with `apksigner verify --print-certs` before device QA.
+
+MicroG's `app.revanced.android.gms.SPOOFED_PACKAGE_SIGNATURE` metadata is a
+signature-spoofing contract and takes the stock certificate in raw DER hex. It
+is not the value to copy into Google Developer Console: OAuth Android-client
+registration uses the lowercase 40-character SHA-1 fingerprint
+`9487ba76b32e9e36785fb4c3540021f85af8d7b7`. Runtime `client_sig` and
+`callerSig` may still be emitted as raw DER hex by the auth request, so verify
+both the metadata format and the actual request independently.
+
+A re-signed APK may launch and reach a Drive restore flow while MicroG returns
+`UNREGISTERED_ON_API_CONSOLE`. This is a known upstream limitation when Google
+OAuth attestation enforces server-side project keys; Drive backup/restore is
+not considered validated until the registered package and certificate are
+accepted.
+
 ## Known limitations (set expectations in patch descriptions)
 
 - Re-signed APKs break Google sign-in and anything bound to the original certificate.
 - Client-side license/integrity bypasses never beat server-side attestation.
+- Google Drive backup/restore may remain unavailable for re-signed clients because of server-side OAuth project-key attestation.
 - Split-only apps must be patched from the downloaded split bundle, not a standalone extracted APK.

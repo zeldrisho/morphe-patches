@@ -13,9 +13,10 @@ Non-goal: server-side bypasses — client-side only (see
 | Module | Entry | Output |
 | ------ | ----- | ------ |
 | `patches` | `patches/build.gradle.kts`, `patches/src/main/kotlin/com/zeldrisho/patches/` | `patches/build/libs/patches-*.mpp` |
-| `extensions/extension` | `extensions/extension/build.gradle.kts`, `extensions/extension/src/main/java/` | embedded `extensions/extension.mpe` via `extendWith` |
+| `extensions/threads` | `extensions/threads/build.gradle.kts`, `extensions/threads/src/main/java/` | embedded `extensions/extension.mpe` via `extendWith` |
+| `extensions/zalo` | `extensions/zalo/build.gradle.kts`, `extensions/zalo/src/main/java/` | embedded `extensions/zalo.mpe` via `extendWith` |
 
-Plugin `app.morphe.patches` (see `settings.gradle.kts`, `gradle/libs.versions.toml`) builds both.
+Plugin `app.morphe.patches` (see `settings.gradle.kts`, `gradle/libs.versions.toml`) builds all extension modules.
 
 ## Patch sources (multi-app)
 
@@ -50,28 +51,23 @@ original APK ──▶ jadx + apktool ──▶ target (class + method + instruc
 
 ## Extension artifact wiring
 
-The Morphe Gradle plugin publishes the extension module's `build/morphe`
-directory and consumes it as `patches` resources, so the built `.mpp` already
-embeds `extensions/extension.mpe`. `extendWith("extensions/extension.mpe")`
-loads it through the bundle classloader (`ClassLoader.getResourceAsStream`),
-not from a repo-relative filesystem path — no root-level copy participates in
-the build. `:patches:verifyBundleExtension` (which runs `buildAndroid`) is the
-authoritative signal on the embedded dex — it fails when
-`extensions/extension.mpe` is missing from the built `.mpp` (an `extendWith`
-miss would otherwise surface on-device as a silent no-op).
+The Morphe Gradle plugin publishes each extension module's `build/morphe`
+directory and consumes them as `patches` resources, so the built `.mpp` embeds
+both extension artifacts. `extendWith(...)` loads an artifact through the bundle
+classloader (`ClassLoader.getResourceAsStream`), not from a repo-relative
+filesystem path. `:patches:verifyBundleExtension` (which runs `buildAndroid`) is
+the authoritative signal that both embedded dex artifacts are present.
 `:patches:checkExtensionArtifact` is a lightweight pre-check that runs before
-`buildAndroid` and fails in seconds when the extension module produced no
-artifact, shortening the failure loop without reintroducing a file-on-disk
-verification. Never commit analysis work (see `scripts/clean-analysis.sh`); a legacy
-repo-root `extensions/extension.mpe` copy is neither generated nor consumed.
+`buildAndroid` and fails in seconds when an extension module produced no
+artifact. Never commit analysis work (see `scripts/clean-analysis.sh`).
 
 ## Extension scoping
 
-`:extensions:extension` is deliberately scoped to Threads runtime
-(`com.zeldrisho.threads.extension`). Any future app (e.g. Zalo) requiring
-runtime extension bytecode must declare its own independent sibling subproject
-(e.g. `:extensions:zalo-extension`) rather than sharing or overloading this
-module.
+Each extension module is deliberately scoped to one target app:
+`:extensions:threads` contains `com.zeldrisho.threads.extension`, while
+`:extensions:zalo` contains `com.zeldrisho.zalo.extension`. Shared runtime
+helpers belong in a separate `extensions/shared` module only when they are
+truly app-agnostic; target-specific code must not be shared across modules.
 
 Authoring rules for fingerprints, patches, and extensions live in
 [fingerprint guide](fingerprint-guide.md) and

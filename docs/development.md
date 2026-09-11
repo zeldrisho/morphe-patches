@@ -29,10 +29,10 @@ Template init is complete. Current coordinates: Gradle `group` is
 `com.zeldrisho.patches.threads` / `com.zeldrisho.patches.zalo` (app-agnostic
 helpers in `com.zeldrisho.patches.shared`); the extension Java package
 intentionally stays `com.zeldrisho.threads.extension` (its class descriptor
-is embedded in injected smali). `:extensions:extension` is deliberately scoped
+is embedded in injected smali). `:extensions:threads` is deliberately scoped
 to Threads runtime; any future app (e.g. Zalo) requiring runtime extension
 bytecode must declare its own independent sibling subproject
-(e.g. `:extensions:zalo-extension`) rather than sharing or overloading this
+(e.g. `:extensions:zalo`) rather than sharing or overloading this
 module. Only re-scaffold from the upstream template
 when starting a new bundle repo.
 
@@ -53,7 +53,7 @@ Canonical local verification (bash):
 
 ```bash
 uvx pre-commit run --all-files --show-diff-on-failure
-./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
+./gradlew qualityCheck :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
 ```
 
 
@@ -73,7 +73,7 @@ analysis directories are not formatting targets.
 | --- | --- |
 | Spotless: ktlint + google-java-format | Root `build.gradle.kts`; Kotlin sources/tests, Gradle scripts, extension Java sources/tests |
 | detekt | `patches/build.gradle.kts`, `config/detekt/detekt.yml`; Kotlin source analysis, without type resolution |
-| Android Lint | `:extensions:extension:lintDebug`; extension production and test sources |
+| Android Lint | `:extensions:threads:lintDebug`, `:extensions:zalo:lintDebug`; extension production and test sources |
 | ShellCheck + shfmt | `.pre-commit-config.yaml`; `scripts/**/*.sh` |
 | actionlint | `.pre-commit-config.yaml`; GitHub Actions workflows; also uses ShellCheck when on PATH (installed explicitly in CI) |
 | Merge conflicts + mixed line endings | `.pre-commit-config.yaml`; tracked text files |
@@ -81,7 +81,7 @@ analysis directories are not formatting targets.
 `qualityCheck` aggregates Spotless, detekt, and Android Lint. It does not run unit
 tests or build the bundle; `buildAndroid` alone does not run this quality gate.
 Reports are under `patches/build/reports/detekt/` and
-`extensions/extension/build/reports/`.
+`extensions/threads/build/reports/`.
 
 Tool versions are pinned in the Gradle files, hook revisions, and CI install step.
 Detekt **2.0.0-alpha.6** is intentional: its embedded compiler matches Morphe's

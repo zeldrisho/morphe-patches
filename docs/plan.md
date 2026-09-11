@@ -1,11 +1,13 @@
 # Plan — remaining work
 
-## Authentication and restore
+## Provider-backed authentication and restore
 
-- [ ] Resolve OAuth authorization for the re-signed Zalo build through an
-      authorized Google configuration, or use the stock VNG-signed build.
-- [ ] Repeat the Drive restore E2E on SM-S936B after authorization is corrected;
-      retain only bounded, sanitized logs and never record credentials or tokens.
+- [ ] Resolve OAuth authorization for the re-signed client through an authorized
+      provider configuration, or document the original-signing-identity
+      requirement as unsupported.
+- [ ] Repeat the provider-backed restore E2E on the target device after
+      authorization is corrected; retain only bounded, sanitized logs and never
+      record credentials or tokens.
 
 ## Device QA and release
 

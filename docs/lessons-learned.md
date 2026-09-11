@@ -53,6 +53,14 @@ Short, reusable rules from incidents in this repository. Procedures belong in
 | Separate provider transport success from upstream authorization. | A successful account picker, IPC bind, and token-service request do not prove that the upstream OAuth client accepts the installed package and certificate. |
 | Treat re-signing as an authentication boundary. | OAuth clients commonly bind authorization to package identity and signing certificate; a locally valid APK can still be rejected upstream. |
 | Validate signing inputs before attributing failures to runtime code. | Keystore format, password, and alias errors can prevent a reproducible install; verify the selected entry and APK certificate before device QA. |
+| Treat Morphe keystore aliases as case-sensitive. | `morphe` and `Morphe` are different aliases; pass the exact alias with its matching key password or signing will be non-reproducible. |
+| Keep microG signature formats distinct. | The `SPOOFED_PACKAGE_SIGNATURE` metadata uses the stock certificate's raw DER hex for signature spoofing, while Google OAuth client registration uses the lowercase 40-character SHA-1 fingerprint (`9487ba76b32e9e36785fb4c3540021f85af8d7b7`). |
+
+## OAuth-dependent device QA finding
+
+A re-signed build can launch without crashes and reach a Drive restore flow while the provider still returns `UNREGISTERED_ON_API_CONSOLE`. A captured `drive.appdata` request may contain both `client_sig` and `callerSig` as raw stock-certificate DER hex, proving the transport path but not upstream authorization. The account picker and OAuth authorization are separate gates. Drive backup/restore remains unverified until the OAuth project accepts the package and certificate, and may remain unavailable for re-signed clients when server-side project-key attestation is enforced.
+
+If authentication fails before the main UI is available, record ad and feature checks as BLOCKED rather than treating the startup result as full functional QA.
 
 ## Compatibility and QA
 

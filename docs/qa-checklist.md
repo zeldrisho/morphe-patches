@@ -9,7 +9,7 @@ version and package metadata defined by the target's source of truth.
 ## Build
 
 ```bash
-./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
+./gradlew :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest buildAndroid --no-daemon
 python3 -m unittest discover -s scripts/tests -v  # offline helper regression tests
 ```
 
@@ -85,6 +85,11 @@ sanitized notes in the release/PR record.
       check proving unrelated behavior remains intact.
 - [ ] Inputs, navigation, network-dependent screens, notifications, media, and
       background work relevant to the target remain functional.
+- [ ] For provider-backed authentication, verify account selection, transport,
+      token issuance, and feature access separately; record upstream OAuth
+      attestation failures as BLOCKED rather than as patch failures. If the
+      provider is absent, show installation guidance without blocking normal
+      app use; keep request logs bounded and redact credentials and tokens.
 - [ ] Optional renamed-package/coexistence behavior is tested when supported by
       the target and its signing/OAuth configuration.
 

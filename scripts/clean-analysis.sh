@@ -35,7 +35,8 @@ done
 
 TARGETS=(
     "$PROJECT_DIR/patches/build"
-    "$PROJECT_DIR/extensions/extension/build"
+    "$PROJECT_DIR/extensions/threads/build"
+    "$PROJECT_DIR/extensions/zalo/build"
     "$PROJECT_DIR/build"
     "$PROJECT_DIR/.gradle"
     "$PROJECT_DIR/.kotlin"

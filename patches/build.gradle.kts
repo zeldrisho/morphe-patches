@@ -4,9 +4,11 @@ import java.util.zip.ZipFile
 // side. The Kotlin call site (HideAdsPatch.kt extendWith(...)) cannot import
 // build-script values across that boundary, so it points back here in a
 // comment and any rename must change both together.
-val extensionProjectPath = ":extensions:extension"
-val extensionMpeBuildPath = "morphe/extensions/extension.mpe"
-val extensionMpeResourcePath = "extensions/extension.mpe"
+val extensionProjects = listOf(":extensions:threads", ":extensions:zalo")
+val extensionArtifacts = mapOf(
+    ":extensions:threads" to ("morphe/extensions/extension.mpe" to "extensions/extension.mpe"),
+    ":extensions:zalo" to ("morphe/extensions/zalo.mpe" to "extensions/zalo.mpe"),
+)
 
 plugins {
     // Matches the Kotlin 2.4.10 compiler supplied by Morphe; see docs/development.md.
@@ -60,20 +62,21 @@ tasks {
     // check in verifyBundleExtension below.
     register("checkExtensionArtifact") {
         description = "Fail fast when the extension module output is missing before building"
-        dependsOn("$extensionProjectPath:syncExtension")
+        dependsOn(extensionProjects.map { "$it:syncExtension" })
         doLast {
-            val mpe = project(extensionProjectPath).layout.buildDirectory
-                .file(extensionMpeBuildPath).get().asFile
-            check(mpe.isFile) {
-                "Missing extension artifact $mpe after $extensionProjectPath:syncExtension — " +
-                    "check $extensionProjectPath:mergeDexRelease output."
+            extensionArtifacts.forEach { (projectPath, paths) ->
+                val mpe = project(projectPath).layout.buildDirectory.file(paths.first).get().asFile
+                check(mpe.isFile) {
+                    "Missing extension artifact $mpe after $projectPath:syncExtension — " +
+                        "check $projectPath:mergeDexRelease output."
+                }
             }
         }
     }
 
-    // The Morphe Gradle plugin publishes the extension module's
-    // build/morphe directory and consumes it as patches resources, so the
-    // built .mpp already embeds extensions/extension.mpe. extendWith loads
+    // The Morphe Gradle plugin publishes the extension modules' build/morphe
+    // directories and consumes them as patches resources, so the built .mpp
+    // already embeds both extension artifacts. extendWith loads
     // it via the bundle classloader (ClassLoader.getResourceAsStream), not
     // from a repo-relative filesystem path. This guard fails fast after the
     // build when the embedded dex is missing instead of shipping a bundle
@@ -93,9 +96,11 @@ tasks {
             }
             val mpp = mpps.single()
             ZipFile(mpp).use { zip ->
-                check(zip.getEntry(extensionMpeResourcePath) != null) {
-                    "Bundle ${mpp.name} is missing $extensionMpeResourcePath — " +
-                        "check $extensionProjectPath:syncExtension output."
+                extensionArtifacts.values.forEach { paths ->
+                    check(zip.getEntry(paths.second) != null) {
+                        "Bundle ${mpp.name} is missing ${paths.second} — " +
+                            "check the corresponding extension sync task output."
+                    }
                 }
             }
         }

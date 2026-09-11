@@ -62,7 +62,7 @@ jobs:
           # Morphe Gradle plugin resolves from GitHub Packages, which needs
           # auth even for public packages (see docs/toolchain.md).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:test :extensions:extension:testDebugUnitTest --no-daemon
+        run: ./gradlew :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest --no-daemon
 
       - name: Build bundle and verify embedded extension
         env:
