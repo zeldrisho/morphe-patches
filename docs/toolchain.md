@@ -215,7 +215,18 @@ logs or the Morphe GUI **Tools → Open App Data**, rather than guessing a key
 location. Signing-key priority and password overrides are documented in
 [CLI patching](cli.md#signing).
 
-## 6. Original APK source
+## 6. Storage and path conventions
+
+Keep host-specific runtime paths in this section; other procedures link here rather
+than repeating them. On the standard Fedora WSL host, original APKMirror split
+bundles (`.apkm`) are stored in `/mnt/c/Users/zeldrisho/Downloads/`. The default
+Morphe runtime data and signing keys are discovered in this order:
+`$MORPHE_DATA_DIR`, `<morphe-JAR-directory>/morphe-data/`, then `~/morphe/`.
+The default key is `morphe.keystore` (alias `Morphe`); `scripts/repatch.sh`
+prefers `imported.keystore` when present. See [CLI signing](cli.md#signing)
+for password, override, and legacy-repository-key details.
+
+## 7. Original APK source
 
 Download original APKs/APKMs **only from [APKMirror](https://www.apkmirror.com/)**.
 On the standard WSL host, store downloads in

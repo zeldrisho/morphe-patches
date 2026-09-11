@@ -184,14 +184,20 @@ val myPatch = bytecodePatch(name = "My Feature") {
 
 ## Build and test
 
+Host APKM and signing-key locations are maintained in [toolchain storage and
+path conventions](toolchain.md#6-storage-and-path-conventions). The CLI's
+keystore discovery, aliases, passwords, and integrity checks are documented in
+[CLI signing](cli.md#signing); do not add another environment-specific key path
+here.
+
 ```bash
 ./gradlew :patches:test :extensions:extension:testDebugUnitTest buildAndroid --no-daemon
 # .mpp -> patches/build/libs/patches-*.mpp
 ```
 
 Apply the `.mpp` via the terminal ([CLI patching](cli.md)) against the **downloaded APKMirror split bundle**
-(stored at `/mnt/c/Users/zeldrisho/Downloads/` on the standard WSL host; see
-[toolchain setup](toolchain.md#6-original-apk-source)) matching the supported
+(see [toolchain storage and source conventions](toolchain.md#6-storage-and-path-conventions)
+and [original APK source](toolchain.md#7-original-apk-source)) matching the supported
 Threads version and `ApkFileType.APKS` compatibility declaration (never an
 extracted `base.apk`), then `adb install -r` the output.
 To debug one patch in isolation, apply

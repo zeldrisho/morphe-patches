@@ -50,6 +50,9 @@ Short, reusable rules from incidents in this repository. Procedures belong in
 | Keep configuration cache separate from the build cache. | `org.gradle.caching=true` caches task outputs; configuration cache is opt-in via `--configuration-cache` or `org.gradle.configuration-cache=true`, and custom/plugin tasks must be verified before enabling it by default. |
 | If a request fails with a local exception before an HTTP response is logged, classify it as client-side first. | Generic UI error numbers do not establish a server response; capture the request lifecycle before attributing a failure to the endpoint. |
 | Confirm the runtime path before attributing a string or native offset to a failure. | Native strings and nearby helpers can be unused, while the active path may be ordinary Java code. |
+| Separate provider transport success from upstream authorization. | A successful account picker, IPC bind, and token-service request do not prove that the upstream OAuth client accepts the installed package and certificate. |
+| Treat re-signing as an authentication boundary. | OAuth clients commonly bind authorization to package identity and signing certificate; a locally valid APK can still be rejected upstream. |
+| Validate signing inputs before attributing failures to runtime code. | Keystore format, password, and alias errors can prevent a reproducible install; verify the selected entry and APK certificate before device QA. |
 
 ## Compatibility and QA
 

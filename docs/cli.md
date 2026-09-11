@@ -8,7 +8,8 @@ Upstream GUI docs are linked, not duplicated.
 
 Toolchain, JAR download, and GitHub Packages credentials:
 [toolchain setup](toolchain.md) (esp. §5). Original split bundles (`.apkm`)
-only from APKMirror: [toolchain §6](toolchain.md#6-original-apk-source). On this
+only from APKMirror: [toolchain §7](toolchain.md#7-original-apk-source); host paths are
+centralized in [toolchain §6](toolchain.md#6-storage-and-path-conventions). On this
 host, APKMirror downloads are stored in `/mnt/c/Users/zeldrisho/Downloads/`;
 for Zalo 26.08.01 the repatch input is the matching `.apkm` file there.
 

@@ -37,7 +37,7 @@ decisions, not duplicate instructions.
 - Pin exact `AppTarget` versions plus the tested `versionCode`
   (`Constants.TESTED_VERSION_CODE`) — a version *name* alone does not identify
   the APK variant. Use only APKMirror originals and record the download URL,
-  ABI/variant, and input hash; see [toolchain setup](toolchain.md#6-original-apk-source).
+  ABI/variant, and input hash; see [toolchain setup](toolchain.md#7-original-apk-source).
 - `FingerprintSurfaceTest` pins the repo-side contract (compatibility target,
   tested versionCode, register-helper behavior) so drift in our own sources fails
   loudly. It does not inspect a downloaded APK; APK-side drift is caught by
