@@ -26,7 +26,7 @@ private val NOP = byteArrayOf(0x1f, 0x20, 0x03, 0xd5.toByte())
  */
 @Suppress("unused")
 val bypassZaloNativeStartupTamperPatch = rawResourcePatch(
-    name = "Bypass Zalo native startup tamper check",
+    name = "Zalo: Bypass native startup tamper check",
     description = "Preserves native key initialization and NOPs only the JNI System.exit " +
         "dispatch in the pinned arm64 26.08.01 build.",
     default = true,

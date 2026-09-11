@@ -3,20 +3,17 @@
 Procedure details live in the linked docs, including the [native patching
 workflow](native-patching.md).
 
-## Device QA and restore
+## Device QA and release
 
-- [ ] Investigate the Google Drive restore authorization failure on SM-S936B;
-      capture bounded client/GMS logs and confirm whether the failure is token
-      issuance, account selection, or Drive API access. Do not record
-      credentials, OAuth tokens, or private key material.
+- [ ] Complete the blocked Zalo Drive restore E2E on SM-S936B: confirm the
+      existing microG account is selected without launching `addAccount`, then
+      verify Drive token acquisition and photo restore. Capture bounded,
+      sanitized logs only; never record credentials or OAuth tokens.
 - [ ] Verify the authenticated session for crashes, crypto/DAO exceptions,
-      integrity warnings, and the required feed/story/community ad behavior;
-      preserve message, call, friend-request, and birthday notifications using
-      the [QA checklist](qa-checklist.md).
+      integrity warnings, required feed/story/community ad behavior, and
+      preservation of message, call, friend-request, and birthday notifications
+      using the [QA checklist](qa-checklist.md).
 - [ ] Run SDK-verified re-patching, or document a verifier waiver only after
       device QA and reproducible toolchain evidence.
-
-## Release
-
-- [ ] Stage and ship a versioned release only after authentication and required
-      device QA pass, following the [release process](release.md).
+- [ ] Stage and ship a versioned release only after authentication, restore,
+      and required device QA pass, following the [release process](release.md).
