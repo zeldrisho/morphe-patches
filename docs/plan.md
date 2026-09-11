@@ -1,18 +1,12 @@
 # Plan — remaining work
 
-## Provider-backed authentication and restore
-
-- [ ] Resolve OAuth authorization for the re-signed client through an authorized
-      provider configuration, or document the original-signing-identity
-      requirement as unsupported.
-- [ ] Repeat the provider-backed restore E2E on the target device after
-      authorization is corrected; retain only bounded, sanitized logs and never
-      record credentials or tokens.
-
-## Device QA and release
-
-- [ ] Complete the [QA checklist](qa-checklist.md) for startup, lifecycle,
-      crypto/DAO, integrity, ad surfaces, and notification preservation.
+- [ ] Track upstream MicroG-RE PR for OAuth SHA-1 normalization. Once merged,
+      revert the download URL in `ZaloMicroGSupport.java` back to the official
+      MicroG page (or point to a stable tag release under
+      `zeldrisho/MicroG-RE/releases` once published).
+- [ ] Complete the [QA checklist](qa-checklist.md) for remaining startup,
+      lifecycle, crypto/DAO, integrity, ad-surface, notification, and
+      provider-backed restore coverage.
 - [ ] Run SDK-verified re-patching, or document a verifier waiver after device
       QA and reproducible toolchain evidence.
 - [ ] Stage and ship a versioned release only after authentication, restore, and

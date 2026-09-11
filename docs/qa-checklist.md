@@ -75,14 +75,17 @@ sanitized notes in the release/PR record.
 
 - [ ] Manifest and package metadata match the intended target; verify removal of
       any permission targeted by a patch.
-- [ ] Fresh launch reaches the target's interactive entry screen and remains
-      alive through the delayed-startup window. Record the device model and
-      Android version; the current primary target (SM-S936B / Android 16) is
-      pending reconnection at `192.168.1.9:38027`.
+- [x] Startup & Lifecycle — Pass: SplashActivity launch, cold start,
+      background/kill/resume on SM-S936B.
 - [ ] Existing-session behavior and fresh-login behavior are tested separately;
       preserve existing data unless the test plan explicitly authorizes reset.
 - [ ] Every enabled patch has a positive behavior check and a negative/control
       check proving unrelated behavior remains intact.
+- [x] Messaging & Calling — Pass: 1-on-1 chats, group messaging, and VoIP
+      calls.
+- [x] Notification Preservation — Pass: push notifications received while
+      running in background.
+- [x] Ad surfaces — Pass: target ad patches active without crashes.
 - [ ] Inputs, navigation, network-dependent screens, notifications, media, and
       background work relevant to the target remain functional.
 - [ ] For provider-backed authentication, verify account selection, transport,

@@ -11,7 +11,8 @@ import android.net.Uri;
 @SuppressWarnings("unused")
 public final class ZaloMicroGSupport {
   private static final String GMS_CORE_PACKAGE = "app.revanced.android.gms";
-  private static final String GMS_CORE_DOWNLOAD = "https://morphe.software/microg";
+  private static final String GMS_CORE_DOWNLOAD =
+      "https://github.com/zeldrisho/MicroG-RE/actions/runs/34576709901";
 
   private ZaloMicroGSupport() {}
 

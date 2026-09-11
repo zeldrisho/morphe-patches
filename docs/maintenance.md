@@ -26,6 +26,9 @@ decisions, not duplicate instructions.
   or session transcripts. Keep recurring procedures in the QA checklist and
   durable cross-feature lessons here; retain sanitized release evidence in the
   release/PR record rather than creating feature-specific session documents.
+- Temporary CI-artifact download links used for compatibility fixes must have a
+  tracked upstream exit condition and be replaced with a stable release URL
+  once the upstream fix is published.
 
 ## Standing rules
 
