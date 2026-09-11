@@ -38,6 +38,7 @@ import kotlin.test.assertTrue
 class ZaloAdsTargetTest {
     @get:Rule val temporary = TemporaryFolder()
 
+    /** Creates a patch context with the pinned Zalo package metadata. */
     private fun context(): BytecodePatchContext {
         val config = PatcherConfig(apkFile = temporary.newFile("input.apk"), temporaryFilesPath = temporary.newFolder())
         val metadata = PackageMetadata::class.java.constructors.single().newInstance(
@@ -50,6 +51,7 @@ class ZaloAdsTargetTest {
             .newInstance(config, metadata)
     }
 
+    /** Builds a synthetic public class containing the supplied methods. */
     private fun classDef(type: String, methods: List<Method>) = ImmutableClassDef(
         type,
         AccessFlags.PUBLIC.value,
@@ -61,6 +63,7 @@ class ZaloAdsTargetTest {
         methods,
     )
 
+    /** Builds the offline-ad time-window method matched by [OfflineAdsWindow]. */
     private fun windowMethod() = ImmutableMethod(
         "Lvx/s2;",
         "h",
@@ -100,6 +103,7 @@ class ZaloAdsTargetTest {
         ),
     )
 
+    /** Builds the tracker gate method matched by [OfflineAdsGate]. */
     private fun trackerGateMethod() = ImmutableMethod(
         "Lvx/s2;",
         "g",
@@ -134,6 +138,7 @@ class ZaloAdsTargetTest {
         ),
     )
 
+    /** Builds a config-read method with a caller-selected key and result register. */
     private fun configGateMethod(
         owner: String,
         name: String,

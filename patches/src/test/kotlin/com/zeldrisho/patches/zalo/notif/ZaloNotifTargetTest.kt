@@ -29,6 +29,7 @@ import kotlin.test.assertTrue
 class ZaloNotifTargetTest {
     @get:Rule val temporary = TemporaryFolder()
 
+    /** Creates a patch context with the pinned Zalo package metadata. */
     private fun context(): BytecodePatchContext {
         val config = PatcherConfig(apkFile = temporary.newFile("input.apk"), temporaryFilesPath = temporary.newFolder())
         val metadata = PackageMetadata::class.java.constructors.single().newInstance(
@@ -41,6 +42,7 @@ class ZaloNotifTargetTest {
             .newInstance(config, metadata)
     }
 
+    /** Builds a synthetic public class containing the supplied methods. */
     private fun classDef(type: String, methods: List<Method>) = ImmutableClassDef(
         type,
         AccessFlags.PUBLIC.value,

@@ -14,6 +14,7 @@ public final class ZaloMicroGSupport {
   private static final String GMS_CORE_DOWNLOAD =
       "https://github.com/zeldrisho/MicroG-RE/actions/runs/34576709901";
 
+  /** Prevents instantiation of this static runtime helper. */
   private ZaloMicroGSupport() {}
 
   /**
@@ -37,6 +38,7 @@ public final class ZaloMicroGSupport {
     }
   }
 
+  /** Prompts the user to install MicroG before retrying the provider-dependent operation. */
   private static void showInstallDialog(Activity activity) {
     if (activity == null || activity.isFinishing()) return;
 
@@ -54,6 +56,7 @@ public final class ZaloMicroGSupport {
     }
   }
 
+  /** Opens the configured MicroG download page when an external activity is available. */
   private static void openDownload(Activity activity) {
     try {
       activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(GMS_CORE_DOWNLOAD)));
