@@ -211,14 +211,19 @@ use `KEYSTORE=`/`KEYSTORE_PASSWORD=` only to override what discovery finds
 and preserve its alias/password settings; see
 [signing incidents](lessons-learned.md#signing).
 Morphe's data-directory defaults can change between versions; check startup
-logs or the Morphe GUI **Tools → Open App Data**, rather than guessing a key location.
+logs or the Morphe GUI **Tools → Open App Data**, rather than guessing a key
+location. Signing-key priority and password overrides are documented in
+[CLI patching](cli.md#signing).
 
 ## 6. Original APK source
 
 Download original APKs/APKMs **only from [APKMirror](https://www.apkmirror.com/)**.
-Pass the downloaded split bundle (`.apkm`) directly to Morphe or
-`scripts/repatch.sh`; never pre-extract `base.apk`. Record the page
-URL, version name, versionCode, ABI/variant, and SHA-256 of the downloaded input.
+On the standard WSL host, store downloads in
+`/mnt/c/Users/zeldrisho/Downloads/` (the canonical path used by
+[CLI patching](cli.md)); other hosts may use any local directory. Pass the
+downloaded split bundle (`.apkm`) directly to Morphe or
+`scripts/repatch.sh`; never pre-extract `base.apk`. Record the page URL, version
+name, versionCode, ABI/variant, and SHA-256 of the downloaded input.
 Other mirrors are not sources for this project's original APKs.
 
 ## Verify setup

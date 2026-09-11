@@ -147,6 +147,10 @@ app_name, pkg_name = os.environ["APP_NAME"], os.environ["PACKAGE_NAME"]
 selected = os.environ["PATCHES"]
 if selected != "__DEFAULT__":
     requested = {name.strip() for name in selected.split(",") if name.strip()}
+    # Keep the app-qualified spelling usable for duplicate patch names while
+    # preserving the official clean patch name in bundle metadata.
+    aliases = {"Remove AD_ID permission — Zalo": "Remove AD_ID permission"}
+    requested = {aliases.get(name, name) for name in requested}
     unknown = requested - patches.keys()
     if unknown:
         raise SystemExit("unknown patch name(s): " + ", ".join(sorted(unknown)))

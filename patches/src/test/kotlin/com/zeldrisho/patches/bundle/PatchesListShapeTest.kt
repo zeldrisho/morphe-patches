@@ -37,7 +37,7 @@ class PatchesListShapeTest {
 
     @Test fun zaloBundleShape() {
         val json = listJson()
-        for (name in listOf("Zalo: Bypass native startup tamper check", "Zalo: Disable ads", "Zalo: Disable sponsored placements", "Zalo: Filter promo notifications", "Zalo: Remove AD_ID permission", "Zalo: microG Drive support")) {
+        for (name in listOf("Bypass native startup tamper check", "Disable ads", "Disable sponsored placements", "Filter promo notifications", "Remove AD_ID permission", "microG Drive support")) {
             assertTrue(json.contains("\"name\": \"$name\""), "missing patch: $name")
         }
         assertTrue(json.contains("com.zing.zalo"), "missing Zalo package group")
@@ -56,16 +56,16 @@ class PatchesListShapeTest {
         val names = Regex("(?m)^      \"name\": \"(.*?)\"").findAll(json).map { it.groupValues[1] }.toList()
         assertEquals(
             listOf(
+                "Bypass native startup tamper check",
                 "Change app name",
                 "Change package name",
+                "Disable ads",
+                "Disable sponsored placements",
+                "Filter promo notifications",
                 "Hide ads",
                 "Remove AD_ID permission",
-                "Zalo: Bypass native startup tamper check",
-                "Zalo: Disable ads",
-                "Zalo: Disable sponsored placements",
-                "Zalo: Filter promo notifications",
-                "Zalo: Remove AD_ID permission",
-                "Zalo: microG Drive support",
+                "Remove AD_ID permission",
+                "microG Drive support",
             ),
             names.sorted(),
             "expected exactly 10 patches, found: $names",

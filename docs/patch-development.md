@@ -190,8 +190,10 @@ val myPatch = bytecodePatch(name = "My Feature") {
 ```
 
 Apply the `.mpp` via the terminal ([CLI patching](cli.md)) against the **downloaded APKMirror split bundle**
-matching the supported Threads version and `ApkFileType.APKS` compatibility
-declaration (never an extracted `base.apk`), then `adb install -r` the output.
+(stored at `/mnt/c/Users/zeldrisho/Downloads/` on the standard WSL host; see
+[toolchain setup](toolchain.md#6-original-apk-source)) matching the supported
+Threads version and `ApkFileType.APKS` compatibility declaration (never an
+extracted `base.apk`), then `adb install -r` the output.
 To debug one patch in isolation, apply
 only it (`patch --exclusive -e "Name"`, see [CLI patching](cli.md#canonical-flows-this-repo)) before the full suite —
 a fingerprint failure elsewhere won't mask your result that way.
