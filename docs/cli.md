@@ -23,13 +23,12 @@ java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar patch --help
 java -jar ~/.local/share/morphe/morphe-desktop-*-all.jar list-patches --help
 ```
 
-The JAR is kept at `~/.local/share/morphe/morphe-desktop-*-all.jar` (see
+The JAR is kept at `~/.local/share/morphe/morphe-desktop-1.15.0-all.jar` (see
 [toolchain setup](toolchain.md)). `scripts/repatch.sh` works out of the box
 with zero environment variable configuration:
-it discovers the JAR itself from the filesystem — newest
-`morphe-desktop-*-all.jar` in `~/.local/share/morphe/`, then newest in
-`~/.local/share/morphe-desktop/`, else `~/.local/bin/morphe.jar`
-(`--jar <path>` overrides discovery for manual testing).
+it discovers the newest `morphe-desktop-*-all.jar` in
+`~/.local/share/morphe/` (`--jar <path>` overrides discovery for manual
+testing).
 
 Data root (patches cache, logs, scratch, default keystore): `MORPHE_DATA_DIR`
 when set to a writable directory, else `morphe-data/` next to the JAR

@@ -62,9 +62,8 @@ OUT="${2:-${INPUT%.*}_patched.apk}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # ---------- Locate the Morphe JAR (pure filesystem discovery) ----------
-# Priority: --jar <path> flag, newest upstream artifact in
-# ~/.local/share/morphe/, then newest in ~/.local/share/morphe-desktop/,
-# then ~/.local/bin/morphe.jar.
+# Priority: --jar <path> flag, then the newest upstream artifact in
+# ~/.local/share/morphe/.
 JAR="$JAR_OVERRIDE"
 if [[ -z "$JAR" ]]; then
     for f in "$HOME/.local/share/morphe"/morphe-desktop-*-all.jar; do
@@ -73,17 +72,6 @@ if [[ -z "$JAR" ]]; then
             JAR="$f"
         fi
     done
-fi
-if [[ -z "$JAR" ]]; then
-    for f in "$HOME/.local/share/morphe-desktop"/morphe-desktop-*-all.jar; do
-        [[ -f "$f" ]] || continue
-        if [[ -z "$JAR" || "$f" -nt "$JAR" ]]; then
-            JAR="$f"
-        fi
-    done
-fi
-if [[ -z "$JAR" && -f "$HOME/.local/bin/morphe.jar" ]]; then
-    JAR="$HOME/.local/bin/morphe.jar"
 fi
 
 # Run Morphe directly via `java -jar` (only execution path).
@@ -96,8 +84,6 @@ morphe() {
 # data dirs, then the repo's ./Morphe.keystore (empty store password).
 if [[ -z "${KEYSTORE:-}" ]]; then
     for k in \
-        "$HOME/.local/share/morphe-desktop/morphe-data/imported.keystore" \
-        "$HOME/.local/share/morphe-desktop/morphe-data/morphe.keystore" \
         "$HOME/.local/share/morphe/morphe-data/imported.keystore" \
         "$HOME/.local/share/morphe/morphe-data/morphe.keystore" \
         "$HOME/morphe/morphe-data/imported.keystore" \
@@ -122,7 +108,7 @@ command -v java >/dev/null 2>&1 || die "java not found"
 command -v python3 >/dev/null 2>&1 || die "python3 not found"
 [[ -f "$INPUT" ]] || die "input not found: $INPUT"
 if [[ ! -f "${JAR:-}" ]]; then
-    die "Morphe JAR not found. Download morphe-desktop-*-all.jar to ~/.local/share/morphe/ (or ~/.local/share/morphe-desktop/), place it at ~/.local/bin/morphe.jar, or pass --jar <path>."
+    die "Morphe JAR not found. Download morphe-desktop-*-all.jar to ~/.local/share/morphe/ or pass --jar <path>."
 fi
 [[ -f "${KEYSTORE:-}" ]] || die "keystore not found (set KEYSTORE= or import one into morphe-data/)"
 

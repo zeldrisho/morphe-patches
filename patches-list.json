@@ -3,6 +3,34 @@
   "version": "1.1.0",
   "patches": [
     {
+      "name": "Bypass Zalo native startup tamper check",
+      "description": "Preserves Zalo native startup initialization while disabling the re-signing exit dispatch for the pinned arm64 26.08.01 build.",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.zing.zalo",
+          "name": "Zalo",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#0068FF",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "26.08.01",
+              "versionCodes": {
+                "ARM64_V8A": 260801903
+              },
+              "isExperimental": false,
+              "minSdk": 24,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
       "name": "Change app name",
       "description": "Changes the app name shown under the launcher icon. Set the desired name in the patch options.",
       "default": true,
@@ -47,7 +75,7 @@
     },
     {
       "name": "Change package name",
-      "description": "Changes the app package name so the patched app installs alongside the original Threads. Set the desired package name in the patch options. WARNING: Meta apps hardcode many component/provider references — renaming the package can break Facebook login (SSO), content providers, or push. Disable this patch if you hit such issues.",
+      "description": "Changes the app package name so the patched app installs alongside the original. Set the desired name in the patch options. WARNING: hardcoded component/provider references can break login, content providers, or push. Disable this patch if needed.",
       "default": false,
       "dependencies": [],
       "compatiblePackages": [
@@ -104,7 +132,9 @@
           "targets": [
             {
               "version": "26.08.01",
-              "versionCodes": null,
+              "versionCodes": {
+                "ARM64_V8A": 260801903
+              },
               "isExperimental": false,
               "minSdk": 24,
               "description": null
@@ -130,7 +160,9 @@
           "targets": [
             {
               "version": "26.08.01",
-              "versionCodes": null,
+              "versionCodes": {
+                "ARM64_V8A": 260801903
+              },
               "isExperimental": false,
               "minSdk": 24,
               "description": null
@@ -156,7 +188,9 @@
           "targets": [
             {
               "version": "26.08.01",
-              "versionCodes": null,
+              "versionCodes": {
+                "ARM64_V8A": 260801903
+              },
               "isExperimental": false,
               "minSdk": 24,
               "description": null
@@ -248,7 +282,9 @@
           "targets": [
             {
               "version": "26.08.01",
-              "versionCodes": null,
+              "versionCodes": {
+                "ARM64_V8A": 260801903
+              },
               "isExperimental": false,
               "minSdk": 24,
               "description": null

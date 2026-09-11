@@ -170,10 +170,8 @@ The same JAR launches the Morphe GUI without a subcommand and the Morphe CLI wit
 See the [upstream README](https://github.com/MorpheApp/morphe-desktop) and
 [CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
 In this repo nothing needs to be exported: `scripts/repatch.sh` discovers the
-newest `morphe-desktop-*-all.jar` purely from the filesystem — first in
-`~/.local/share/morphe/`, then in `~/.local/share/morphe-desktop/`, else
-`~/.local/bin/morphe.jar`. For manual testing, `scripts/repatch.sh --jar <path>`
-overrides discovery.
+newest `morphe-desktop-*-all.jar` in `~/.local/share/morphe/`. For manual
+testing, `scripts/repatch.sh --jar <path>` overrides discovery.
 
 Download the latest stable official JAR to `~/.local/share/morphe/`
 (requires `gh auth login`):

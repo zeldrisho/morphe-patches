@@ -52,9 +52,10 @@ and [release rules](release.md#rules).
 Canonical local verification (bash):
 
 ```bash
-uvx --from pre-commit==4.6.2 --with shellcheck-py==0.11.0.1 pre-commit run --all-files --show-diff-on-failure
+pre-commit run --all-files --show-diff-on-failure
 ./gradlew qualityCheck :patches:test :extensions:extension:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
 ```
+
 
 The `.mpp` lands in `patches/build/libs/patches-*.mpp` (`verifyBundleExtension`
 runs `buildAndroid`, then fails fast when the embedded

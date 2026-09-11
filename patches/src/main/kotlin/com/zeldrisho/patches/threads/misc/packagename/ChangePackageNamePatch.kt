@@ -3,7 +3,6 @@ package com.zeldrisho.patches.threads.misc.packagename
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.patch.stringOption
 import com.zeldrisho.patches.threads.shared.Constants.COMPATIBILITY_THREADS
-import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 import org.w3c.dom.Element
 
 @Suppress("unused")
@@ -18,7 +17,6 @@ val changePackageNamePatch = resourcePatch(
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_THREADS)
-    compatibleWith(COMPATIBILITY_ZALO)
 
     val packageName by stringOption(
         key = "packageName",

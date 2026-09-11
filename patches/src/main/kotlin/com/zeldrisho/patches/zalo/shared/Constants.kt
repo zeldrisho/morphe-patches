@@ -3,6 +3,7 @@ package com.zeldrisho.patches.zalo.shared
 import app.morphe.patcher.patch.ApkFileType
 import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
+import app.morphe.patcher.patch.SupportedAbi
 
 object Constants {
     /** Zalo 26.08.01 (versionCode 260801903, APKMirror arm64-v8a) fingerprint target.
@@ -18,6 +19,7 @@ object Constants {
         targets = listOf(
             AppTarget(
                 version = "26.08.01",
+                versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE),
                 minSdk = 24,
             ),
         ),

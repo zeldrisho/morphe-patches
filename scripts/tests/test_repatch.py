@@ -248,11 +248,11 @@ class RepatchTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), str(override))
 
-    def test_jar_discovery_prefers_primary_share_dir(self):
-        """Verify discovery prefers ~/.local/share/morphe/ over morphe-desktop/."""
+    def test_jar_discovery_stays_in_primary_share_dir(self):
+        """Verify discovery ignores JARs outside ~/.local/share/morphe/."""
         self.share_jar.unlink()
         primary = self.share / "morphe-desktop-1-all.jar"
-        fallback_dir = self.home / ".local/share/morphe-desktop"
+        fallback_dir = self.home / ".local/share/other-morphe-install"
         fallback_dir.mkdir(parents=True)
         fallback = fallback_dir / "morphe-desktop-2-all.jar"
         primary.touch()
@@ -288,7 +288,7 @@ class RepatchTest(unittest.TestCase):
 
     def test_keystore_standard_location_fallback(self):
         """Verify an imported keystore in the data dir is picked up automatically."""
-        data = self.home / ".local/share/morphe-desktop/morphe-data"
+        data = self.home / ".local/share/morphe/morphe-data"
         data.mkdir(parents=True)
         (data / "morphe.keystore").touch()
         imported = data / "imported.keystore"

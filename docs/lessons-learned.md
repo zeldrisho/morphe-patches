@@ -25,6 +25,18 @@ Short, reusable rules from incidents in this repository. Procedures belong in
 | Do not retain a diagnostic mutation as a production patch. | Stubs and NOPs commonly remove registration, cleanup, or required state. |
 | When isolating native startup failures, preserve setup and neutralize only the failing dispatch. | Bypassing an entire initializer can remove required TLS/JNI state and create misleading secondary crashes. |
 
+## Device diagnostics
+
+| Rule | Why |
+| --- | --- |
+| Confirm the device is awake, unlocked, and displaying the app before diagnosing a startup stall. | A locked or dozing device can leave the foreground activity unchanged while the app is healthy and interactive underneath. |
+| Distinguish an activity's registered/alias name from the screen currently rendered. | Launchers and aliases can continue to report an entry activity after navigation into an in-app flow. |
+| Treat worker-thread exceptions and noisy system logs as evidence to correlate, not proof of the root cause. | Background failures may be recoverable or unrelated; correlate them with UI state, activity history, and process health. |
+| Record device state, app state, exact commands, and bounded log evidence for runtime findings. | This makes failures reproducible without turning feature-specific observations into permanent QA procedure. |
+| Start logcat capture before reproducing an error and stop it immediately afterward. | A post hoc buffer can omit the request, response, and client decision that caused the visible error. |
+| Treat a startup-integrity bypass and authentication trust as separate gates. | A re-signed app can boot normally while a Java or server-side certificate check rejects login. |
+| Confirm the runtime path before attributing a string or native offset to a failure. | Native strings and nearby helpers can be unused, while the active path may be ordinary Java code. |
+
 ## Compatibility and QA
 
 | Rule | Why |
@@ -33,3 +45,4 @@ Short, reusable rules from incidents in this repository. Procedures belong in
 | Test cold start, foreground/background transitions, and the main user flow. | Startup success alone does not prove lifecycle or feature compatibility. |
 | Verify backup and restore with the app's supported mechanism. | External files are not necessarily a complete application-data backup. |
 | Keep risky patches disabled until device QA proves the default path. | A patch should fail safely and remain easy to remove. |
+| Do not infer an endpoint or server rejection from a generic UI error alone. | Reproduce with bounded network/client logs or a controlled response capture before selecting a patch target. |
