@@ -44,19 +44,21 @@ fun MutableMethod.clearBody() {
 }
 
 private val tryBlocksField: Field? = run {
-    MutableMethodImplementation::class.java.declaredFields
-        .firstOrNull { f ->
-            if (!MutableList::class.java.isAssignableFrom(f.type) &&
-                !List::class.java.isAssignableFrom(f.type)
-            ) {
-                return@firstOrNull false
-            }
-            val generic = f.genericType as? ParameterizedType ?: return@firstOrNull false
-            val arg = generic.actualTypeArguments.firstOrNull() ?: return@firstOrNull false
-            arg.typeName == BuilderTryBlock::class.java.name ||
-                arg.typeName.startsWith("${BuilderTryBlock::class.java.name}<")
+    val matches = MutableMethodImplementation::class.java.declaredFields.filter { f ->
+        if (!MutableList::class.java.isAssignableFrom(f.type) &&
+            !List::class.java.isAssignableFrom(f.type)
+        ) {
+            return@filter false
         }
-        ?.apply { isAccessible = true }
+        val generic = f.genericType as? ParameterizedType ?: return@filter false
+        val arg = generic.actualTypeArguments.firstOrNull() ?: return@filter false
+        arg.typeName == BuilderTryBlock::class.java.name ||
+            arg.typeName.startsWith("${BuilderTryBlock::class.java.name}<")
+    }
+    check(matches.size <= 1) {
+        "MutableMethodImplementation has multiple try-block fields: ${matches.map { it.name }}"
+    }
+    matches.singleOrNull()?.apply { isAccessible = true }
 }
 
 /**
@@ -82,12 +84,16 @@ private val tryBlocksField: Field? = run {
 fun MutableMethod.ensureRegisters(needed: Int) {
     val impl = implementation ?: return
     if (impl.registerCount >= needed) return
-    val field = MutableMethodImplementation::class.java.declaredFields
-        .firstOrNull { it.type == Int::class.javaPrimitiveType }
-        ?.apply { isAccessible = true }
-        ?: throw PatchException(
-            "MutableMethodImplementation has no int field (registerCount). " +
-                "dexlib2 internal layout changed?",
+    val fields = MutableMethodImplementation::class.java.declaredFields
+        .filter { it.type == Int::class.javaPrimitiveType }
+    val field = fields.singleOrNull { it.name == "registerCount" }
+        ?: if (fields.size == 1) fields.single() else null
+    if (field == null) {
+        throw PatchException(
+            "MutableMethodImplementation registerCount field is ambiguous or missing: " +
+                fields.map { it.name } + "; dexlib2 internal layout changed?",
         )
+    }
+    field.isAccessible = true
     field.setInt(impl, needed)
 }

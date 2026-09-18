@@ -14,7 +14,7 @@ import android.os.Looper;
 public final class ZaloMicroGSupport {
   private static final String GMS_CORE_PACKAGE = "app.revanced.android.gms";
   private static final String GMS_CORE_DOWNLOAD =
-      "https://github.com/zeldrisho/MicroG-RE/releases/latest";
+      "https://github.com/MorpheApp/MicroG-RE/releases/latest";
 
   /** Prevents instantiation of this static runtime helper. */
   private ZaloMicroGSupport() {}

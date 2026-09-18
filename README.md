@@ -16,7 +16,15 @@ Or add the source URL manually in Morphe Manager → Sources.
 
 Contributor docs: [development guide](docs/development.md) (start here),
 [toolchain setup](docs/toolchain.md) (installs), [validation guide](docs/validation.md) (device testing),
-[release process](docs/release.md) (publishing), [analysis workspace](docs/analysis.md) (APK investigation artifacts).
+[release process](docs/release.md) (publishing), [Zalo microG/Drive guide](docs/zalo-microg.md), [analysis workspace](docs/analysis.md) (APK investigation artifacts).
+
+### FAQ
+
+- **What is supported?** Use the versions, version codes, ABI, and APK/APKM format in the generated patch catalog and [validation guide](docs/validation.md); unlisted versions are not compatibility claims.
+- **Can I repatch an installed app?** No. Start with the supported original APK/APKM; refreshing the source only updates patch metadata.
+- **Why can sign-in or Drive fail?** Package/certificate-bound services and provider authorization are external boundaries. MicroG support does not guarantee Google sign-in or Drive access. See the [Zalo microG/Drive troubleshooting guide](docs/zalo-microg.md).
+- **Why does Zalo still say MicroG is missing?** The provider must be enabled and use the exact package `app.revanced.android.gms`; Android package visibility can also hide an installed provider. The patch now declares that package and opens the upstream [MorpheApp/MicroG-RE releases](https://github.com/MorpheApp/MicroG-RE/releases). Details and issue references are in the [guide](docs/zalo-microg.md).
+- **How should I report a failure?** Include the app version code, bundle version, selected patches/options, and redacted logs. Never attach credentials, account data, signing keys, or proprietary APKs.
 
 ## 🩹 Patches list
 

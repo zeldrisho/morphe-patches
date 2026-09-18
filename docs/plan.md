@@ -267,7 +267,7 @@ license notices before reusing source.
 - Pairip, native, and Hermes infrastructure require a demonstrated consumer;
   unrelated app ports remain outside this roadmap.
 - Signing-identity qualification and other engineering ideas belong in the
-  [repository maintenance plan](maintenance.md#ideas-from-hoodles-to-adapt).
+  [repository maintenance plan](maintenance.md#remaining-repository-maintenance).
 
 ## Deferred validation
 

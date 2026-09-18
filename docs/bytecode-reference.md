@@ -55,7 +55,9 @@ new-instance v0, Lcom/app/Foo;
 ## Injected snippets
 
 ```smali
-# allow / deny a boolean gate
+# allow / deny a boolean gate; only use v0 when the target method's
+# existing locals/register types prove it is an int-compatible scratch register.
+# Otherwise use the method's known result register or grow registers before injection.
 const/4 v0, 0x1
 return v0
 # skip a void method
@@ -73,6 +75,10 @@ nop
 ```
 
 Replace the example extension path with the real class for the app being patched.
+Never assume `v0` is free: account for `.registers`, parameter aliases, wide
+parameters, and encoded instruction operands before injecting. A register-count
+increase does not rewrite existing encoded operands; whole-body replacement and
+instruction-preserving injection therefore have different safety contracts.
 
 ## Obfuscation: what survives
 

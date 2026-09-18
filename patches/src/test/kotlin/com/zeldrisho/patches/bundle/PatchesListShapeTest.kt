@@ -1,5 +1,6 @@
 package com.zeldrisho.patches.bundle
 
+import com.google.gson.JsonParser
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +16,8 @@ class PatchesListShapeTest {
      * Locate and read the generated patches-list.json file from the project root or patches directory.
      */
     private fun listJson(): String {
-        val candidates = listOf(
+        val candidates = listOfNotNull(
+            System.getProperty("patches.list.path")?.let(::File),
             File("../patches-list.json"), // working dir = patches/
             File("patches-list.json"), // working dir = repo root
         )
@@ -26,6 +28,31 @@ class PatchesListShapeTest {
     /**
      * Verify that all expected patches are present in patches-list.json with the correct metadata.
      */
+    @Test fun metadataIsStructurallyValid() {
+        val root = JsonParser.parseString(listJson()).asJsonObject
+        assertTrue(root["version"].isJsonPrimitive)
+        val patches = root["patches"].asJsonArray.map { it.asJsonObject }
+        val namesByPackage = mutableMapOf<String, MutableSet<String>>()
+        patches.forEach { patch ->
+            assertTrue(patch["name"].asString.isNotBlank())
+            assertTrue(patch["default"].isJsonPrimitive)
+            patch["options"].asJsonArray.forEach { option ->
+                val value = option.asJsonObject
+                assertTrue(value["key"].asString.isNotBlank())
+            }
+            patch["compatiblePackages"]?.takeUnless { it.isJsonNull }?.asJsonArray?.forEach { packageEntry ->
+                val packageObject = packageEntry.asJsonObject
+                val packageName = packageObject["packageName"].asString
+                check(namesByPackage.getOrPut(packageName) { mutableSetOf() }.add(patch["name"].asString)) {
+                    "duplicate patch name ${patch["name"].asString} for $packageName"
+                }
+                packageObject["targets"].asJsonArray.forEach { target ->
+                    assertTrue(target.asJsonObject.has("version"))
+                }
+            }
+        }
+    }
+
     @Test fun threadsBundleShape() {
         val json = listJson()
         for (name in listOf("Hide ads", "Remove AD_ID permission", "Change app name", "Change package name")) {

@@ -9,6 +9,17 @@ val extensionArtifacts = mapOf(
     ":extensions:threads" to ("morphe/extensions/extension.mpe" to "extensions/extension.mpe"),
     ":extensions:zalo" to ("morphe/extensions/zalo.mpe" to "extensions/zalo.mpe"),
 )
+val extensionContracts = mapOf(
+    "extensions/extension.mpe" to listOf(
+        "Lcom/zeldrisho/threads/extension/FeedAdFilter;",
+        "filterAds",
+    ),
+    "extensions/zalo.mpe" to listOf(
+        "Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;",
+        "checkGmsCore",
+        "scheduleAccountRefresh",
+    ),
+)
 
 plugins {
     // Matches the Kotlin 2.4.10 compiler supplied by Morphe; see docs/development.md.
@@ -41,12 +52,15 @@ val patchListGeneratorClasspath = configurations.create("patchListGeneratorClass
 dependencies {
     compileOnly(libs.gson)
     patchListGeneratorClasspath(libs.gson)
+    testImplementation(libs.gson)
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
 }
 
 tasks {
     test {
+        dependsOn("generatePatchesListForVerification")
+        systemProperty("patches.list.path", layout.buildDirectory.file("verification/patches-list.json").get().asFile.absolutePath)
         // Make opt-in local APK validation cache-correct; CI uses synthetic fixtures.
         val apkInputs = listOf("THREADS_TEST_APK", "ZALO_TEST_APK")
         apkInputs.forEach { variable ->
@@ -101,10 +115,27 @@ tasks {
             val mpp = currentMpps.single()
             ZipFile(mpp).use { zip ->
                 extensionArtifacts.values.forEach { paths ->
-                    check(zip.getEntry(paths.second) != null) {
+                    val entry = zip.getEntry(paths.second)
+                    check(entry != null) {
                         "Bundle ${mpp.name} is missing ${paths.second} — " +
                             "check the corresponding extension sync task output."
                     }
+                    check(entry.size > 0) { "Embedded extension ${paths.second} is empty" }
+                    val contract = extensionContracts.getValue(paths.second)
+                    val dexText = zip.getInputStream(entry).use { it.readBytes().toString(Charsets.ISO_8859_1) }
+                    contract.forEach { symbol ->
+                        check(dexText.contains(symbol)) {
+                            "Embedded extension ${paths.second} is missing required DEX symbol $symbol"
+                        }
+                    }
+                }
+                check(
+                    zip.entries().asSequence()
+                        .filter { it.name.endsWith(".mpe") }
+                        .map { it.name }
+                        .toSet() == extensionArtifacts.values.map { it.second }.toSet(),
+                ) {
+                    "Bundle contains unexpected or cross-app extension artifacts"
                 }
             }
         }
@@ -112,11 +143,33 @@ tasks {
 
     register<JavaExec>("generatePatchesList") {
         description = "Build patch with patch list"
-
         dependsOn(build)
-
         classpath = sourceSets["main"].runtimeClasspath + patchListGeneratorClasspath
         mainClass.set("util.PatchListGeneratorKt")
+    }
+
+    register("qualifyZaloApk") {
+        group = "verification"
+        description = "Run pinned Zalo APK qualification; requires ZALO_TEST_APK"
+        dependsOn(test)
+        doFirst {
+            val apk = providers.environmentVariable("ZALO_TEST_APK").orNull
+                ?.let(::file)
+                ?: error("ZALO_TEST_APK is required for qualifyZaloApk")
+            check(apk.isFile) { "ZALO_TEST_APK does not name a readable file: $apk" }
+            check(apk.length() > 0) { "ZALO_TEST_APK is empty: $apk" }
+        }
+    }
+
+    register<JavaExec>("generatePatchesListForVerification") {
+        description = "Generate current-source patch metadata in an isolated build directory"
+        dependsOn("classes")
+        val output = layout.buildDirectory.file("verification/patches-list.json")
+        outputs.file(output)
+        doFirst { output.get().asFile.parentFile.mkdirs() }
+        classpath = sourceSets["main"].runtimeClasspath + patchListGeneratorClasspath
+        mainClass.set("util.PatchListGeneratorKt")
+        environment("PATCHES_LIST_OUTPUT", output.get().asFile.absolutePath)
     }
 }
 

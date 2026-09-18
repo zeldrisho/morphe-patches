@@ -26,10 +26,15 @@ The bundle is written to `patches/build/libs/patches-*.mpp`. Successful Check
 runs retain a `patches-<sha>-<attempt>` artifact for seven days. Record the
 run/commit and downloaded bundle hash. CI artifacts are test builds, not releases.
 
-Optional local target validation against the original pinned APK's extracted
-`base.apk` is analysis-only. Use the target-specific test command and environment
-variable documented by that target. Tests must not commit or download proprietary
-APKs.
+Optional local target qualification requires the original pinned APK and fails
+when it is absent; synthetic CI tests do not count as APK compatibility proof:
+
+```bash
+ZALO_TEST_APK=/private/path/to/zalo-base.apk ./gradlew :patches:qualifyZaloApk --no-daemon
+```
+
+The task checks the pinned version metadata and reports the result separately
+from ordinary synthetic tests. Tests must not commit or download proprietary APKs.
 
 ## Re-patch and install
 
@@ -108,6 +113,17 @@ Record input APK version/code and hash, bundle path/hash, enabled patches, packa
 ID, device/Android version, and signing certificate fingerprint. Never record
 passwords. Keep screenshots, UI dumps, and logs outside Git; retain sanitized
 notes in the release or PR record.
+
+## Zalo microG/Drive issue checklist
+
+For Zalo 26.08.01 provider failures, follow the detailed
+[Zalo microG/Drive guide](zalo-microg.md). In particular, distinguish a local
+provider-discovery failure from account-picker behavior and from OAuth/Drive
+backend rejection. Repository issue [#11](https://github.com/zeldrisho/morphe-patches/issues/11)
+reported a false “MicroG required” prompt; the patch now declares the provider
+package for Android package visibility and uses the upstream MorpheApp download
+link. The issue did not include enough logs or provider metadata to establish a
+single root cause, so this remains a device-validation item.
 
 ## Provider boundaries
 

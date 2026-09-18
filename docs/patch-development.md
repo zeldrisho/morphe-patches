@@ -126,7 +126,9 @@ resourcePatch {
 
 Extension methods called from patched bytecode must be `public static`; mark them
 `@SuppressWarnings("unused")` since nothing references them at compile time.
-Settings are best read once at class-load time (`static final`) for performance.
+Settings are best read once at class-load time (`static final`) when immutable;
+settings that users can change at runtime must be refreshed at the documented
+lifecycle boundary instead.
 
 Extension modules are 1:1 with target apps: each extension serves one target app. Keep each extension dex minimal and
 never reference another app's classes from injected smali — cross-app class
@@ -139,14 +141,18 @@ Extensions run inside someone else's app on versions you never tested — a layo
 change must degrade to a no-op, never a crash. Follow these rules (proven pattern:
 a backup-screen launcher that surfaces a hidden activity via an injected row):
 
-- Resolve everything by **name at runtime** (`Class.forName`,
-  `Resources.getIdentifier`) — never hardcode resource IDs or reference obfuscated
-  app classes directly, so the code survives R8 renames.
+- Resolve resources by **name at runtime** (`Resources.getIdentifier`), but do not
+  assume runtime reflection survives obfuscation: validate the expected class,
+  method signature, and return type before use. Prefer inline smali or an
+  app-specific compile-only stub when the ABI is known and must be explicit.
 - Hook early entry points (e.g. `onCreate`) but defer view work with
   `decorView.post(...)` so the layout exists when you touch it.
 - Dedupe injected views with a tag (`findViewWithTag`) so repeat calls are safe.
-- Wrap **every** call in `try/catch (Throwable)` — including the posted `Runnable`
-  body — so any drift silently skips the feature instead of crashing the host.
+- Catch only around the smallest host-boundary operation that may drift, such as
+  class/resource lookup or a posted view update. Catch `Exception` (or a narrowly
+  documented linkage/reflection error), return a safe no-op, and emit only a
+  bounded non-sensitive diagnostic. Do not blanket-catch `Throwable` or hide
+  programmer errors, thread cancellation, or fatal VM conditions.
 - Clone the sibling's `LayoutParams` and match the host widget type (e.g. reuse the
   app's own row class) so injected UI looks native.
 - Keep the app's own machinery unmodified; only add the entry point (e.g. open the
@@ -201,7 +207,7 @@ Generated-file ownership is defined in the [release rules](release.md#rules).
 | `Failed to match the fingerprint` | Code moved / signature changed | Re-verify smali ([fingerprint debugging](bytecode-reference.md#fingerprint-debugging)) |
 | Patched app crashes on launch | Wrong register / wide-type (`J`/`D`) shift | `adb logcat`, recount registers from smali |
 | "Not compatible" / install fails | Split APK (`requiredSplitTypes`) | Pass the downloaded `.apkm` bundle through; keep `ApkFileType.APKS` in sync with what Morphe accepts |
-| Google login / Drive broken | Signature mismatch after re-signing | Expected; not fixable without an account-spoof patch |
+| Google login / Drive broken | Signature/provider authorization mismatch after re-signing | External provider boundary; record as blocked, do not spoof account state |
 | Server-gated features still locked | Server-side validation (credits, cloud) | Not bypassable client-side — document as limitation |
 | Gradle auth failure | Missing registry credentials | `gpr.user`/`gpr.key` (or `GITHUB_ACTOR`/`GITHUB_TOKEN`), see [toolchain setup](toolchain.md#4-repository-dependencies) |
 

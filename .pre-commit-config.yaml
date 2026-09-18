@@ -1,6 +1,14 @@
 minimum_pre_commit_version: '4.3.0'
 # Fast, check-only hooks. JVM checks stay in Gradle, not the commit path.
 repos:
+  - repo: local
+    hooks:
+      - id: markdown-links
+        name: markdown local links
+        entry: python3 scripts/check_markdown_links.py
+        language: system
+        files: '\.md$'
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
     hooks:

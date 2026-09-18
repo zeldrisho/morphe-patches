@@ -71,7 +71,7 @@ Canonical local verification (bash):
 ```bash
 uvx pre-commit run --all-files --show-diff-on-failure
 python3 -m unittest discover -s scripts/tests -v
-./gradlew qualityCheck :patches:test :patches:verifyBundleExtension --no-daemon
+./gradlew verify --no-daemon
 ```
 
 
@@ -96,8 +96,9 @@ analysis directories are not formatting targets.
 | actionlint | `.pre-commit-config.yaml`; GitHub Actions workflows; also uses ShellCheck when on PATH (installed explicitly in CI) |
 | Merge conflicts + mixed line endings | `.pre-commit-config.yaml`; tracked text files |
 
-`qualityCheck` aggregates Spotless, detekt, and Android Lint. It does not run unit
-tests or build the bundle; `buildAndroid` alone does not run this quality gate.
+`qualityCheck` aggregates Spotless, detekt, and Android Lint. The `verify` task
+adds patch tests, both extension unit-test suites, and embedded-extension bundle
+verification. `buildAndroid` alone does not run this quality gate.
 Reports are under `patches/build/reports/detekt/` and
 `extensions/*/build/reports/`.
 
@@ -127,7 +128,7 @@ Checks do not rewrite files. To fix formatting locally:
 
 ```bash
 ./gradlew spotlessApply --no-daemon
-# Same shfmt revision as the check-only hook:
+# Ruff check-only commands (these do not rewrite files):
 uvx ruff check scripts && uvx ruff format --check scripts
 ```
 

@@ -151,7 +151,9 @@ compatibility constants, not this document.
 | `-i [SERIAL]`, `--mount` | ADB install after patch; `--mount` = root mount over stock (needs `su`, stock installed) |
 | `utility install -a <apk> [--route-links] [--disable-stock PKG]`, `utility uninstall -p <pkg> [--unmount]`, `utility clear-cache [--info]` | Post-patch device ops; link routing = GUI "open with" step, reversible, ADB-only |
 
-## Signing (keystore flags need `=`)
+## Signing
+
+Keystore flags need `=`; space-separated forms are rejected.
 
 ```bash
 java -jar "$MORPHE" patch -p "$MPP" \
