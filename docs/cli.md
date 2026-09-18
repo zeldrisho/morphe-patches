@@ -105,6 +105,9 @@ with `--options-file`, `-o`, `-t`, and `--keystore*`. Optional overrides:
 KEYSTORE_ENTRY_PASSWORD VERIFY_SDK GITHUB_REPO` — unset means
 automatic discovery (newest local `.mpp`, standard-dir JAR, and the repository's
 persistent `Morphe.keystore`; shared data-dir keys are fallback).
+When downloading a release, `GITHUB_REPO` must be an `owner/repository`
+value. The helper accepts only HTTPS URLs hosted by GitHub or its release
+asset CDN and validates every redirect.
 `VERIFY_SDK` is opt-in SDK verification: `1` uses SDK discovery, a path value
 passes `--verify-with-sdk=<path>` (required release-QA step; see
 [validation guide](validation.md#re-patch-and-install)).
