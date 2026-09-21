@@ -6,28 +6,6 @@ These items are repository safeguards, not app-feature claims. Keep app-specific
 patches and the independent Threads/Zalo extensions; prefer focused tests over a
 framework rewrite.
 
-## P1: Release and bytecode regression coverage
-
-### Release preflight tests — medium
-
-Targets: `scripts/prepare_release.py` and `scripts/tests/test_release.py`.
-
-- Add temporary-repository tests for valid subsequent releases, missing/unreachable
-  tags, and generator/extraction/commit failures.
-- Assert every rejected preflight and failed staging attempt leaves owned and
-  unrelated files intact; current coverage includes malformed, duplicate,
-  out-of-order, and first-release staging cases.
-
-### Bytecode-helper contracts — medium
-
-Target: `patches/src/main/kotlin/com/zeldrisho/patches/shared/bytecode/MethodExtensions.kt`.
-
-- Add focused tests for the shared helper's zero-local methods, parameter aliases,
-  wide values, register encoding boundaries, and try/catch removal, exercising
-  real consumers. The whole-body versus instruction-preserving contract is
-  documented; Zalo account-refresh encoding and launcher scratch-register
-  guards are covered separately.
-
 ## P1: Device journeys and component boundaries
 
 ### Repeatable device-validation journeys — medium
@@ -143,11 +121,6 @@ Targets: `settings.gradle.kts`, Gradle wiring, and `docs/toolchain.md`.
   success alone is not upgrade qualification.
 
 ## P2: Documentation and maintainability
-
-### Documentation checks — small
-
-- Add more tests for Markdown heading slugs, relative links, and malformed links.
-- Audit examples for register-aware injection and links to canonical procedures.
 
 ### Selective structural cleanup — small/medium
 

@@ -11,21 +11,6 @@ including the comparisons with Doom's and Hoodles' Morphe Patches.
 zStyle is excluded. Video Original quality is also excluded: the pinned APK
 contains `VIDEO` and `VIDEO_HD`, but no `VIDEO_ORIGINAL` path.
 
-## Completed implementation and evidence
-
-The following Zalo 26.08.01 changes are implemented and should not be reopened as
-feature investigations: native startup-tamper bypass, ad and AD_ID filtering,
-telemetry/crash-report filtering, Business Box removal, expired local-media
-access, Original photo quality selection, outbound typing/seen suppression,
-promotional-notification filtering, package-name rewriting, and microG Drive
-support. Their remaining work is runtime regression or release qualification,
-not another implementation search.
-
-The microG Drive patch already has evidence for the missing-provider prompt,
-initial OAuth/photo restore, and a complete backup/restore cycle. This evidence
-does not cover every media type, the age-limit patch, renamed packages, or
-provider/server failures.
-
 ## Zalo 26.08 requested features
 
 - Username friend search and additional logged-in devices were removed from the

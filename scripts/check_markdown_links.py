@@ -3,6 +3,7 @@
 
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,17 +12,30 @@ HEADING = re.compile(r"^#{1,6}\s+(.+?)\s*#*\s*$")
 
 
 def slug(value):
+    """Return the GitHub-style base anchor for a Markdown heading."""
+    value = unicodedata.normalize("NFKC", value)
     value = re.sub(r"[`*_~]", "", value).lower()
-    value = re.sub(r"[^\w\s-]", "", value)
+    value = re.sub(r"[^\w\s-]", "", value, flags=re.UNICODE)
     return re.sub(r"\s+", "-", value).strip("-")
 
 
+def heading_anchors(lines):
+    """Return anchors, including GitHub's numeric suffix for duplicates."""
+    counts = {}
+    result = set()
+    for line in lines:
+        match = HEADING.match(line)
+        if not match:
+            continue
+        base = slug(match.group(1))
+        index = counts.get(base, 0)
+        counts[base] = index + 1
+        result.add(base if index == 0 else f"{base}-{index}")
+    return result
+
+
 def anchors(path):
-    return {
-        slug(match.group(1))
-        for line in path.read_text(encoding="utf-8").splitlines()
-        if (match := HEADING.match(line))
-    }
+    return heading_anchors(path.read_text(encoding="utf-8").splitlines())
 
 
 def main():
@@ -42,7 +56,13 @@ def main():
                     if fragment not in anchors(path):
                         errors.append(f"{path}:{number}: missing anchor #{fragment}")
                     continue
-                target, _, fragment = raw.partition("#")
+                target, separator, fragment = raw.partition("#")
+                if separator and not fragment:
+                    errors.append(f"{path}:{number}: empty anchor in link {raw}")
+                    continue
+                if not target:
+                    errors.append(f"{path}:{number}: empty local link {raw}")
+                    continue
                 destination = (path.parent / target).resolve()
                 if not destination.is_file() or not str(destination).startswith(
                     str(ROOT.resolve())
