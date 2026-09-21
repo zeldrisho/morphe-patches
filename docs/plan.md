@@ -7,6 +7,9 @@ under the ignored `analysis/zalo/26.08.01/` directory.
 Cross-app structure, patch safety, tests, tooling, release safeguards, and
 documentation work are tracked in the [repository maintenance plan](maintenance.md),
 including the comparisons with Doom's and Hoodles' Morphe Patches.
+The [reference checkout review](reference-review.md) records the completed
+comparison, exact upstream revisions, recovery instructions, and exclusions;
+local example checkouts are no longer required.
 
 zStyle is excluded. Video Original quality is also excluded: the pinned APK
 contains `VIDEO` and `VIDEO_HD`, but no `VIDEO_ORIGINAL` path.
@@ -149,9 +152,10 @@ account or mutate HTTP traffic.
 
 ## Candidates from Zalo Patch
 
-Reference implementation: `~/Projects/zalo-patch/`, primarily
-`app/src/main/java/com/ez/zalopatch/`; `~/Projects/com.ez.zalopatch/` contains
-release documentation only. Upstream targets 26.08.02 (`260802903`), not our
+Reference implementation: [Zalo Patch at `deadb56f`](https://github.com/amarinne/zalo-patch/tree/deadb56fd586e68bd643ea5ea6cae3960996c9a0), primarily
+`app/src/main/java/com/ez/zalopatch/`;
+[the module release repository at `6f9d3bf`](https://github.com/Xposed-Modules-Repo/com.ez.zalopatch/tree/6f9d3bf2bb32d000c514fd7b8f3eb880ab81db76)
+contains release documentation only. Upstream targets 26.08.02 (`260802903`), not our
 pinned 26.08.01. These are investigation leads, not verified compatible patches.
 Apply the evidence and classification requirements above to every candidate.
 
@@ -179,6 +183,33 @@ license notices if reusing source. Continue with native backup scheduling.
   accounts, strangers, and a configurable initial filter.
 - Preserve the original dataset and verify unread counts, refresh, pagination,
   search, category switching, and correct handling of unknown categories.
+
+### P2: Open ordinary content links externally
+
+- Investigate `xposed/features/WebLinkExternalizeFeature.java` and
+  `WebLinkExternalizeGate.java`; additional cross-app leads are Doom's
+  `messenger/linkhandling/OpenLinksExternallyPatch.kt` and Hoodles'
+  `googlenews/customtabs/EnableCustomTabsPatch.kt` under their source roots below.
+- Trace the exact 26.08.01 URL dispatch boundary. Limit external dispatch to
+  validated HTTP(S) content links; keep mini-app, OA H5, Zalo-owned authenticated,
+  payment, OAuth, and non-web flows in their intended handlers.
+- Test malformed URLs, absent browsers, cancellation, redirects, chat/feed links,
+  login/payment journeys, and unchanged deep links. Preserve a safe in-app fallback;
+  do not force browser eligibility or copy an unconditional all-links override.
+
+### P3: Optional navigation and promotional UI cleanup
+
+- Investigate `xposed/features/BottomTabsFeature.java` for Discovery/Timeline
+  visibility, the native Group tab, and Messages as the initial destination.
+  Validate tab indices, badges, pager/icon alignment, refresh, resume, and deep links.
+- Investigate `MeCleanupFeature.java`, `InboxFeature.java`, and
+  `ZcloudBannerFeature.java` for selected Me rows, the media box, and the inbox
+  `messageslist` / `fixed_banner_container` surface. Prove that a selected
+  container is promotional-only before hiding it; preserve alerts and backup access.
+- Keep these independent optional controls, not an entitlement unlock or an
+  extension of Hide business box. zStyle remains excluded. Prefer exact item IDs
+  and scoped binding/resource changes over framework-wide hooks, text heuristics,
+  or reflective field-order assumptions; test localization and accessibility.
 
 ### P2: Hide long-press reaction row
 
@@ -217,12 +248,17 @@ license notices if reusing source. Continue with native backup scheduling.
 
 - Compare upstream ads, telemetry, AD_ID removal, and promotional filtering with
   our current patches; add only proven coverage gaps, not duplicate features.
+- Specifically compare `TelemetryFeature.java` Firebase event/measurement-binding
+  paths and `ZinstantFeature.java` message/feed ad views against our analytics DAO,
+  Crashlytics, Adtima, and sponsored-config gates. These are unverified coverage
+  leads, not established missing behavior on 26.08.01. Do not globally intercept
+  service binding, generic transport, or mini-app script dispatch.
 - Preserve chat, calls, alerts, and other non-promotional behavior. Keep the
   existing promotional-filter device validation below as a release requirement.
 
 ## Candidates from Doom's Morphe Patches
 
-Reference checkout: `~/Projects/morphe-patches-doom/`, commit `51561b0`
+Reference: [Doom's Morphe Patches at `51561b0`](https://github.com/rushiranpise/morphe-patches/tree/51561b07a5293663be070e8fce35c023d69da86e)
 (`v1.22.0`). Source paths below are relative to
 `patches/src/main/kotlin/app/template/patches/` unless stated otherwise.
 No direct Zalo or Threads patches were found; these are cross-app investigation
@@ -270,7 +306,7 @@ requirements above and preserve applicable notices before reusing source.
 
 ## Candidates from Hoodles' Morphe Patches
 
-Reference checkout: `~/Projects/morphe-patches-hoodles/`, commit `f7a88fc`
+Reference: [Hoodles' Morphe Patches at `f7a88fc`](https://github.com/hoo-dles/morphe-patches/tree/f7a88fc5fea593aa462e99e4cf3f7a10176c8c8f)
 (`v1.44.0`). Paths below are relative to
 `patches/src/main/kotlin/hoodles/morphe/patches/`. No direct Zalo or Threads
 patches were found; these are investigation leads, not compatible implementations.
