@@ -105,19 +105,7 @@ Apply the evidence and classification requirements above to every candidate.
 
 Use patch-time fingerprints and app-specific extension code where needed; do
 not port LSPosed/root plumbing or remote symbol catalogs wholesale. Preserve
-license notices if reusing source. Continue with seen acknowledgements,
-then native backup scheduling.
-
-### P1: Outbound seen acknowledgements
-
-- Use `xposed/features/StatusPrivacyFeature.java` and
-  `StatusPrivacyAckFilter.java` to investigate single/batched seen acknowledgements
-  (upstream type `3`) and the direct seen-send path on the pinned APK.
-- Prove acknowledgement semantics before filtering; preserve delivery
-  acknowledgements and every non-seen batch entry.
-- Validate remote visibility, reconnect/retry, queued acknowledgements, and
-  Android/Web/Desktop interactions. Incoming rendering remaining unchanged is
-  not proof of asymmetric server-visible privacy; online presence is separate.
+license notices if reusing source. Continue with native backup scheduling.
 
 ### P1: Configurable native backup interval
 
@@ -271,6 +259,9 @@ license notices before reusing source.
 
 ## Deferred validation
 
+- Validate the outbound seen-status patch with two accounts, including
+  one-to-one/group chats, delivery acknowledgements, reconnect/retry, queued
+  messages, Android/Web/Desktop visibility, and unchanged incoming rendering.
 - Validate expired-media behavior in chat, including missing local files,
   unusable remote URLs, restore, and deleted messages. Confirm whether the
   existing local expiry patch changes only presentation or also affects access.

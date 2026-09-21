@@ -75,7 +75,7 @@ class PatchesListShapeTest {
      * Verify that exactly 18 patches are present with no leftover template scaffolding.
      */
     @Test fun patchCountMatchesSources() {
-        // Exactly 18 patches (4 Threads + 14 Zalo) — template scaffolding was removed,
+        // Exactly 19 patches (4 Threads + 15 Zalo) — template scaffolding was removed,
         // so any extra entry (e.g. a resurrected "Example Patch") fails loudly.
         // Note: "name" also appears on compatiblePackages entries ("Threads", "Zalo"),
         // so only top-level patch names are counted (6-space indent in output).
@@ -99,11 +99,12 @@ class PatchesListShapeTest {
                 "Remove AD_ID permission",
                 "Remove AD_ID permission",
                 "Remove media backup age limit",
+                "Suppress outbound seen status",
                 "Suppress outbound typing status",
                 "microG Drive support",
             ),
             names.sorted(),
-            "expected exactly 18 patches, found: $names",
+            "expected exactly 19 patches, found: $names",
         )
     }
 
