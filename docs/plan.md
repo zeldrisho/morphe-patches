@@ -26,8 +26,28 @@ contains `VIDEO` and `VIDEO_HD`, but no `VIDEO_ORIGINAL` path.
 - Confirm that the current patch does not affect video sending.
 - Complete control testing with identical source photos and compare source and
   received hashes, dimensions, metadata, and encoding.
-- Verify ordinary quality selection and multi-image selection.
+- Verify ordinary quality selection and multi-image selection using repeatable
+  journeys with explicit received-byte/hash assertions, not UI selection alone.
 - Do not claim recovery of originals discarded by the client or server.
+
+## Validation still outstanding
+
+The repository safeguards and unit tests are implemented, but they do not prove
+real-APK behavior. Before release, complete and record the following against an
+unmodified control and the selected-patch build:
+
+- Run the documented cold-launch, background/resume, provider-cancellation,
+  account-refresh, notification, and Threads feed journeys on the pinned APK.
+- Compare original and patched manifests for exported components, permissions,
+  provider authorities, URI grants, and package visibility; investigate every
+  unexplained security-relevant difference.
+- Run pinned-APK qualification, including base/split metadata, signing
+  certificate, arm64 native-library, and unsupported-ABI checks.
+- Complete stock/control/patch performance baselines for cold launch and feed
+  scrolling; record startup, frame timing, memory, background activity, and
+  variance.
+- Keep all results PASS, FAIL, or BLOCKED with hashes, device/Android version,
+  enabled patches, and sanitized evidence outside Git.
 
 ## Feature feasibility investigations
 
@@ -50,6 +70,9 @@ account or mutate HTTP traffic.
 - Trace phone-transfer and local export machinery, including messages, media
   associations, database snapshots/WAL, schema, and encryption keys.
 - If an extension is needed, export only to a user-selected external location.
+  Test unauthorized access, unexpected destinations, and overly broad URI grants;
+  apply the same access-boundary checks to notification-history and recording
+  exports below.
 - Prove stock-to-patched migration, patched reinstall, and cross-device restore
   separately.
 - Require integrity/version checks, bounded extraction, recoverable staging, and
@@ -86,6 +109,8 @@ account or mutate HTTP traffic.
   refresh, upload completion, pagination, retention, and restore order.
 - Account for every test photo: excluded by policy, absent from the Drive index,
   upload failure, download failure, missing message association, or restored.
+- Define repeatable first-login and manual restore journeys with explicit
+  completion, media-association, and full round-trip assertions.
 - Compare first-login restore with manual restore, including checkpoints,
   retries, process death, offline recovery, low storage, duplicate work, and
   wrong-account restore.
@@ -116,6 +141,9 @@ license notices if reusing source. Continue with native backup scheduling.
   backup guards.
 - Verify completed backups and restore round trips, not merely timer execution;
   measure battery/network impact and account-switch behavior.
+- Repeat stock, minimally re-signed control, and selected-patch measurements on the
+  same device for wakeups, network use, backup completion, and battery impact;
+  establish variance before setting regression thresholds.
 - This is not a zCloud entitlement or OAuth fix.
 
 ### P2: Inbox category controls

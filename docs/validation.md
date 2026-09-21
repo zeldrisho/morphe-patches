@@ -36,6 +36,36 @@ ZALO_TEST_APK=/private/path/to/zalo-base.apk ./gradlew :patches:qualifyZaloApk -
 The task checks the pinned version metadata and reports the result separately
 from ordinary synthetic tests. Tests must not commit or download proprietary APKs.
 
+## Repeatable device journeys
+
+Run these journeys on a throwaway account with a stock or minimally re-signed
+control before the selected-patch build. Use `android layout` as the primary
+UI inspection method and screenshots only as secondary evidence; keep all device
+artifacts under the ignored analysis directory.
+
+| Journey | Preconditions | Required assertions |
+| --- | --- | --- |
+| Cold launch and resume | Fresh install, selected device | Launch, background, kill, resume, and no crash/freeze; compare control |
+| Missing provider | Provider absent or disabled | Prompt is cancellable and normal Zalo use remains available |
+| Account selection and refresh | Provider installed, test account | Selected account is reflected after callback; no stale-account refresh |
+| Threads feed filtering | Test feed containing organic and sponsored units | Sponsored units disappear while organic ordering, scrolling, and refresh remain intact |
+| Notification delivery | Notifications enabled, app backgrounded | Chat/call/alert notifications remain delivered; only intended promotional notifications change |
+
+Evaluate each action in order. Mark every assertion `PASS`, `FAIL`, or `BLOCKED`;
+if a step fails, leave later steps explicitly unexecuted. A successful tap is not
+itself evidence of the expected state. Record package/version, APK and bundle
+hashes, enabled patches, device/Android version, and certificate fingerprint;
+never record credentials or tokens.
+
+## Controlled performance baseline
+
+For cold launch and Threads scrolling, repeat stock, minimally re-signed control,
+and selected-patch runs on the same device and network conditions. Capture startup
+time, frame timing/jank, memory, and relevant background/network activity. Run
+at least three repetitions, record variance, and set thresholds only after the
+control variance is known. Keep traces, heap dumps, screenshots, and UI dumps
+outside Git and delete them according to the local analysis retention policy.
+
 ## Re-patch and install
 
 Patch and install the selected input APK explicitly:
@@ -86,7 +116,9 @@ Validate the following areas and record each as **PASS**, **FAIL**, or **BLOCKED
 with concise evidence:
 
 - Manifest and package metadata match the intended target, including removal of
-  permissions targeted by a patch.
+  permissions targeted by a patch. Compare original and patched exported
+  components, permissions, provider authorities, URI grants, and package
+  visibility; explain every security-relevant delta.
 - Splash launch, cold start, background/kill/resume, and lifecycle behavior.
 - Existing-session and fresh-login behavior separately; preserve existing data
   unless the test plan explicitly authorizes a reset.

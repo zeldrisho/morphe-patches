@@ -8,6 +8,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /** Runtime checks for the optional MicroG provider used by Zalo Drive support. */
 @SuppressWarnings("unused")
@@ -15,6 +18,10 @@ public final class ZaloMicroGSupport {
   private static final String GMS_CORE_PACKAGE = "app.revanced.android.gms";
   private static final String GMS_CORE_DOWNLOAD =
       "https://github.com/MorpheApp/MicroG-RE/releases/latest";
+  private static final long ACCOUNT_REFRESH_DELAY_MS = 250L;
+  private static volatile Handler mainHandler;
+  private static final Object REFRESH_LOCK = new Object();
+  private static final Map<Object, RefreshRequest> PENDING_REFRESHES = new WeakHashMap<>();
 
   /** Prevents instantiation of this static runtime helper. */
   private ZaloMicroGSupport() {}
@@ -66,17 +73,58 @@ public final class ZaloMicroGSupport {
   public static void scheduleAccountRefresh(Object view, String accountName) {
     if (view == null || accountName == null || accountName.isEmpty()) return;
 
-    new Handler(Looper.getMainLooper())
-        .postDelayed(
-            () -> {
-              try {
-                java.lang.reflect.Method refresh = view.getClass().getMethod("A6", String.class);
-                refresh.invoke(view, accountName);
-              } catch (ReflectiveOperationException | RuntimeException ignored) {
-                // A changed/hidden Zalo method must not crash the host app.
-              }
-            },
-            250L);
+    RefreshRequest request = new RefreshRequest(view, accountName);
+    synchronized (REFRESH_LOCK) {
+      RefreshRequest previous = PENDING_REFRESHES.put(view, request);
+      if (previous != null) {
+        handler().removeCallbacks(previous);
+      }
+    }
+    handler().postDelayed(request, ACCOUNT_REFRESH_DELAY_MS);
+  }
+
+  private static Handler handler() {
+    Handler result = mainHandler;
+    if (result == null) {
+      synchronized (REFRESH_LOCK) {
+        result = mainHandler;
+        if (result == null) {
+          result = new Handler(Looper.getMainLooper());
+          mainHandler = result;
+        }
+      }
+    }
+    return result;
+  }
+
+  /** A coalesced refresh that does not retain the host view past its lifecycle. */
+  private static final class RefreshRequest implements Runnable {
+    private final WeakReference<Object> view;
+    private final String accountName;
+
+    RefreshRequest(Object view, String accountName) {
+      this.view = new WeakReference<>(view);
+      this.accountName = accountName;
+    }
+
+    @Override
+    public void run() {
+      Object target = view.get();
+      try {
+        if (target != null) {
+          java.lang.reflect.Method refresh = target.getClass().getMethod("A6", String.class);
+          refresh.invoke(target, accountName);
+        }
+      } catch (ReflectiveOperationException | RuntimeException ignored) {
+        // A changed/hidden Zalo method must not crash the host app.
+      } finally {
+        synchronized (REFRESH_LOCK) {
+          if (PENDING_REFRESHES.get(target) == this) {
+            PENDING_REFRESHES.remove(target);
+          }
+        }
+      }
+    }
   }
 
   /** Prompts the user to install MicroG before retrying the provider-dependent operation. */

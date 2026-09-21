@@ -23,6 +23,13 @@ public class ZaloMicroGSupportTest {
     assertFalse(ZaloMicroGSupport.isProviderEnabled(null));
   }
 
+  @Test
+  public void invalidRefreshRequestsAreIgnoredWithoutTouchingTheMainLooper() {
+    ZaloMicroGSupport.scheduleAccountRefresh(null, "account@example.com");
+    ZaloMicroGSupport.scheduleAccountRefresh(new Object(), null);
+    ZaloMicroGSupport.scheduleAccountRefresh(new Object(), "");
+  }
+
   private static PackageInfo packageInfo(boolean enabled) {
     PackageInfo packageInfo = new PackageInfo();
     packageInfo.applicationInfo = new ApplicationInfo();

@@ -13,11 +13,15 @@ val extensionContracts = mapOf(
     "extensions/extension.mpe" to listOf(
         "Lcom/zeldrisho/threads/extension/FeedAdFilter;",
         "filterAds",
+        "Ljava/util/List;",
     ),
     "extensions/zalo.mpe" to listOf(
         "Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;",
         "checkGmsCore",
+        "Landroid/app/Activity;",
         "scheduleAccountRefresh",
+        "Ljava/lang/Object;",
+        "Ljava/lang/String;",
     ),
 )
 
@@ -160,11 +164,27 @@ tasks {
                 "ZALO_TEST_APK does not name a non-empty APK: $apk"
             }
 
-            val aapt = ProcessBuilder("aapt", "dump", "badging", apk.absolutePath)
-                .redirectErrorStream(true)
-                .start()
-            val metadata = aapt.inputStream.bufferedReader().use { it.readText() }
-            check(aapt.waitFor() == 0) { "aapt could not read APK metadata" }
+            fun badging(input: java.io.File): String {
+                val process = ProcessBuilder("aapt", "dump", "badging", input.absolutePath)
+                    .redirectErrorStream(true)
+                    .start()
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                check(process.waitFor() == 0) { "aapt could not read APK metadata: $input" }
+                return output
+            }
+
+            fun signingCertificate(input: java.io.File): String {
+                val process = ProcessBuilder("apksigner", "verify", "--print-certs", input.absolutePath)
+                    .redirectErrorStream(true)
+                    .start()
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                check(process.waitFor() == 0) { "apksigner could not inspect APK: $input" }
+                return output.lineSequence()
+                    .filter { it.trimStart().startsWith("Signer #") || it.contains("certificate SHA-256") }
+                    .joinToString("\n")
+            }
+
+            val metadata = badging(apk)
             val checks = linkedMapOf<String, Boolean>(
                 "package" to Regex("package: name='com\\.zing\\.zalo'").containsMatchIn(metadata),
                 "version code" to Regex("versionCode='260801903'").containsMatchIn(metadata),
@@ -174,6 +194,19 @@ tasks {
             // requiring the caller to provide the exact pinned native library.
             val inputs = listOf(apk, apk.resolveSibling("split_config.arm64_v8a.apk"))
                 .filter { it.isFile }
+            val baseCertificate = signingCertificate(apk)
+            inputs.drop(1).forEach { split ->
+                val splitMetadata = badging(split)
+                check(Regex("package: name='com\\.zing\\.zalo'").containsMatchIn(splitMetadata)) {
+                    "APK split has an unexpected package: $split"
+                }
+                check(Regex("versionCode='260801903'").containsMatchIn(splitMetadata)) {
+                    "APK split has an unexpected version: $split"
+                }
+                check(signingCertificate(split) == baseCertificate) {
+                    "APK split signing certificate does not match base APK: $split"
+                }
+            }
             var hasNativeLibrary = false
             var hasArm64Native = false
             var unsupportedAbi = false

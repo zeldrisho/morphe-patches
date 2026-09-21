@@ -22,11 +22,21 @@ private const val MICROG_PACKAGE = "app.revanced.android.gms"
 private const val ACCOUNT_PICKER_REQUEST_CODE = 0x3eb
 private const val ALLOWABLE_ACCOUNT_TYPE_COUNT = 1
 private const val ACCOUNT_PICKER_REGISTER_COUNT = 8
+private const val ACCOUNT_REFRESH_ARGUMENT_COUNT = 2
+private const val MAX_FOUR_BIT_REGISTER = 15
+private const val ON_CREATE_PARAMETER_COUNT = 2
 private const val MICROG_EXTENSION_CLASS =
     "Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;"
 private const val ZALO_LAUNCHER_CLASS = "Lcom/zing/zalo/ui/ZaloLauncherActivity;"
 private const val SYNC_GOOGLE_ACCOUNT_BASE_VIEW =
     "Lcom/zing/zalo/ui/backuprestore/drive/SyncGoogleAccountBaseView;"
+
+/** Requires one local register beyond onCreate(Bundle)'s p0 and p1 parameters. */
+internal fun requireProviderCheckScratch(registerCount: Int) {
+    check(registerCount > ON_CREATE_PARAMETER_COUNT) {
+        "Zalo launcher onCreate has no scratch local for provider check"
+    }
+}
 
 /** Returns whether [methodReference] names Zalo's account-refresh call in the Drive result handler. */
 private fun isAccountRefreshCall(
@@ -40,15 +50,21 @@ private fun isAccountRefreshCall(
     } ?: false
 }
 
-private fun accountRefreshArguments(instruction: Any): String = when (instruction) {
+/** Preserves the source invoke encoding, including high-register range invokes. */
+internal fun accountRefreshInvocation(instruction: Any): String = when (instruction) {
     is FiveRegisterInstruction -> {
-        check(instruction.registerCount == 2)
-        "v${instruction.registerC}, v${instruction.registerD}"
+        check(instruction.registerCount == ACCOUNT_REFRESH_ARGUMENT_COUNT)
+        check(instruction.registerC <= MAX_FOUR_BIT_REGISTER && instruction.registerD <= MAX_FOUR_BIT_REGISTER) {
+            "Zalo microG support: non-range invoke uses a register above v15"
+        }
+        "invoke-static { v${instruction.registerC}, v${instruction.registerD} }, " +
+            "$MICROG_EXTENSION_CLASS->scheduleAccountRefresh(Ljava/lang/Object;Ljava/lang/String;)V"
     }
 
     is RegisterRangeInstruction -> {
-        check(instruction.registerCount == 2)
-        "v${instruction.startRegister}, v${instruction.startRegister + 1}"
+        check(instruction.registerCount == ACCOUNT_REFRESH_ARGUMENT_COUNT)
+        "invoke-static/range { v${instruction.startRegister} .. v${instruction.startRegister + 1} }, " +
+            "$MICROG_EXTENSION_CLASS->scheduleAccountRefresh(Ljava/lang/Object;Ljava/lang/String;)V"
     }
 
     else -> error("Zalo microG support: unsupported A6 invoke format")
@@ -89,20 +105,26 @@ val zaloMicroGManifestPatch = resourcePatch {
             if ((0 until queries.childNodes.length).none { index ->
                     val node = queries.childNodes.item(index) as? Element
                     node?.tagName == "package" && node.getAttribute("android:name") == MICROG_PACKAGE
-                }) {
-                queries.appendChild(doc.createElement("package").apply {
-                    setAttribute("android:name", MICROG_PACKAGE)
-                })
+                }
+            ) {
+                queries.appendChild(
+                    doc.createElement("package").apply {
+                        setAttribute("android:name", MICROG_PACKAGE)
+                    },
+                )
             }
             if ((0 until app.childNodes.length).none { index ->
                     val node = app.childNodes.item(index) as? Element
                     node?.tagName == "meta-data" &&
                         node.getAttribute("android:name") == "app.revanced.android.gms.SPOOFED_PACKAGE_SIGNATURE"
-                }) {
-                app.appendChild(doc.createElement("meta-data").apply {
-                    setAttribute("android:name", "app.revanced.android.gms.SPOOFED_PACKAGE_SIGNATURE")
-                    setAttribute("android:value", STOCK_VNG_CERT_HEX)
-                })
+                }
+            ) {
+                app.appendChild(
+                    doc.createElement("meta-data").apply {
+                        setAttribute("android:name", "app.revanced.android.gms.SPOOFED_PACKAGE_SIGNATURE")
+                        setAttribute("android:value", STOCK_VNG_CERT_HEX)
+                    },
+                )
             }
         }
     }
@@ -191,9 +213,9 @@ val zaloMicroGSupportPatch = bytecodePatch(
                 if (classDef.type == ZALO_LAUNCHER_CLASS &&
                     method.name == "onCreate" && method.parameterTypes == listOf("Landroid/os/Bundle;")
                 ) {
-                    check(mutableMethod.implementation!!.registerCount >= 1) {
-                        "Zalo launcher onCreate has no register available for provider check"
-                    }
+                    // onCreate(Bundle) has p0 and p1. v0 is a local only when the
+                    // frame has at least one register beyond those parameters.
+                    requireProviderCheckScratch(mutableMethod.implementation!!.registerCount)
                     mutableMethod.addInstructionsWithLabels(
                         0,
                         """
@@ -224,11 +246,7 @@ val zaloMicroGSupportPatch = bytecodePatch(
                     val methodReference =
                         (instruction as? ReferenceInstruction)?.reference as? MethodReference
                     if (isAccountRefreshCall(classDef.type, method.name, methodReference)) {
-                        val arguments = accountRefreshArguments(instruction)
-                        mutableMethod.replaceInstruction(
-                            index,
-                            "invoke-static { $arguments }, $MICROG_EXTENSION_CLASS->scheduleAccountRefresh(Ljava/lang/Object;Ljava/lang/String;)V",
-                        )
+                        mutableMethod.replaceInstruction(index, accountRefreshInvocation(instruction))
                         accountRefreshReplacements++
                         return@forEachIndexed
                     }

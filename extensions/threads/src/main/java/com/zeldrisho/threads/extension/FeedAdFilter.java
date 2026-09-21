@@ -58,18 +58,28 @@ public final class FeedAdFilter {
     if (items == null || items.isEmpty()) {
       return items;
     }
-    ArrayList<Object> out = new ArrayList<>(items.size());
+    // Keep the common all-organic path allocation-free. Once the first ad is
+    // found, copy the retained prefix and continue into a new mutable result.
+    ArrayList<Object> out = null;
     try {
-      for (Object o : items) {
-        if (o == null || !isAdUnit(o)) {
-          out.add(o);
+      for (int index = 0; index < items.size(); index++) {
+        Object item = items.get(index);
+        if (isAdUnit(item)) {
+          if (out == null) {
+            out = new ArrayList<>(items.size() - 1);
+            for (int prefix = 0; prefix < index; prefix++) {
+              out.add(items.get(prefix));
+            }
+          }
+        } else if (out != null) {
+          out.add(item);
         }
       }
     } catch (Throwable ignored) {
       // Any failure -> return the original untouched.
       return items;
     }
-    return out.size() == items.size() ? items : out;
+    return out == null ? items : out;
   }
 
   /**

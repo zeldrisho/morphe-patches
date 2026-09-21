@@ -21,7 +21,8 @@ public class ExtensionContractTest {
   @Test
   public void refreshHookHasExactInjectedAbi() throws Exception {
     Method method =
-        ZaloMicroGSupport.class.getDeclaredMethod("scheduleAccountRefresh", Object.class, String.class);
+        ZaloMicroGSupport.class.getDeclaredMethod(
+            "scheduleAccountRefresh", Object.class, String.class);
     assertTrue(Modifier.isPublic(method.getModifiers()));
     assertTrue(Modifier.isStatic(method.getModifiers()));
     assertEquals(void.class, method.getReturnType());
