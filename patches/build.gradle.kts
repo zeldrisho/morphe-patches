@@ -172,16 +172,25 @@ tasks {
             }
 
             val metadata = badging(apk)
+            val baseCertificate = signingCertificate(apk)
+            // This is the stock signer of the pinned 26.08.01 input. Requiring
+            // it prevents a patched/re-signed APK from being mistaken for the
+            // original qualification input; output signing identity is checked
+            // separately during release validation.
+            val expectedCertificateSha256 =
+                "d86efe151e09bf4ca8440cb3bfa0a81be2544f70c78587daf0266dfca2fa25df"
             val checks = linkedMapOf<String, Boolean>(
                 "package" to Regex("package: name='com\\.zing\\.zalo'").containsMatchIn(metadata),
                 "version code" to Regex("versionCode='260801903'").containsMatchIn(metadata),
+                "stock certificate" to baseCertificate.contains(expectedCertificateSha256, ignoreCase = true),
             )
-            // APKMirror distributes the native payload in the arm64 config split.
-            // Accept a base.apk together with its adjacent split, while still
-            // requiring the caller to provide the exact pinned native library.
-            val inputs = listOf(apk, apk.resolveSibling("split_config.arm64_v8a.apk"))
-                .filter { it.isFile }
-            val baseCertificate = signingCertificate(apk)
+            // APKMirror distributes the native payload and optional features in
+            // adjacent split APKs. Validate every adjacent split present rather
+            // than checking only the arm64 config split: a mismatched feature
+            // split can still alter package identity or signing boundaries.
+            val inputs = listOf(apk) + apk.parentFile.listFiles { file ->
+                file.name.startsWith("split_") && file.name.endsWith(".apk")
+            }.orEmpty().sortedBy { it.name }
             inputs.drop(1).forEach { split ->
                 val splitMetadata = badging(split)
                 check(Regex("package: name='com\\.zing\\.zalo'").containsMatchIn(splitMetadata)) {

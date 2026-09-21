@@ -109,6 +109,7 @@ private fun generatePatchList(version: String, patches: Set<Patch<*>>) {
     )
     jsonObject.addProperty("version", version)
     jsonObject.add("patches", gson.toJsonTree(patchesMap))
+    PatchListValidator.validate(jsonObject)
 
     listJson.writeText(gson.toJson(jsonObject))
 }

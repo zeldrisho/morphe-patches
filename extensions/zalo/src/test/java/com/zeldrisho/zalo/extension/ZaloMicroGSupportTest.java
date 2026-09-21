@@ -24,6 +24,11 @@ public class ZaloMicroGSupportTest {
   }
 
   @Test
+  public void providerWithoutApplicationInfoIsRejected() {
+    assertFalse(ZaloMicroGSupport.isProviderEnabled(new PackageInfo()));
+  }
+
+  @Test
   public void invalidRefreshRequestsAreIgnoredWithoutTouchingTheMainLooper() {
     ZaloMicroGSupport.scheduleAccountRefresh(null, "account@example.com");
     ZaloMicroGSupport.scheduleAccountRefresh(new Object(), null);

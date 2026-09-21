@@ -44,28 +44,33 @@ Targets: manifest/package rewrites, extension entry points, and APK qualificatio
 
 ## P2: Qualification and metadata
 
-### Synthetic tests versus APK qualification — medium
+### Synthetic tests versus APK qualification — mostly complete
 
-Targets: `patches/src/test/`, Gradle wiring, and `docs/validation.md`.
+Targets: `patches/src/test/`, Gradle wiring, `scripts/apk_qualification.py`,
+`docs/validation.md`.
 
-- Inventory synthetic transformation, negative-match, and ambiguity coverage;
-  fill gaps rather than duplicating tests.
-- Run the explicit APK qualification task against the pinned proprietary input,
-  including the base/split package, version, certificate, arm64 native library,
-  and unsupported-ABI checks. Add isolated mismatch fixtures for split metadata
-  and certificates without committing APKs.
-- Keep proprietary APKs out of Git/public CI and device/control validation as a
-  separate release requirement.
+Completed:
 
-### Embedded extension contracts — medium
+- Patch-list and embedded-extension metadata have structural and negative-fixture
+  coverage.
+- `qualifyZaloApk` checks every adjacent split's package, version, certificate,
+  arm64 native library, unsupported ABIs, and pinned stock certificate.
+- Synthetic fixtures cover wrong package/version, missing or unexpected
+  certificates, split metadata mismatch, and split certificate mismatch.
+
+Remaining:
+
+- Add transformation and ambiguity fixtures only when a concrete patch exposes a
+  gap. Proprietary APKs remain excluded from Git/public CI.
+
+### Embedded extension contracts — complete
 
 Targets: `patches/build.gradle.kts` and bundle verification tests.
 
-- Bundle verification now validates exact embedded DEX method descriptors and
-  required public/static flags; source-level ABI reflection tests remain useful
-  but are not sufficient alone.
-- Add isolated negative fixtures for missing classes, wrong signatures/flags,
-  corrupt DEX, and cross-app contamination.
+- Bundle verification validates exact embedded DEX method descriptors and
+  required public/static flags.
+- Negative archive fixtures reject missing and cross-app artifacts; descriptor,
+  flag, class, and corrupt DEX failures remain enforced by the verifier.
 
 ### Fresh structural patch metadata — medium
 
@@ -80,19 +85,18 @@ Targets: the isolated generation task and `PatchesListShapeTest.kt`.
 
 ## P2: Runtime tests and performance
 
-### Android-runtime extension coverage — medium
+### Android-runtime extension coverage — remaining
 
 Targets: `extensions/zalo/src/test/` and `extensions/threads/src/test/`.
 
-- Add focused platform-backed tests, using Robolectric where compatible with the
-  Morphe build, without adding a dependency-injection framework or generic UI stack.
-- Existing JVM tests cover provider classification and invalid refresh inputs; add
-  missing/disabled provider, package-manager failure, dialog cancellation,
-  unavailable-browser, and finishing/destroyed-activity cases.
-- Add deterministic delayed-refresh tests for missing reflective methods,
-  invocation failures, repeated selection, stale lifecycle views, and coalescing.
-- Assert safe fallback behavior without unnecessary host-app blocking. Keep real
-  provider/OAuth behavior and host integration separately device-qualified.
+- Provider enabled/disabled/missing/null-application cases and invalid refresh
+  input coverage are implemented; Threads feed filtering has broad shape and
+  cache coverage.
+- Remaining Zalo cases: package-manager failure, dialog cancellation, unavailable
+  browser, finishing/destroyed activities, delayed refresh reflection failures,
+  stale lifecycle views, repeated selection, and coalescing.
+- Add focused platform-backed tests without introducing a DI framework or generic
+  UI stack. Keep real provider/OAuth behavior separately device-qualified.
 
 ### Controlled performance baselines — medium
 
@@ -108,20 +112,15 @@ Targets: local device-validation procedures and ignored analysis artifacts.
 - Accept when measurements distinguish patch overhead from signing, environment,
   and backend effects rather than merely producing a trace.
 
-### Build-plugin compatibility inventory — small/medium
+### Build-plugin compatibility inventory — complete for current toolchain
 
 Targets: `settings.gradle.kts`, Gradle wiring, and `docs/toolchain.md`.
 
-- Record the effective AGP, Gradle, Kotlin, D8/R8, SDK, and Java versions and
-  the combinations supported by `app.morphe.patches`. Wrapper/plugin/Kotlin/
-  patcher/SDK/Java values and inspection commands are documented; resolved AGP
-  and D8/R8 versions and supported combinations still need confirmation. Do not
-  infer AGP from the wrapper.
-- Upgrade only when needed and supported by Morphe. Check public DSL/variant APIs,
-  extension packaging, and Android versus JVM Kotlin configuration separately.
-- Require canonical verification, both extension test suites, embedded DEX
-  contracts, original-APKM repatching, and device smoke tests; Gradle help/dry-run
-  success alone is not upgrade qualification.
+- Documented Gradle 9.7.1, AGP 9.1.0, Kotlin 2.4.10, Java 21, SDK 36, and the
+  unresolved standalone D8/R8 status.
+- No upgrade is proposed. Future upgrades still require canonical verification,
+  both extension test suites, embedded DEX contracts, original-APKM repatching,
+  and device smoke tests.
 
 ## P2: Documentation and maintainability
 
@@ -142,13 +141,14 @@ Targets: `settings.gradle.kts`, Gradle wiring, and `docs/toolchain.md`.
 
 ## P2: Qualification boundaries
 
-### Original APK signing identity — medium
+### Original APK signing identity — mostly complete
 
-- Validate the input certificate for signature-sensitive patching and test
-  already-repatched inputs, missing/unexpected certificates, and repeated runs.
-- Distinguish original certificate DER, SHA-1 digest, and output signing identity.
-  Keep proprietary inputs private and diagnostics bounded. This is input
-  qualification, not a provider/OAuth fix.
+- `qualifyZaloApk` validates the pinned stock certificate and every adjacent split;
+  synthetic fixtures cover missing, unexpected, mismatched, and repacked inputs.
+- Remaining: exercise repeated qualification and output-signing checks in the
+  release procedure with private artifacts. Keep original certificate DER/digests
+  distinct from output signing identity. This is input qualification, not an
+  OAuth fix.
 
 ## Deferred until a concrete trigger
 

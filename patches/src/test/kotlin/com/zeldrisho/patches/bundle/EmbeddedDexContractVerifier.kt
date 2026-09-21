@@ -8,18 +8,33 @@ import java.io.File
 import java.util.zip.ZipFile
 
 /** Verifies the ABI consumed by injected invoke-static instructions in the bundle. */
+private val contractsByArtifact = linkedMapOf(
+    "extensions/extension.mpe" to listOf(
+        Contract("Lcom/zeldrisho/threads/extension/FeedAdFilter;", "filterAds", listOf("Ljava/util/List;"), "Ljava/util/List;"),
+    ),
+    "extensions/zalo.mpe" to listOf(
+        Contract("Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;", "checkGmsCore", listOf("Landroid/app/Activity;"), "Z"),
+        Contract("Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;", "scheduleAccountRefresh", listOf("Ljava/lang/Object;", "Ljava/lang/String;"), "V"),
+    ),
+)
+
+/** Expected embedded extension paths; kept public for isolated archive-shape tests. */
+internal val expectedEmbeddedExtensionPaths: Set<String> = contractsByArtifact.keys
+
+/** Rejects missing or cross-app extension artifacts before attempting DEX parsing. */
+internal fun verifyEmbeddedExtensionEntries(entries: Set<String>) {
+    val embedded = entries.filter { it.endsWith(".mpe") }.toSet()
+    check(embedded == expectedEmbeddedExtensionPaths) {
+        "Bundle contains unexpected or cross-app extension artifacts: $embedded; " +
+            "expected: $expectedEmbeddedExtensionPaths"
+    }
+}
+
 fun main(args: Array<String>) {
     require(args.size == 1) { "usage: <mpp>" }
     ZipFile(File(args[0])).use { zip ->
-        listOf(
-            "extensions/extension.mpe" to listOf(
-                Contract("Lcom/zeldrisho/threads/extension/FeedAdFilter;", "filterAds", listOf("Ljava/util/List;"), "Ljava/util/List;"),
-            ),
-            "extensions/zalo.mpe" to listOf(
-                Contract("Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;", "checkGmsCore", listOf("Landroid/app/Activity;"), "Z"),
-                Contract("Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;", "scheduleAccountRefresh", listOf("Ljava/lang/Object;", "Ljava/lang/String;"), "V"),
-            ),
-        ).forEach { (artifact, contracts) ->
+        verifyEmbeddedExtensionEntries(zip.entries().asSequence().map { it.name }.toSet())
+        contractsByArtifact.forEach { (artifact, contracts) ->
             val entry = zip.getEntry(artifact) ?: error("Bundle is missing $artifact")
             val bytes = zip.getInputStream(entry).use { it.readBytes() }
             val file = DexBackedDexFile.fromInputStream(Opcodes.getDefault(), ByteArrayInputStream(bytes))

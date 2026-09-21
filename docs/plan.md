@@ -6,7 +6,12 @@ under the ignored `analysis/zalo/26.08.01/` directory.
 
 Cross-app structure, patch safety, tests, tooling, release safeguards, and
 documentation work are tracked in the [repository maintenance plan](maintenance.md),
-including the comparisons with Doom's and Hoodles' Morphe Patches.
+including the comparisons with Doom's and Hoodles' Morphe Patches. The current
+maintenance implementation has completed bundle/metadata checks, split APK
+qualification, certificate fixtures, manifest-diff tooling, and toolchain
+inventory. Remaining maintenance work is limited to deeper Android extension
+failure-path tests and release-time repeated/output-signing checks; device
+journeys and performance remain intentionally skipped.
 The [reference checkout review](reference-review.md) records the completed
 comparison, exact upstream revisions, recovery instructions, and exclusions;
 local example checkouts are no longer required.
