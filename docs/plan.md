@@ -11,6 +11,21 @@ including the comparisons with Doom's and Hoodles' Morphe Patches.
 zStyle is excluded. Video Original quality is also excluded: the pinned APK
 contains `VIDEO` and `VIDEO_HD`, but no `VIDEO_ORIGINAL` path.
 
+## Completed implementation and evidence
+
+The following Zalo 26.08.01 changes are implemented and should not be reopened as
+feature investigations: native startup-tamper bypass, ad and AD_ID filtering,
+telemetry/crash-report filtering, Business Box removal, expired local-media
+access, Original photo quality selection, outbound typing/seen suppression,
+promotional-notification filtering, package-name rewriting, and microG Drive
+support. Their remaining work is runtime regression or release qualification,
+not another implementation search.
+
+The microG Drive patch already has evidence for the missing-provider prompt,
+initial OAuth/photo restore, and a complete backup/restore cycle. This evidence
+does not cover every media type, the age-limit patch, renamed packages, or
+provider/server failures.
+
 ## Zalo 26.08 requested features
 
 - Username friend search and additional logged-in devices were removed from the
@@ -21,20 +36,22 @@ contains `VIDEO` and `VIDEO_HD`, but no `VIDEO_ORIGINAL` path.
   outbound seen-acknowledgement investigation below does not establish asymmetric
   privacy or control online presence.
 
-## Photo Original quality validation
+## Photo Original quality — remaining validation
 
 - Confirm that the current patch does not affect video sending.
-- Complete control testing with identical source photos and compare source and
-  received hashes, dimensions, metadata, and encoding.
-- Verify ordinary quality selection and multi-image selection using repeatable
-  journeys with explicit received-byte/hash assertions, not UI selection alone.
+- Complete stock/control/patch testing with identical source photos and compare
+  source and received hashes, dimensions, metadata, and encoding.
+- Verify ordinary quality selection, single-photo, multi-image, video-only, and
+  mixed selections with explicit received-byte/hash assertions.
 - Do not claim recovery of originals discarded by the client or server.
 
 ## Validation still outstanding
 
 The repository safeguards and unit tests are implemented, but they do not prove
-real-APK behavior. Before release, complete and record the following against an
-unmodified control and the selected-patch build:
+real-APK behavior. The analysis workspace contains the pinned base APK and all
+recorded splits, but no current release-validation record. Before release,
+complete and record the following against an unmodified control and the
+selected-patch build:
 
 - Run the documented cold-launch, background/resume, provider-cancellation,
   account-refresh, notification, and Threads feed journeys on the pinned APK.
@@ -48,6 +65,32 @@ unmodified control and the selected-patch build:
   variance.
 - Keep all results PASS, FAIL, or BLOCKED with hashes, device/Android version,
   enabled patches, and sanitized evidence outside Git.
+
+### Next device-validation batch
+
+Run this against the APKM represented by `analysis/zalo/26.08.01/apk/`, its
+minimally re-signed no-patch control, and the selected-patch build:
+
+1. Qualify split installation, manifest/package metadata, signing certificate,
+   arm64 native libraries, cold launch, background/resume, force-stop, reboot,
+   login, notifications, messaging, attachments, camera, and one-to-one/group
+   calls.
+2. Validate Original photo and media patches with a second account, including
+   source/received hashes, metadata, single/multi-photo, video-only, expired
+   local media, missing files, and deleted messages.
+3. Validate seen and typing suppression with delivery acknowledgements,
+   reconnect/retry, queued messages, and unchanged incoming rendering.
+4. Validate ads and promotional notifications without suppressing organic feed,
+   chat, group activity, friend requests, calls, or alerts.
+5. Re-run the microG provider/Drive evidence, then qualify the media-age-limit
+   patch and failure cases: offline, process death, low storage, wrong account,
+   duplicate restore, and missing Drive objects.
+6. Measure stock, control, and patched cold-launch/feed performance with at
+   least three repetitions and record variance.
+
+Do not treat unimplemented roadmap candidates (catalog, username changes, gold
+badge entitlement, local export, inactivity prevention, or backup scheduling)
+as expected device behavior.
 
 ## Feature feasibility investigations
 
@@ -102,15 +145,14 @@ account or mutate HTTP traffic.
 
 ### Google Drive backup and restore — remaining work
 
-- Validate the new **Remove media backup age limit** patch against an unmodified
-  control. Confirm that the 365-day filter is removed during both backup and
-  restore; existing Drive objects must still be indexed and downloadable.
-- Trace Google Drive scheduling, Wi-Fi constraints, authentication, token
+- Validate **Remove media backup age limit** against an unmodified control.
+  Confirm that the 365-day filter is removed during both backup and restore;
+  existing Drive objects must still be indexed and downloadable.
+- Re-run the recorded initial photo restore and complete backup/restore cycle
+  with the release bundle, then test scheduling, Wi-Fi constraints, token
   refresh, upload completion, pagination, retention, and restore order.
 - Account for every test photo: excluded by policy, absent from the Drive index,
   upload failure, download failure, missing message association, or restored.
-- Define repeatable first-login and manual restore journeys with explicit
-  completion, media-association, and full round-trip assertions.
 - Compare first-login restore with manual restore, including checkpoints,
   retries, process death, offline recovery, low storage, duplicate work, and
   wrong-account restore.
@@ -286,6 +328,9 @@ license notices before reusing source.
   [repository maintenance plan](maintenance.md#remaining-repository-maintenance).
 
 ## Deferred validation
+
+These are release checks for implemented patches, not pending implementation
+requests.
 
 - Validate the outbound seen-status patch with two accounts, including
   one-to-one/group chats, delivery acknowledgements, reconnect/retry, queued

@@ -29,16 +29,26 @@ class MethodExtensionsTest {
     ).toMutable()
 
     @Test
-    fun clearBodyRemovesAllInstructions() {
+    fun clearBodyRemovesAllInstructionsAndExceptionRanges() {
         val target = method()
+        val implementation = target.implementation!!
+        val start = implementation.newLabelForIndex(0)
+        val end = implementation.newLabelForIndex(1)
+        val handler = implementation.newLabelForIndex(0)
+        implementation.addCatch("Ljava/lang/Exception;", start, end, handler)
+        assertTrue(implementation.tryBlocks.isNotEmpty())
+
         target.clearBody()
-        assertTrue(target.implementation!!.instructions.none())
+
+        assertTrue(implementation.instructions.none())
+        assertTrue(implementation.tryBlocks.none())
     }
 
     @Test
     fun registerGrowthIsAvailableForWholeBodyReplacement() {
         val target = method(1)
         target.ensureRegisters(4)
+        target.ensureRegisters(2)
         assertEquals(4, target.implementation!!.registerCount)
         target.clearBody()
         assertEquals(0, target.implementation!!.instructions.size)
