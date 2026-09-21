@@ -191,7 +191,9 @@ val zaloMicroGSupportPatch = bytecodePatch(
                 if (classDef.type == ZALO_LAUNCHER_CLASS &&
                     method.name == "onCreate" && method.parameterTypes == listOf("Landroid/os/Bundle;")
                 ) {
-                    mutableMethod.ensureRegisters(2)
+                    check(mutableMethod.implementation!!.registerCount >= 1) {
+                        "Zalo launcher onCreate has no register available for provider check"
+                    }
                     mutableMethod.addInstructionsWithLabels(
                         0,
                         """

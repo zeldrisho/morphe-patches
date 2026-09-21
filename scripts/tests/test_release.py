@@ -9,6 +9,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.prepare_release import changelog_state
+
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts/prepare_release.py"
 
@@ -33,6 +35,30 @@ class ReleaseScriptTest(unittest.TestCase):
             [sys.executable, str(SCRIPT), "--help"], text=True, capture_output=True
         )
         self.assertEqual(r.returncode, 0)
+
+    def test_malformed_release_heading_is_rejected(self):
+        """Reject a release-looking level-two heading with invalid syntax."""
+        text = "# Changelog\n\n## Unreleased\n\n* change\n\n## 1.2 (2024-01-01)\n"
+        with self.assertRaisesRegex(SystemExit, "Malformed released changelog heading"):
+            changelog_state(text, "1.3.0", "example/project")
+
+    def test_duplicate_release_heading_is_rejected(self):
+        """Reject duplicate released versions."""
+        text = (
+            "# Changelog\n\n## Unreleased\n\n* change\n\n"
+            "## 1.2.0 (2024-01-01)\n\n## 1.2.0 (2024-01-02)\n"
+        )
+        with self.assertRaisesRegex(SystemExit, "Duplicate released changelog entry"):
+            changelog_state(text, "1.3.0", "example/project")
+
+    def test_out_of_order_release_headings_are_rejected(self):
+        """Require released changelog headings to descend by version."""
+        text = (
+            "# Changelog\n\n## Unreleased\n\n* change\n\n"
+            "## 1.1.0 (2024-01-01)\n\n## 1.2.0 (2024-01-02)\n"
+        )
+        with self.assertRaisesRegex(SystemExit, "descending version order"):
+            changelog_state(text, "1.3.0", "example/project")
 
     def test_successful_staging_updates_release_artifacts(self):
         """Stage a release and keep all generated version metadata consistent."""
@@ -98,6 +124,7 @@ class ReleaseScriptTest(unittest.TestCase):
             self.assertEqual(bundle["version"], "1.2.3")
             self.assertTrue(bundle["description"])
             self.assertIn("Expected release note", bundle["description"])
+            self.assertIn("patches-bundle.json", git("ls-files").stdout)
 
 
 if __name__ == "__main__":

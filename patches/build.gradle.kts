@@ -152,12 +152,51 @@ tasks {
         group = "verification"
         description = "Run pinned Zalo APK qualification; requires ZALO_TEST_APK"
         dependsOn(test)
-        doFirst {
+        doLast {
             val apk = providers.environmentVariable("ZALO_TEST_APK").orNull
                 ?.let(::file)
                 ?: error("ZALO_TEST_APK is required for qualifyZaloApk")
-            check(apk.isFile) { "ZALO_TEST_APK does not name a readable file: $apk" }
-            check(apk.length() > 0) { "ZALO_TEST_APK is empty: $apk" }
+            check(apk.isFile && apk.length() > 0) {
+                "ZALO_TEST_APK does not name a non-empty APK: $apk"
+            }
+
+            val aapt = ProcessBuilder("aapt", "dump", "badging", apk.absolutePath)
+                .redirectErrorStream(true)
+                .start()
+            val metadata = aapt.inputStream.bufferedReader().use { it.readText() }
+            check(aapt.waitFor() == 0) { "aapt could not read APK metadata" }
+            val checks = linkedMapOf<String, Boolean>(
+                "package" to Regex("package: name='com\\.zing\\.zalo'").containsMatchIn(metadata),
+                "version code" to Regex("versionCode='260801903'").containsMatchIn(metadata),
+            )
+            // APKMirror distributes the native payload in the arm64 config split.
+            // Accept a base.apk together with its adjacent split, while still
+            // requiring the caller to provide the exact pinned native library.
+            val inputs = listOf(apk, apk.resolveSibling("split_config.arm64_v8a.apk"))
+                .filter { it.isFile }
+            var hasNativeLibrary = false
+            var hasArm64Native = false
+            var unsupportedAbi = false
+            inputs.forEach { input ->
+                ZipFile(input).use { zip ->
+                    if (zip.getEntry("lib/arm64-v8a/libnative_utils.so") != null) {
+                        hasNativeLibrary = true
+                        hasArm64Native = true
+                    }
+                    zip.entries().asSequence()
+                        .filter { it.name.startsWith("lib/") && it.name.endsWith(".so") }
+                        .map { it.name.substringAfter("lib/").substringBefore('/') }
+                        .forEach { if (it != "arm64-v8a") unsupportedAbi = true }
+                }
+            }
+            checks["arm64 ABI"] = hasArm64Native || Regex("native-code='[^']*arm64-v8a").containsMatchIn(metadata)
+            checks["native library"] = hasNativeLibrary
+            checks["unsupported ABI absent"] = !unsupportedAbi
+            checks.forEach { (name, passed) -> logger.lifecycle("Zalo APK $name: ${if (passed) "PASS" else "FAIL"}") }
+            check(checks.values.all { it }) {
+                "Pinned Zalo APK qualification failed; expected versionCode 260801903, " +
+                    "arm64-v8a, and lib/arm64-v8a/libnative_utils.so"
+            }
         }
     }
 

@@ -47,7 +47,7 @@ public final class ZaloMicroGSupport {
     } catch (PackageManager.NameNotFoundException exception) {
       showInstallDialog(activity);
       return false;
-    } catch (Throwable ignored) {
+    } catch (RuntimeException ignored) {
       // Never turn an optional provider check into a host-app crash.
       return true;
     }
@@ -72,7 +72,7 @@ public final class ZaloMicroGSupport {
               try {
                 java.lang.reflect.Method refresh = view.getClass().getMethod("A6", String.class);
                 refresh.invoke(view, accountName);
-              } catch (Throwable ignored) {
+              } catch (ReflectiveOperationException | RuntimeException ignored) {
                 // A changed/hidden Zalo method must not crash the host app.
               }
             },
@@ -92,7 +92,7 @@ public final class ZaloMicroGSupport {
           .setNegativeButton("Cancel", null)
           .setPositiveButton("Install", (dialog, which) -> openDownload(activity))
           .show();
-    } catch (Throwable ignored) {
+    } catch (RuntimeException ignored) {
       // Dialog creation is best effort; normal app use must remain unaffected.
     }
   }
@@ -103,7 +103,7 @@ public final class ZaloMicroGSupport {
       activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(GMS_CORE_DOWNLOAD)));
     } catch (ActivityNotFoundException ignored) {
       // No browser is available; leave the user in the host app.
-    } catch (Throwable ignored) {
+    } catch (RuntimeException ignored) {
       // A malformed/blocked external intent must not crash the host app.
     }
   }

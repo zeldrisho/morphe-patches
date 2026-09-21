@@ -65,6 +65,8 @@ def changelog_state(text, target, repo):
         if match:
             version = match.group("link_version") or match.group("version")
             headings.append((i, version, match.group("link")))
+        elif line.startswith("## ") and line != "## Unreleased":
+            die(f"Malformed released changelog heading: {line}")
     seen = set()
     for _, version, link in headings:
         if version in seen:
@@ -156,16 +158,18 @@ def main():
             run("git", "remote", "get-url", "origin"),
         )
     changelog = ROOT / "CHANGELOG.md"
+    owned_names = (
+        "CHANGELOG.md",
+        "gradle.properties",
+        "patches-list.json",
+        "README.md",
+        "patches-bundle.json",
+    )
+    # Record absence as well as contents so failed staging cannot leave a newly
+    # generated release artifact behind.
     original = {
-        name: (ROOT / name).read_bytes()
-        for name in (
-            "CHANGELOG.md",
-            "gradle.properties",
-            "patches-list.json",
-            "README.md",
-            "patches-bundle.json",
-        )
-        if (ROOT / name).exists()
+        name: (ROOT / name).read_bytes() if (ROOT / name).exists() else None
+        for name in owned_names
     }
     text = changelog.read_text()
     lines, unreleased, next_section, previous = changelog_state(text, version, repo)
@@ -222,11 +226,15 @@ def main():
             "version": version,
         }
         (ROOT / "patches-bundle.json").write_text(json.dumps(manifest, indent=2) + "\n")
-        run("git", "add", *original)
+        run("git", "add", *owned_names)
         run("git", "commit", "-m", f"chore(release): release v{version}")
     except Exception:
         for name, content in original.items():
-            (ROOT / name).write_bytes(content)
+            path = ROOT / name
+            if content is None:
+                path.unlink(missing_ok=True)
+            else:
+                path.write_bytes(content)
         subprocess.run(
             ["git", "reset", "--", *original],
             cwd=ROOT,

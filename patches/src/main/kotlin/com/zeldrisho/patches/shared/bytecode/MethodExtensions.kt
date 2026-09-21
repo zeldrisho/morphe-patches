@@ -13,10 +13,10 @@ import java.lang.reflect.ParameterizedType
  * original method has try-blocks — leaving the try table pointing at removed
  * offsets causes ART VerifyError ("bad exception entry").
  *
- * NOTE: this does NOT change registerCount — that field is private final on
- * MutableMethodImplementation with no public setter, and MutableMethod.implementation
- * is read-only (val), so registerCount cannot be grown via this codebase's current
- * API surface. Do not attempt to introduce a brand-new local register (e.g. a fresh
+ * Contract: this is a whole-body replacement primitive. Callers may grow the
+ * register frame before this function, because all existing instructions are
+ * discarded. Do not use it as an instruction-preserving injection primitive.
+ * Do not attempt to introduce a brand-new local register (e.g. a fresh
  * v0 for a const/4) after clearBody() — it is NOT guaranteed safe; some methods
  * verify fine, others throw VerifyError ("register vN has type Undefined but
  * expected Integer"). Reusing a parameter register (p0/p1/p2...) for a new value
@@ -64,16 +64,12 @@ private val tryBlocksField: Field? = run {
 /**
  * Grows the method's register count to [needed] if it is currently smaller.
  *
- * `MutableMethodImplementation.registerCount` is a `private final int`. Growing
- * it is required when injecting smali code that uses scratch registers beyond
- * the method's original `.registers N`.
- *
- * Smali register semantics for non-static methods with P parameters:
- *   total = locals + (1 + P)   ← 1 for `this`
- *   p0 = v[total - 1 - P], p1 = v[total - P], …
- * Increasing `registerCount` by 1 pushes p0 one slot higher so existing
- * parameter references (p0/p1/…) remain correct — ART re-derives them from
- * the count at verification time.
+ * This is safe only before [clearBody] when replacing the complete body. It is
+ * NOT safe for instruction-preserving injection: existing encoded register
+ * operands are numeric and are not rewritten when the frame grows, so changing
+ * the count can change which parameter a `pN` operand aliases. Injection
+ * callers must use registers already present in the frame or use a
+ * register-aware transformation that rewrites the complete body.
  *
  * Only bump count BEFORE calling [clearBody] + [addInstructions]; bumping
  * after addInstructions has no effect on already-assembled instruction bytes.

@@ -36,9 +36,15 @@ class PatchesListShapeTest {
         patches.forEach { patch ->
             assertTrue(patch["name"].asString.isNotBlank())
             assertTrue(patch["default"].isJsonPrimitive)
+            val optionKeys = mutableSetOf<String>()
             patch["options"].asJsonArray.forEach { option ->
                 val value = option.asJsonObject
-                assertTrue(value["key"].asString.isNotBlank())
+                val key = value["key"].asString
+                assertTrue(key.isNotBlank())
+                assertTrue(optionKeys.add(key), "duplicate option $key on ${patch["name"].asString}")
+                assertTrue(value["title"].asString.isNotBlank())
+                assertTrue(value["type"].asString.isNotBlank())
+                if (value["required"].asBoolean) assertTrue(value.has("default"))
             }
             patch["compatiblePackages"]?.takeUnless { it.isJsonNull }?.asJsonArray?.forEach { packageEntry ->
                 val packageObject = packageEntry.asJsonObject
@@ -46,8 +52,16 @@ class PatchesListShapeTest {
                 check(namesByPackage.getOrPut(packageName) { mutableSetOf() }.add(patch["name"].asString)) {
                     "duplicate patch name ${patch["name"].asString} for $packageName"
                 }
-                packageObject["targets"].asJsonArray.forEach { target ->
-                    assertTrue(target.asJsonObject.has("version"))
+                val targets = packageObject["targets"].asJsonArray
+                assertTrue(targets.size() > 0, "patch must declare at least one target")
+                targets.forEach { target ->
+                    val targetObject = target.asJsonObject
+                    assertTrue(targetObject["version"].asString.isNotBlank())
+                    assertTrue(targetObject["minSdk"].asInt > 0)
+                    targetObject["versionCodes"]?.takeUnless { it.isJsonNull }?.asJsonObject?.entrySet()?.forEach { (abi, code) ->
+                        assertTrue(abi.isNotBlank())
+                        assertTrue(code.asInt > 0)
+                    }
                 }
             }
         }
@@ -115,6 +129,24 @@ class PatchesListShapeTest {
     /**
      * Verify that the Change package name patch is disabled by default to prevent breaking SSO/providers/push.
      */
+    @Test fun everyPatchHasAnAppAndTargets() {
+        val patches = JsonParser.parseString(listJson()).asJsonObject["patches"].asJsonArray
+        patches.forEach { patch ->
+            val apps = patch.asJsonObject["compatiblePackages"].asJsonArray
+            assertTrue(apps.size() > 0, "${patch.asJsonObject["name"].asString} has no app association")
+            apps.forEach { app ->
+                assertTrue(app.asJsonObject["packageName"].asString.contains('.'))
+                assertTrue(app.asJsonObject["targets"].asJsonArray.size() > 0)
+            }
+        }
+    }
+
+    @Test fun riskyRenameDefaultsRemainDisabled() {
+        val patches = JsonParser.parseString(listJson()).asJsonObject["patches"].asJsonArray
+        patches.filter { it.asJsonObject["name"].asString.contains("package name") }
+            .forEach { assertEquals(false, it.asJsonObject["default"].asBoolean) }
+    }
+
     @Test fun renamePatchIsOptIn() {
         // Change package name must stay off by default: renaming breaks
         // package+cert-bound flows (SSO, providers, push). See lessons-learned.
