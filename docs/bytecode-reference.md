@@ -123,7 +123,7 @@ When a fingerprint stops matching, work through this order:
 1. **Version drift?** `aapt dump badging` — confirm the APK is the version the
    fingerprint was written for.
 2. **Read smali fresh.** Find the class across all DEX dirs
-   (`find smali/ -name … | xargs rg -l <sdk-call>`), read the method, and compare
+   (`fd --hidden --no-ignore --type f --name … smali/ | xargs rg -l <sdk-call>`), read the method, and compare
    field-by-field: return type (the descriptor after `)` in the header), access flags
    (**exact** — `public static` ≠ `public static final`), full parameter descriptors
    (SDK package paths move, e.g. `…/purchases/CustomerInfo` → `…/purchases/models/CustomerInfo`),

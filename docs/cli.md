@@ -20,8 +20,8 @@ the Morphe GUI; with a subcommand it is the Morphe CLI. Full upstream reference:
 [Morphe documentation](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
 
 ```bash
-MORPHE="${MORPHE:-$(find ~/.local/share/morphe -maxdepth 1 -type f \
-  -name 'morphe-desktop-*-all.jar' -print0 |
+MORPHE="${MORPHE:-$(fd --hidden --no-ignore --max-depth 1 --type f \
+  --glob 'morphe-desktop-*-all.jar' ~/.local/share/morphe --print0 |
   xargs -0 ls -t | head -n1)}"
 java -jar "$MORPHE" --version
 java -jar "$MORPHE" --help
