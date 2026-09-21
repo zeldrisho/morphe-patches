@@ -203,6 +203,37 @@ downloaded split bundle (`.apkm`) directly to Morphe or
 name, versionCode, ABI/variant, and SHA-256 of the downloaded input.
 Other mirrors are not sources for this project's original APKs.
 
+## Effective repository toolchain
+
+The checked-in and resolved build inputs are currently:
+
+| Layer | Effective value | Source / qualification note |
+| --- | --- | --- |
+| Gradle wrapper | 9.7.1 | `gradle/wrapper/gradle-wrapper.properties` |
+| Morphe patches plugin | 1.3.4 | `settings.gradle.kts` |
+| Morphe patcher libraries | 1.12.0 | `gradle/libs.versions.toml` |
+| Kotlin compiler/runtime | 2.4.10 | Kotlin test catalog and resolved project model |
+| Compile SDK | Android 36 | Morphe plugin default documented in this file |
+| Java | 21 | Repository requirement; verify with `java -version` |
+| D8/R8 | plugin-selected | Not independently pinned by this repository; inspect the build scan/dependency graph before relying on shrinker behavior |
+
+Use these commands to record the effective values for a release or toolchain
+change; do not infer AGP or R8 versions from the Gradle wrapper:
+
+```bash
+./gradlew --version
+./gradlew buildEnvironment --no-daemon
+./gradlew :extensions:threads:dependencies --configuration debugRuntimeClasspath --no-daemon
+./gradlew :extensions:zalo:dependencies --configuration debugRuntimeClasspath --no-daemon
+java -version
+```
+
+The extension modules currently package their compiled DEX through the Morphe
+`extension` plugin and do not declare a standalone R8 configuration. Treat
+shrinker safety as unqualified until the resolved plugin build confirms whether
+R8 runs; the bundle contract task validates the resulting DEX descriptors and
+flags when the artifact is built.
+
 ## Verify setup
 
 ```fish

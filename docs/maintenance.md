@@ -61,20 +61,22 @@ Targets: `patches/src/test/`, Gradle wiring, and `docs/validation.md`.
 
 Targets: `patches/build.gradle.kts` and bundle verification tests.
 
-- Make bundle verification validate exact embedded DEX method descriptors and
-  required public/static flags, rather than only raw symbol/type presence. The
-  current source-level ABI reflection tests are not sufficient for this.
-- Add negative fixtures for missing classes, wrong signatures/flags, corrupt DEX,
-  and cross-app contamination.
+- Bundle verification now validates exact embedded DEX method descriptors and
+  required public/static flags; source-level ABI reflection tests remain useful
+  but are not sufficient alone.
+- Add isolated negative fixtures for missing classes, wrong signatures/flags,
+  corrupt DEX, and cross-app contamination.
 
 ### Fresh structural patch metadata — medium
 
 Targets: the isolated generation task and `PatchesListShapeTest.kt`.
 
-- Cover exact target metadata, risky package-renaming defaults, all declared
-  targets, added/removed patches, stale input, malformed metadata, and
-  release-metadata agreement. Structural tests now validate app association,
-  target presence, option shape, uniqueness within an app, and rename defaults.
+- Add focused fixtures for malformed metadata, added/removed patches, stale
+  input, and release-metadata agreement.
+- Retain coverage for exact target metadata, risky package-renaming defaults,
+  all declared targets, app association, option shape, and uniqueness within an
+  app. Generation now selects the exact versioned bundle and rejects ambiguous
+  artifacts.
 
 ## P2: Runtime tests and performance
 
@@ -111,9 +113,10 @@ Targets: local device-validation procedures and ignored analysis artifacts.
 Targets: `settings.gradle.kts`, Gradle wiring, and `docs/toolchain.md`.
 
 - Record the effective AGP, Gradle, Kotlin, D8/R8, SDK, and Java versions and
-  the combinations supported by `app.morphe.patches`; the repository currently
-  records Java/Gradle setup but not the resolved AGP/R8 versions. Do not infer AGP
-  from the wrapper.
+  the combinations supported by `app.morphe.patches`. Wrapper/plugin/Kotlin/
+  patcher/SDK/Java values and inspection commands are documented; resolved AGP
+  and D8/R8 versions and supported combinations still need confirmation. Do not
+  infer AGP from the wrapper.
 - Upgrade only when needed and supported by Morphe. Check public DSL/variant APIs,
   extension packaging, and Android versus JVM Kotlin configuration separately.
 - Require canonical verification, both extension test suites, embedded DEX

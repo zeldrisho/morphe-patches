@@ -18,14 +18,16 @@ import java.util.jar.Manifest
  * Reads the .mpp bundle from build/libs/, extracts patch metadata, and writes patches-list.json.
  */
 fun main() {
-    val patchFiles = setOf(
-        File("build/libs/").listFiles { file ->
-            val fileName = file.name
-            !fileName.contains("javadoc") &&
-                !fileName.contains("sources") &&
-                fileName.endsWith(".mpp")
-        }!!.first(),
-    )
+    val requested = System.getenv("PATCHES_BUNDLE")?.let(::File)
+    val candidates = requested?.let { listOf(it) } ?: File("build/libs/").listFiles { file ->
+        !file.name.contains("javadoc") &&
+            !file.name.contains("sources") &&
+            file.name.endsWith(".mpp")
+    }?.toList().orEmpty()
+    require(candidates.size == 1 && candidates.single().isFile) {
+        "Expected exactly one distributable .mpp in build/libs; found ${candidates.map { it.name }}"
+    }
+    val patchFiles = setOf(candidates.single())
     val loadedPatches = loadPatchesFromJar(patchFiles)
     val patchClassLoader = URLClassLoader(patchFiles.map { it.toURI().toURL() }.toTypedArray())
     val manifest = patchClassLoader.getResources("META-INF/MANIFEST.MF")

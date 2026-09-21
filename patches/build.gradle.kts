@@ -9,22 +9,6 @@ val extensionArtifacts = mapOf(
     ":extensions:threads" to ("morphe/extensions/extension.mpe" to "extensions/extension.mpe"),
     ":extensions:zalo" to ("morphe/extensions/zalo.mpe" to "extensions/zalo.mpe"),
 )
-val extensionContracts = mapOf(
-    "extensions/extension.mpe" to listOf(
-        "Lcom/zeldrisho/threads/extension/FeedAdFilter;",
-        "filterAds",
-        "Ljava/util/List;",
-    ),
-    "extensions/zalo.mpe" to listOf(
-        "Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;",
-        "checkGmsCore",
-        "Landroid/app/Activity;",
-        "scheduleAccountRefresh",
-        "Ljava/lang/Object;",
-        "Ljava/lang/String;",
-    ),
-)
-
 plugins {
     // Matches the Kotlin 2.4.10 compiler supplied by Morphe; see docs/development.md.
     id("dev.detekt") version "2.0.0-alpha.6"
@@ -59,6 +43,7 @@ dependencies {
     testImplementation(libs.gson)
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.smali)
 }
 
 tasks {
@@ -95,6 +80,14 @@ tasks {
         }
     }
 
+    register<JavaExec>("verifyEmbeddedDexContracts") {
+        description = "Verify exact public static descriptors in embedded extension DEX files"
+        dependsOn("buildAndroid", "testClasses")
+        classpath = sourceSets["test"].runtimeClasspath
+        mainClass.set("com.zeldrisho.patches.bundle.EmbeddedDexContractVerifierKt")
+        args(layout.buildDirectory.file("libs/patches-${project.version}.mpp").get().asFile.absolutePath)
+    }
+
     // The Morphe Gradle plugin publishes the extension modules' build/morphe
     // directories and consumes them as patches resources, so the built .mpp
     // already embeds both extension artifacts. extendWith loads
@@ -104,7 +97,7 @@ tasks {
     // whose Hide-ads patch silently no-ops at runtime.
     register("verifyBundleExtension") {
         description = "Fail fast when the built .mpp misses the embedded extension dex"
-        dependsOn("buildAndroid")
+        dependsOn("buildAndroid", "testClasses", "verifyEmbeddedDexContracts")
         doLast {
             val libs = layout.buildDirectory.dir("libs").get().asFile
             val mpps = libs.listFiles { file ->
@@ -125,13 +118,6 @@ tasks {
                             "check the corresponding extension sync task output."
                     }
                     check(entry.size > 0) { "Embedded extension ${paths.second} is empty" }
-                    val contract = extensionContracts.getValue(paths.second)
-                    val dexText = zip.getInputStream(entry).use { it.readBytes().toString(Charsets.ISO_8859_1) }
-                    contract.forEach { symbol ->
-                        check(dexText.contains(symbol)) {
-                            "Embedded extension ${paths.second} is missing required DEX symbol $symbol"
-                        }
-                    }
                 }
                 check(
                     zip.entries().asSequence()
@@ -150,6 +136,7 @@ tasks {
         dependsOn(build)
         classpath = sourceSets["main"].runtimeClasspath + patchListGeneratorClasspath
         mainClass.set("util.PatchListGeneratorKt")
+        environment("PATCHES_BUNDLE", layout.buildDirectory.file("libs/patches-${project.version}.mpp").get().asFile.absolutePath)
     }
 
     register("qualifyZaloApk") {
@@ -242,6 +229,7 @@ tasks {
         classpath = sourceSets["main"].runtimeClasspath + patchListGeneratorClasspath
         mainClass.set("util.PatchListGeneratorKt")
         environment("PATCHES_LIST_OUTPUT", output.get().asFile.absolutePath)
+        environment("PATCHES_BUNDLE", layout.buildDirectory.file("libs/patches-${project.version}.mpp").get().asFile.absolutePath)
     }
 }
 
