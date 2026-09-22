@@ -1,15 +1,12 @@
 # Zalo 26.08.01 validation journey
 
-This is a versioned execution specification, not a recorded device result.
-Run it only with the procedure in [`validation.md`](../validation.md). Keep
-artifacts outside Git.
+Blank execution sheet. Follow [validation](../validation.md) for stock/control/patched
+builds, throwaway accounts, result recording, and private evidence handling.
 
 ## Matrix
 
 - Package: `com.zing.zalo`
 - Version code: `260801903`
-- Builds: stock/control and selected patch build
-- Account: throwaway test account
 - Provider: absent/disabled for provider journey; enabled for Drive journey
 
 ## Journey
@@ -23,7 +20,3 @@ artifacts outside Git.
 | Account picker | Selected `app.revanced` account is returned | UNEXECUTED | |
 | Drive refresh | Selected account replaces stale account state | UNEXECUTED | |
 | Notification | Intended notifications remain available | UNEXECUTED | |
-
-Record package/version, APK and bundle hashes, device/Android version, enabled
-patches, and signing fingerprint. Do not record accounts, tokens, screenshots,
-UI dumps, or logs in this repository.
