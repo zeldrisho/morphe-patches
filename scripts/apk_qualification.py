@@ -7,7 +7,7 @@ EXPECTED_VERSION_CODE = "260801903"
 def validate_identity(
     metadata, *, package=EXPECTED_PACKAGE, version_code=EXPECTED_VERSION_CODE
 ):
-    """Validate the package/version fields parsed from one APK or split."""
+    """Raise ``ValueError`` unless parsed APK identity matches the expected build."""
     actual_package = metadata.get("package")
     actual_version = str(metadata.get("versionCode", ""))
     if actual_package != package:
@@ -17,7 +17,7 @@ def validate_identity(
 
 
 def validate_split(base_metadata, split_metadata, base_certificate, split_certificate):
-    """Validate a split against the already-qualified base APK."""
+    """Raise ``ValueError`` unless a split matches the base identity and signer."""
     validate_identity(
         split_metadata,
         package=base_metadata["package"],
@@ -30,7 +30,7 @@ def validate_split(base_metadata, split_metadata, base_certificate, split_certif
 
 
 def validate_input_certificate(certificate, *, expected=None):
-    """Reject missing certificates and optionally enforce a known stock digest."""
+    """Return a stripped input digest after optionally enforcing a stock digest."""
     if not certificate or not certificate.strip():
         raise ValueError("input APK has no signing certificate")
     if expected is not None and certificate.strip() != expected.strip():
@@ -41,7 +41,7 @@ def validate_input_certificate(certificate, *, expected=None):
 
 
 def validate_output_certificate(certificate, *, expected):
-    """Validate a produced APK against its separately configured output signer."""
+    """Return a stripped output digest after matching the configured signer."""
     if not certificate or not certificate.strip():
         raise ValueError("output APK has no signing certificate")
     if not expected or not expected.strip():

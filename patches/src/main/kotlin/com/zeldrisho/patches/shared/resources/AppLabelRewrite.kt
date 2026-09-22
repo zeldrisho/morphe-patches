@@ -3,7 +3,11 @@ package com.zeldrisho.patches.shared.resources
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
-/** Applies an app label to the application and its target launcher activity. */
+/**
+ * Sets the application label and, when present, the matching launcher activity label.
+ *
+ * @throws IllegalStateException when the manifest has no `<application>` element.
+ */
 fun rewriteAppLabel(document: Document, newName: String, launcherActivity: String) {
     val application = document.getElementsByTagName("application").item(0) as? Element
         ?: error("AndroidManifest.xml has no <application> element")

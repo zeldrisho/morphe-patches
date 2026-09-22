@@ -49,9 +49,10 @@ public final class FeedAdFilter {
   private FeedAdFilter() {}
 
   /**
-   * Returns {@code items} minus ad units (same instance if nothing removed, so immutable inputs are
-   * safe). Ad detection: direct {@code DED()/DGK()} (X/1qQ ad headers on 434, X/2xO on 445), else
-   * the unit's media {@code A05() -> Media.DED()/DGK()}, else thread-carried media ({@code A02() ->
+   * Returns {@code items} minus ad units. A null input stays null, and the original list instance
+   * is returned when no ad is removed or scanning throws, so immutable inputs are safe. Ad
+   * detection: direct {@code DED()/DGK()} (X/1qQ ad headers on 434, X/2xO on 445), else the unit's
+   * media {@code A05() -> Media.DED()/DGK()}, else thread-carried media ({@code A02() ->
    * ThreadIntf.Ckh()/Cnd() -> ThreadItem.CDh()/CIV() -> Media.DED()/DGK()}).
    */
   public static List<?> filterAds(List<?> items) {

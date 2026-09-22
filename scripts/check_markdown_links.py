@@ -35,10 +35,12 @@ def heading_anchors(lines):
 
 
 def anchors(path):
+    """Return all GitHub-style heading anchors in a Markdown file."""
     return heading_anchors(path.read_text(encoding="utf-8").splitlines())
 
 
 def main():
+    """Report invalid local Markdown links and return a process status code."""
     errors = []
     for path in ROOT.rglob("*.md"):
         if any(part in {".git", "build", ".gradle", "analysis"} for part in path.parts):

@@ -30,7 +30,7 @@ def die(msg):
 
 
 def validate_download_url(url):
-    """Allow only HTTPS URLs hosted by GitHub or its release asset CDN."""
+    """Return a credential-free, default-port HTTPS URL for an allowed GitHub host."""
     parsed = urlparse(url)
     host = (parsed.hostname or "").lower().rstrip(".")
     if parsed.scheme != "https" or parsed.username or parsed.password:
@@ -43,7 +43,11 @@ def validate_download_url(url):
 
 
 def download(url, destination=None):
-    """Fetch a GitHub URL while validating every redirect destination."""
+    """Fetch an allowed GitHub URL while validating every redirect destination.
+
+    Return the response bytes when ``destination`` is omitted; otherwise write the
+    response to that path and return ``None``.
+    """
     opener = urllib.request.build_opener(NoRedirectHandler())
     current = validate_download_url(url)
     for _ in range(MAX_REDIRECTS + 1):

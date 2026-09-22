@@ -27,10 +27,12 @@ def die(msg):
 
 
 def version_tuple(value):
+    """Convert a dot-separated numeric version into a comparable tuple."""
     return tuple(map(int, value.split(".")))
 
 
 def reachable_stable_tags():
+    """Return stable version tags reachable from ``HEAD``, ordered by version."""
     output = run(
         "git",
         "for-each-ref",
@@ -48,6 +50,11 @@ def reachable_stable_tags():
 
 
 def changelog_state(text, target, repo):
+    """Validate release notes and tag history, then return changelog insertion state.
+
+    The result contains the changelog lines, the Unreleased section index, the next
+    section index, and the previous release version. Invalid state exits the script.
+    """
     lines = text.splitlines()
     if lines.count("## Unreleased") != 1:
         die("CHANGELOG.md must have exactly one '## Unreleased' section")
@@ -107,6 +114,7 @@ def changelog_state(text, target, repo):
 
 
 def main():
+    """Validate, regenerate, and commit release artifacts with rollback on failure."""
     parser = argparse.ArgumentParser()
     parser.add_argument("version")
     args = parser.parse_args()

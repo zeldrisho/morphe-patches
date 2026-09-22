@@ -14,8 +14,10 @@ import java.net.URLClassLoader
 import java.util.jar.Manifest
 
 /**
- * Entry point for generating patches-list.json from the compiled patch bundle.
- * Reads the .mpp bundle from build/libs/, extracts patch metadata, and writes patches-list.json.
+ * Generates `patches-list.json` from one compiled patch bundle.
+ *
+ * `PATCHES_BUNDLE` may select the input; otherwise exactly one distributable `.mpp` must exist in
+ * `build/libs/`.
  */
 fun main() {
     val requested = System.getenv("PATCHES_BUNDLE")?.let(::File)
@@ -43,7 +45,8 @@ fun main() {
 }
 
 /**
- * Generates the patches-list.json file from a set of loaded patches.
+ * Validates and writes `patches-list.json`, using `PATCHES_LIST_OUTPUT` when configured.
+ *
  * @param version The patch bundle version string from the manifest.
  * @param patches The set of patches loaded from the bundle JAR.
  */

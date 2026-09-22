@@ -13,6 +13,7 @@ def _value(element, name):
 
 
 def security_snapshot(xml_text):
+    """Return comparable security-relevant declarations from a manifest string."""
     root = ET.fromstring(xml_text)
     permissions = sorted(
         element.get(ANDROID + "name", "")
@@ -67,6 +68,7 @@ def security_snapshot(xml_text):
 
 
 def security_delta(original_xml, patched_xml):
+    """Return declarations added to or removed from a patched manifest."""
     original = security_snapshot(original_xml)
     patched = security_snapshot(patched_xml)
     return {
@@ -79,6 +81,7 @@ def security_delta(original_xml, patched_xml):
 
 
 def main():
+    """Print the security delta between two manifest files as JSON."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("original", type=Path, help="original AndroidManifest.xml")
     parser.add_argument("patched", type=Path, help="patched AndroidManifest.xml")

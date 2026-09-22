@@ -5,10 +5,12 @@ import com.google.gson.JsonParser
 
 /** Structural validation shared by generation and isolated metadata-fixture tests. */
 object PatchListValidator {
+    /** Validates a serialized patch-list document. */
     fun validate(json: String) {
         validate(JsonParser.parseString(json).asJsonObject)
     }
 
+    /** Validates required patch metadata and uniqueness within each compatible package. */
     fun validate(root: JsonObject) {
         require(root["version"]?.isJsonPrimitive == true && root["version"].asString.isNotBlank()) {
             "patch list is missing version"

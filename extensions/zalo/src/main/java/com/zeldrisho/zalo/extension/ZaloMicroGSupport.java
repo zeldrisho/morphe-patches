@@ -44,7 +44,13 @@ public final class ZaloMicroGSupport {
         && packageInfo.applicationInfo.enabled;
   }
 
-  /** Checks the provider and prompts only when it is definitely unavailable. */
+  /**
+   * Checks the optional provider and prompts when it is missing or disabled.
+   *
+   * @return {@code false} when the provider is unavailable so the current operation can stop;
+   *     {@code true} when the provider is enabled, the activity is null, or the check fails
+   *     unexpectedly
+   */
   public static boolean checkGmsCore(Activity activity) {
     if (activity == null) return true;
     return checkGmsCore(
@@ -56,6 +62,7 @@ public final class ZaloMicroGSupport {
         ZaloMicroGSupport::showInstallDialog);
   }
 
+  /** Performs the provider check through the supplied resolver and prompt callbacks. */
   static boolean checkGmsCore(Activity activity, ProviderResolver resolver, InstallPrompt prompt) {
     if (activity == null) return true;
     try {
@@ -73,12 +80,19 @@ public final class ZaloMicroGSupport {
     }
   }
 
-  /** Schedules one refresh per view; a newer account replaces the older request. */
+  /**
+   * Schedules a delayed Drive refresh for the selected account. Invalid arguments are ignored, and
+   * a newer selection for the same view cancels its pending refresh.
+   *
+   * @param view the Zalo Drive view to refresh
+   * @param accountName the selected account name
+   */
   public static void scheduleAccountRefresh(Object view, String accountName) {
     if (view == null || accountName == null || accountName.isEmpty()) return;
     scheduleAccountRefresh(view, accountName, new HandlerScheduler(handler()));
   }
 
+  /** Schedules through {@code scheduler}, replacing any pending refresh for the same view. */
   static void scheduleAccountRefresh(Object view, String accountName, RefreshScheduler scheduler) {
     if (view == null || accountName == null || accountName.isEmpty()) return;
     RefreshRequest request = new RefreshRequest(view, accountName);
@@ -157,6 +171,7 @@ public final class ZaloMicroGSupport {
     return !finishing && !destroyed;
   }
 
+  /** Shows the install prompt on a usable activity and dispatches the selected callback. */
   private static void showInstallDialog(Activity activity, Runnable install, Runnable cancel) {
     if (!canShowInstallDialog(activity)) return;
     try {
@@ -173,6 +188,9 @@ public final class ZaloMicroGSupport {
     }
   }
 
+  /**
+   * Opens the configured download page without failing the host app when no browser is available.
+   */
   private static void openDownload(Activity activity) {
     try {
       activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(GMS_CORE_DOWNLOAD)));
