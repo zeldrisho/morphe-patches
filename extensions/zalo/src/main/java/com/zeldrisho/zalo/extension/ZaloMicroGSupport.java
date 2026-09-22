@@ -150,8 +150,11 @@ public final class ZaloMicroGSupport {
       Object target = view.get();
       try {
         if (target != null) {
-          java.lang.reflect.Method refresh = target.getClass().getMethod("A6", String.class);
-          refresh.invoke(target, accountName);
+          synchronized (REFRESH_LOCK) {
+            if (PENDING_REFRESHES.get(target) != this) return;
+            java.lang.reflect.Method refresh = target.getClass().getMethod("A6", String.class);
+            refresh.invoke(target, accountName);
+          }
         }
       } catch (ReflectiveOperationException | RuntimeException ignored) {
         // A changed/hidden Zalo method must not crash the host app.

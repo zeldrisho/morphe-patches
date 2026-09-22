@@ -119,6 +119,18 @@ public class ZaloMicroGSupportTest {
     assertNotSame(scheduler.cancelled.get(0), scheduler.scheduled.get(1));
   }
 
+  @Test
+  public void cancelledCallbackDoesNotRefreshThePreviousAccount() {
+    RecordingScheduler scheduler = new RecordingScheduler();
+    RefreshTarget target = new RefreshTarget();
+    ZaloMicroGSupport.scheduleAccountRefresh(target, "first@example.com", scheduler);
+    ZaloMicroGSupport.scheduleAccountRefresh(target, "second@example.com", scheduler);
+
+    scheduler.scheduled.get(0).run();
+
+    assertEquals(0, target.refreshCount);
+  }
+
   private static Constructor<?> refreshRequestConstructor() throws Exception {
     Class<?> requestClass =
         Class.forName("com.zeldrisho.zalo.extension.ZaloMicroGSupport$RefreshRequest");
@@ -131,6 +143,15 @@ public class ZaloMicroGSupportTest {
     @SuppressWarnings("unused")
     public void A6(String accountName) {
       throw new IllegalStateException("simulated stale lifecycle target");
+    }
+  }
+
+  private static final class RefreshTarget {
+    int refreshCount;
+
+    @SuppressWarnings("unused")
+    public void A6(String accountName) {
+      refreshCount++;
     }
   }
 

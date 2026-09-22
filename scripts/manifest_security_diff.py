@@ -59,9 +59,13 @@ def security_snapshot(xml_text):
             for element in root.findall("queries/provider")
         ),
         "queries_intents": sorted(
-            tuple(sorted(child.attrib.items()))
+            tuple(
+                sorted(
+                    (child.tag, tuple(sorted(child.attrib.items())))
+                    for child in element
+                )
+            )
             for element in root.findall("queries/intent")
-            for child in element
         ),
     }
     return {"permissions": permissions, "components": sorted(components), **queries}

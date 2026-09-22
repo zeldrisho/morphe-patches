@@ -61,6 +61,25 @@ class ManifestSecurityDiffTest(unittest.TestCase):
         self.assertEqual(delta["queries_providers"]["added"], ["com.example.files"])
         self.assertTrue(delta["queries_intents"]["added"])
 
+    def test_query_intent_tags_and_parent_grouping_are_preserved(self):
+        original = MANIFEST.replace(
+            "</manifest>",
+            """<queries>
+    <intent><action android:name="android.intent.action.SEND" /></intent>
+    <intent><category android:name="android.intent.category.DEFAULT" /></intent>
+  </queries></manifest>""",
+        )
+        patched = MANIFEST.replace(
+            "</manifest>",
+            """<queries><intent>
+      <action android:name="android.intent.action.SEND" />
+      <category android:name="android.intent.category.DEFAULT" />
+    </intent></queries></manifest>""",
+        )
+        delta = DIFF.security_delta(original, patched)
+        self.assertTrue(delta["queries_intents"]["removed"])
+        self.assertTrue(delta["queries_intents"]["added"])
+
 
 if __name__ == "__main__":
     unittest.main()

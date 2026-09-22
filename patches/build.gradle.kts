@@ -262,7 +262,7 @@ tasks {
 
     register<JavaExec>("generatePatchesListForVerification") {
         description = "Generate current-source patch metadata in an isolated build directory"
-        dependsOn("classes")
+        dependsOn("classes", "buildAndroid")
         val output = layout.buildDirectory.file("verification/patches-list.json")
         outputs.file(output)
         doFirst { output.get().asFile.parentFile.mkdirs() }

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -63,18 +64,22 @@ public final class FeedAdFilter {
     // found, copy the retained prefix and continue into a new mutable result.
     ArrayList<Object> out = null;
     try {
-      for (int index = 0; index < items.size(); index++) {
-        Object item = items.get(index);
+      Iterator<?> iterator = items.iterator();
+      int index = 0;
+      while (iterator.hasNext()) {
+        Object item = iterator.next();
         if (isAdUnit(item)) {
           if (out == null) {
             out = new ArrayList<>(items.size() - 1);
+            Iterator<?> prefixIterator = items.iterator();
             for (int prefix = 0; prefix < index; prefix++) {
-              out.add(items.get(prefix));
+              out.add(prefixIterator.next());
             }
           }
         } else if (out != null) {
           out.add(item);
         }
+        index++;
       }
     } catch (Throwable ignored) {
       // Any failure -> return the original untouched.

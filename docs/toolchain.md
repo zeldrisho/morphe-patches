@@ -8,7 +8,7 @@ blocks in bash. For routine work, use [development verification](development.md#
 Fedora WSL includes `python3`. Install host tools and isolated Python applications:
 
 ```fish
-sudo dnf install -y uv curl fish git unzip zip ripgrep binutils bash jq gh
+sudo dnf install -y uv curl fish git unzip zip ripgrep fd-find binutils bash jq gh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fish_add_path /home/linuxbrew/.linuxbrew/bin
