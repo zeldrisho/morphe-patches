@@ -4,6 +4,8 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+## [1.6.0](https://github.com/zeldrisho/morphe-patches/compare/v1.5.0...v1.6.0) (2026-09-22)
+
 ### 🐛 Bug Fixes
 * **Zalo - microG Drive support:** Declares MicroG-RE package visibility so Android package filtering does not hide the installed provider.
 * **Zalo - microG Drive support:** Corrects the installation prompt's download link to the official Morphe MicroG page.
