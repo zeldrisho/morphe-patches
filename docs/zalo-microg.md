@@ -9,8 +9,8 @@ Google OAuth or Drive authorization.
 - Refreshes Drive state after the picker and supplies stock certificate metadata.
 - Checks the provider before Drive operations and declares
   `app.revanced.android.gms` in manifest `<queries>` for package visibility.
-- Opens [upstream MicroG-RE releases](https://github.com/MorpheApp/MicroG-RE/releases)
-  from the installation prompt, not a project fork.
+- Opens the [official Morphe MicroG download page](https://morphe.software/microg)
+  from the installation prompt.
 
 ## Issue #11: installed MicroG-RE was not recognized
 

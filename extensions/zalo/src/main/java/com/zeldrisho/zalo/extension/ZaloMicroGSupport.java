@@ -16,8 +16,7 @@ import java.util.WeakHashMap;
 @SuppressWarnings("unused")
 public final class ZaloMicroGSupport {
   private static final String GMS_CORE_PACKAGE = "app.revanced.android.gms";
-  private static final String GMS_CORE_DOWNLOAD =
-      "https://github.com/MorpheApp/MicroG-RE/releases/latest";
+  private static final String GMS_CORE_DOWNLOAD = "https://morphe.software/microg";
   private static final long ACCOUNT_REFRESH_DELAY_MS = 250L;
   private static volatile Handler mainHandler;
   private static final Object REFRESH_LOCK = new Object();
