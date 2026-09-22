@@ -193,7 +193,12 @@ def main():
             flags=re.MULTILINE,
         )
         props.write_text(updated)
-        run("./gradlew", "generatePatchesList", "--no-daemon")
+        # The generator depends on the Gradle build lifecycle, whose test task
+        # validates the already-generated root metadata. Skip that test here so
+        # the generator can refresh the metadata first; verification is a
+        # prerequisite of release staging and the generated files are validated
+        # below before they are committed.
+        run("./gradlew", "generatePatchesList", "--no-daemon", "-x", "test")
         list_path = ROOT / "patches-list.json"
         data = json.loads(list_path.read_text())
         data["version"] = version
