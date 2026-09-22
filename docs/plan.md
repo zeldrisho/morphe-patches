@@ -9,9 +9,10 @@ documentation work are tracked in the [repository maintenance plan](maintenance.
 including the comparisons with Doom's and Hoodles' Morphe Patches. The current
 maintenance implementation has completed bundle/metadata checks, split APK
 qualification, certificate fixtures, manifest-diff tooling, and toolchain
-inventory. Remaining maintenance work is limited to deeper Android extension
-failure-path tests and release-time repeated/output-signing checks; device
-journeys and performance remain intentionally skipped.
+inventory, and fresh patch-metadata fixtures. Remaining maintenance work is
+limited to the final Android extension failure paths and release-time
+repeated/output-signing checks; device journeys and performance remain
+intentionally skipped.
 The [reference checkout review](reference-review.md) records the completed
 comparison, exact upstream revisions, recovery instructions, and exclusions;
 local example checkouts are no longer required.
@@ -59,7 +60,14 @@ selected-patch build:
 - Keep all results PASS, FAIL, or BLOCKED with hashes, device/Android version,
   enabled patches, and sanitized evidence outside Git.
 
-### Next device-validation batch
+### Next device-validation batch — blocked pending device
+
+The pinned APKM is available at the Windows Downloads path supplied during
+validation and matches SHA-256
+`b5deaaef517d1ab666cfe6b1d5280969738e054d4765a72d0bafede2a8aa6e88`.
+Local qualification passed package, version, stock certificate, arm64 ABI,
+native-library, and unsupported-ABI checks. `adb devices` currently reports no
+connected device, so the following batch remains unexecuted.
 
 Run this against the APKM represented by `analysis/zalo/26.08.01/apk/`, its
 minimally re-signed no-patch control, and the selected-patch build:

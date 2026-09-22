@@ -10,11 +10,14 @@ object PatchListValidator {
     }
 
     fun validate(root: JsonObject) {
-        require(root["version"]?.isJsonPrimitive == true) { "patch list is missing version" }
+        require(root["version"]?.isJsonPrimitive == true && root["version"].asString.isNotBlank()) {
+            "patch list is missing version"
+        }
         val patches = root["patches"]?.takeIf { it.isJsonArray }?.asJsonArray
             ?: error("patch list is missing patches array")
         val namesByPackage = mutableMapOf<String, MutableSet<String>>()
         patches.forEach { element ->
+            require(element.isJsonObject) { "patch entry is not an object" }
             val patch = element.asJsonObject
             val name = patch["name"]?.takeIf { it.isJsonPrimitive }?.asString
                 ?.takeIf { it.isNotBlank() } ?: error("patch has no name")

@@ -30,6 +30,9 @@ class PatchesListShapeTest {
      */
     @Test fun metadataIsStructurallyValid() {
         val root = JsonParser.parseString(listJson()).asJsonObject
+        System.getProperty("patches.project.version")?.let { expected ->
+            assertEquals(expected, root["version"].asString, "generated metadata must match release version")
+        }
         assertTrue(root["version"].isJsonPrimitive)
         val patches = root["patches"].asJsonArray.map { it.asJsonObject }
         val namesByPackage = mutableMapOf<String, MutableSet<String>>()
@@ -89,6 +92,7 @@ class PatchesListShapeTest {
      * Verify that exactly 20 patches are present with no leftover template scaffolding.
      */
     @Test fun patchCountMatchesSources() {
+        // Exact-name comparison catches both added patches and removed patches.
         // Exactly 20 patches (4 Threads + 16 Zalo) — template scaffolding was removed,
         // so any extra entry (e.g. a resurrected "Example Patch") fails loudly.
         // Note: "name" also appears on compatiblePackages entries ("Threads", "Zalo"),

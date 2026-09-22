@@ -72,16 +72,17 @@ Targets: `patches/build.gradle.kts` and bundle verification tests.
 - Negative archive fixtures reject missing and cross-app artifacts; descriptor,
   flag, class, and corrupt DEX failures remain enforced by the verifier.
 
-### Fresh structural patch metadata — medium
+### Fresh structural patch metadata — complete
 
-Targets: the isolated generation task and `PatchesListShapeTest.kt`.
+Targets: the isolated generation task, `PatchListValidatorTest.kt`, and
+`PatchesListShapeTest.kt`.
 
-- Add focused fixtures for malformed metadata, added/removed patches, stale
-  input, and release-metadata agreement.
-- Retain coverage for exact target metadata, risky package-renaming defaults,
-  all declared targets, app association, option shape, and uniqueness within an
-  app. Generation now selects the exact versioned bundle and rejects ambiguous
-  artifacts.
+- Fixtures now cover malformed metadata, duplicate/changed patch entries,
+  stale or blank version input, and generated metadata agreement with the
+  project release version.
+- Exact target metadata, risky package-renaming defaults, all declared targets,
+  app association, option shape, and uniqueness within an app remain covered.
+  Generation selects the exact versioned bundle and rejects ambiguous artifacts.
 
 ## P2: Runtime tests and performance
 
@@ -92,9 +93,11 @@ Targets: `extensions/zalo/src/test/` and `extensions/threads/src/test/`.
 - Provider enabled/disabled/missing/null-application cases and invalid refresh
   input coverage are implemented; Threads feed filtering has broad shape and
   cache coverage.
+- Delayed refresh reflection failures, null/stale targets, and thrown target
+  exceptions are now covered by unit tests.
 - Remaining Zalo cases: package-manager failure, dialog cancellation, unavailable
-  browser, finishing/destroyed activities, delayed refresh reflection failures,
-  stale lifecycle views, repeated selection, and coalescing.
+  browser, finishing/destroyed activities, and an observable repeated-selection
+  coalescing test. The latter require platform-backed seams or device validation.
 - Add focused platform-backed tests without introducing a DI framework or generic
   UI stack. Keep real provider/OAuth behavior separately device-qualified.
 

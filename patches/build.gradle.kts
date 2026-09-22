@@ -50,6 +50,7 @@ tasks {
     test {
         dependsOn("generatePatchesListForVerification")
         systemProperty("patches.list.path", layout.buildDirectory.file("verification/patches-list.json").get().asFile.absolutePath)
+        systemProperty("patches.project.version", project.version.toString())
         // Make opt-in local APK validation cache-correct; CI uses synthetic fixtures.
         val apkInputs = listOf("THREADS_TEST_APK", "ZALO_TEST_APK")
         apkInputs.forEach { variable ->
