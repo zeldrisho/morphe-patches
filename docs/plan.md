@@ -5,17 +5,13 @@ This roadmap is scoped to Zalo Android APK `26.08.01` (version code
 under the ignored `analysis/zalo/26.08.01/` directory.
 
 Cross-app structure, patch safety, tests, tooling, release safeguards, and
-documentation work are tracked in the [repository maintenance plan](maintenance.md),
-including the comparisons with Doom's and Hoodles' Morphe Patches. The current
-maintenance implementation has completed bundle/metadata checks, split APK
-qualification, certificate fixtures, manifest-diff tooling, and toolchain
-inventory, and fresh patch-metadata fixtures. Remaining maintenance work is
-limited to the final Android extension failure paths and release-time
+documentation work are tracked in the [repository maintenance plan](maintenance.md).
+The current maintenance implementation has completed bundle/metadata checks,
+split APK qualification, certificate fixtures, manifest-diff tooling, and
+toolchain inventory, and fresh patch-metadata fixtures. Remaining maintenance
+work is limited to the final Android extension failure paths and release-time
 repeated/output-signing checks; device journeys and performance remain
 intentionally skipped.
-The [reference checkout review](reference-review.md) records the completed
-comparison, exact upstream revisions, recovery instructions, and exclusions;
-local example checkouts are no longer required.
 
 zStyle is excluded. Video Original quality is also excluded: the pinned APK
 contains `VIDEO` and `VIDEO_HD`, but no `VIDEO_ORIGINAL` path.
@@ -163,199 +159,106 @@ account or mutate HTTP traffic.
 - Treat Google OAuth/provider authorization as a backend boundary, not a local
   unlock. zCloud is out of scope for this investigation.
 
-## Candidates from Zalo Patch
+## Remaining Zalo investigations
 
-Reference implementation: [Zalo Patch at `deadb56f`](https://github.com/amarinne/zalo-patch/tree/deadb56fd586e68bd643ea5ea6cae3960996c9a0), primarily
-`app/src/main/java/com/ez/zalopatch/`;
-[the module release repository at `6f9d3bf`](https://github.com/Xposed-Modules-Repo/com.ez.zalopatch/tree/6f9d3bf2bb32d000c514fd7b8f3eb880ab81db76)
-contains release documentation only. Upstream targets 26.08.02 (`260802903`), not our
-pinned 26.08.01. These are investigation leads, not verified compatible patches.
-Apply the evidence and classification requirements above to every candidate.
-
-Use patch-time fingerprints and app-specific extension code where needed; do
-not port LSPosed/root plumbing or remote symbol catalogs wholesale. Preserve
-license notices if reusing source. Continue with native backup scheduling.
+Only items without a completed implementation or sufficient runtime evidence
+remain here. Use patch-time fingerprints and app-specific extension code; do not
+add broad runtime plumbing or remote symbol catalogs.
 
 ### P1: Configurable native backup interval
 
-- Extend the automatic backup investigation using
-  `xposed/features/BackupPushFeature.java` and `BackupPushDecision.java`.
 - Trace `SERVER_CONFIG_SYNC_MESSAGE_INTERVAL_*` and investigate 1/3/6/12-hour
   scheduling while preserving native opt-in, authentication, network, and other
   backup guards.
 - Verify completed backups and restore round trips, not merely timer execution;
-  measure battery/network impact and account-switch behavior.
-- Repeat stock, minimally re-signed control, and selected-patch measurements on the
-  same device for wakeups, network use, backup completion, and battery impact;
-  establish variance before setting regression thresholds.
-- This is not a zCloud entitlement or OAuth fix.
+  measure battery/network impact, wakeups, network use, and account switching.
+- Repeat stock, minimally re-signed control, and selected-patch measurements on
+  the same device before setting regression thresholds.
 
-### P2: Inbox category controls
+### P2: Inbox and navigation controls
 
-- Investigate `xposed/features/InboxFeature.java` for chats, groups, official
-  accounts, strangers, and a configurable initial filter.
-- Preserve the original dataset and verify unread counts, refresh, pagination,
-  search, category switching, and correct handling of unknown categories.
+- Re-hunt stable 26.08.01 anchors for chat/group/official-account/stranger
+  categories and a configurable initial filter. Preserve datasets, unread counts,
+  refresh, pagination, search, and unknown-category handling.
+- Re-hunt the main-tab, Me, media-box, and inbox-banner surfaces before changing
+  UI. Prove a container is promotional-only; preserve alerts and backup access.
+  Prefer exact IDs and scoped resource or binding changes; test localization,
+  accessibility, badges, deep links, and resume behavior.
 
 ### P2: Open ordinary content links externally
 
-- Investigate `xposed/features/WebLinkExternalizeFeature.java` and
-  `WebLinkExternalizeGate.java`; additional cross-app leads are Doom's
-  `messenger/linkhandling/OpenLinksExternallyPatch.kt` and Hoodles'
-  `googlenews/customtabs/EnableCustomTabsPatch.kt` under their source roots below.
 - Trace the exact 26.08.01 URL dispatch boundary. Limit external dispatch to
-  validated HTTP(S) content links; keep mini-app, OA H5, Zalo-owned authenticated,
-  payment, OAuth, and non-web flows in their intended handlers.
+  validated HTTP(S) content links; keep mini-app, OA H5, authenticated, payment,
+  OAuth, and non-web flows in their intended handlers.
 - Test malformed URLs, absent browsers, cancellation, redirects, chat/feed links,
-  login/payment journeys, and unchanged deep links. Preserve a safe in-app fallback;
-  do not force browser eligibility or copy an unconditional all-links override.
+  login/payment journeys, unchanged deep links, and a safe in-app fallback.
 
-### P3: Optional navigation and promotional UI cleanup
+### P2: Analytics and privacy candidates
 
-- Investigate `xposed/features/BottomTabsFeature.java` for Discovery/Timeline
-  visibility, the native Group tab, and Messages as the initial destination.
-  Validate tab indices, badges, pager/icon alignment, refresh, resume, and deep links.
-- Investigate `MeCleanupFeature.java`, `InboxFeature.java`, and
-  `ZcloudBannerFeature.java` for selected Me rows, the media box, and the inbox
-  `messageslist` / `fixed_banner_container` surface. Prove that a selected
-  container is promotional-only before hiding it; preserve alerts and backup access.
-- Keep these independent optional controls, not an entitlement unlock or an
-  extension of Hide business box. zStyle remains excluded. Prefer exact item IDs
-  and scoped binding/resource changes over framework-wide hooks, text heuristics,
-  or reflective field-order assumptions; test localization and accessibility.
+- Trace the analytics Room DAO and upload workers before suppressing writes;
+  avoid null DAOs and preserve application stability. Decide whether a separate
+  opt-in analytics patch is justified.
+- Evaluate a Zalo-scoped advertising-ID reduction only after confirming all app
+  and SDK consumers. Preserve unrelated advertising and attribution behavior.
+- Keep capture controls, notification history, and call recording as separate,
+  default-off investigations requiring privacy, consent, storage, and second-
+  account validation. Do not globally clear security flags.
 
-### P2: Hide long-press reaction row
+### P3: Security and appearance
 
-- Investigate `xposed/features/ChatFeature.java` to hide only emoji reactions in
-  the message popup, preserving copy, reply, forward, and other actions.
-- Validate different message types, popup layouts, and accessibility.
-
-### P2: Local notification history
-
-- Investigate `NotificationHistoryStore.java` and
-  `xposed/features/NotificationFeature.java` for opt-in local capture with bounded
-  retention, account isolation, explicit export, and deletion.
-- Store sensitive content privately; export only to a user-selected location and
-  test duplicates, redacted notifications, process death, and retention cleanup.
-- Describe this as observed notification history, not complete message history
-  or recovery of unseen/deleted messages.
-
-### P3: One-to-one call audio recording
-
-- Investigate `xposed/features/CallRecordingFeature.java` and its lifecycle helper
-  for the native ZRTC recorder; do not assume group-call or video capture support.
-- Require default-off opt-in, visible recording status, consent requirements,
-  private storage, explicit export/delete, and bounded storage use.
-- Test both audio directions, Bluetooth/headsets, interruptions, overlapping
-  lifecycle events, low storage, process death, and incomplete-file recovery.
-
-### P3: Configurable passcode grace period
-
-- Investigate `xposed/features/PasscodeGraceFeature.java` and the
-  `SaveActiveTimePasscodeSetting` preference path.
-- Keep this security-sensitive option default-off with a clear warning; preserve
-  authentication and avoid changing unrelated preference reads.
-- Validate background/resume, device locking, process restart, and grace expiry.
-
-### Existing patch coverage comparison
-
-- Compare upstream ads, telemetry, AD_ID removal, and promotional filtering with
-  our current patches; add only proven coverage gaps, not duplicate features.
-- Specifically compare `TelemetryFeature.java` Firebase event/measurement-binding
-  paths and `ZinstantFeature.java` message/feed ad views against our analytics DAO,
-  Crashlytics, Adtima, and sponsored-config gates. These are unverified coverage
-  leads, not established missing behavior on 26.08.01. Do not globally intercept
-  service binding, generic transport, or mini-app script dispatch.
-- Preserve chat, calls, alerts, and other non-promotional behavior. Keep the
-  existing promotional-filter device validation below as a release requirement.
-
-## Candidates from Doom's Morphe Patches
-
-Reference: [Doom's Morphe Patches at `51561b0`](https://github.com/rushiranpise/morphe-patches/tree/51561b07a5293663be070e8fce35c023d69da86e)
-(`v1.22.0`). Source paths below are relative to
-`patches/src/main/kotlin/app/template/patches/` unless stated otherwise.
-No direct Zalo or Threads patches were found; these are cross-app investigation
-leads, not verified compatibility. Apply the evidence and classification
-requirements above and preserve applicable notices before reusing source.
-
-### Strengthen existing P1 investigations first
-
-- **Photo Original:** use `messenger/media/DisableMediaTranscodingPatch.kt` as
-  a lead to trace selection, resizing/transcoding, upload, and received bytes.
-  Establish whether selecting Original still enters a conversion path. Keep
-  Video Original excluded; a Messenger implementation proves nothing about Zalo.
-
-### P2: Content autoplay and search telemetry
-
-- Investigate content-WebView autoplay using
-  `amazon/disableautoplay/DisableVideoAutoplayPatch.kt`. Trace native
-  Timeline/Video players separately; preserve tap-to-play, calls, and explicit
-  media previews.
-- Compare search keypress/focus events against our existing telemetry coverage,
-  using `amazon/nosuggesttrack/DisableSearchSuggestionsTrackingPatch.kt` as a
-  lead. Add only proven gaps and preserve suggestions and actual searches.
-
-### P3: Optional capture controls and chat bubbles
-
-- Establish whether Zalo has capture restrictions and outbound capture events
-  before considering `messenger/privacy/AllowScreenCapturePatch.kt` and
-  `BlockScreenshotDetectionPatch.kt`. Treat capture permission and notification
-  suppression as separate behaviors; keep options default-off, warn about
-  sensitive-content exposure, and verify remote effects with a second account.
-  Do not globally clear security flags.
-- Investigate existing native bubble support using
-  `messenger/chatheads/EnableChatHeadsPatch.kt` as a lead. Preserve Android API,
-  permission, and resource requirements; do not force an unsupported device to
-  report eligibility.
+- Trace the passcode grace-period preference and lifecycle before considering a
+  default-off option with a clear warning; preserve authentication and grace
+  expiry behavior.
+- Investigate a true-black dark theme using stable resource/runtime-color
+  evidence. Validate light mode, contrast, dialogs, system bars, and switching.
 
 ### Boundaries
 
-- `shared/firebase/SpoofFirebaseCertHashPatch.kt` is not evidence of a Drive
-  OAuth fix. Its HTTP-header mutation conflicts with this roadmap's constraints.
-- Do not import global paid-account spoofing or shared helper frameworks without
-  a concrete, independently verified need.
-- Unrelated app ports require a separate backlog, not expansion of this
-  Zalo-scoped roadmap.
+- Forced-update suppression remains investigation-only until its trigger chain is
+  fully traced.
+- The permission audit found no safe zero-usage removal candidates.
+- Catalog, username changes, gold badge entitlement, local export, inactivity
+  prevention, zCloud capacity, and business quotas remain unproven or
+  server-dependent; do not treat them as local unlocks.
+- HTTP-header mutation, global paid-account spoofing, broad MicroG rewrites,
+  unrelated app ports, and generic shared runtime infrastructure remain out of
+  scope.
 
-## Candidates from Hoodles' Morphe Patches
+## Additional investigation candidates
 
-Reference: [Hoodles' Morphe Patches at `f7a88fc`](https://github.com/hoo-dles/morphe-patches/tree/f7a88fc5fea593aa462e99e4cf3f7a10176c8c8f)
-(`v1.44.0`). Paths below are relative to
-`patches/src/main/kotlin/hoodles/morphe/patches/`. No direct Zalo or Threads
-patches were found; these are investigation leads, not compatible implementations.
-Apply the evidence and classification requirements above and preserve applicable
-license notices before reusing source.
+These candidates remain exploratory and are not verified compatible patches.
+Apply the evidence and classification requirements above before implementing
+any of them.
 
-### Strengthen existing investigations
+### P2: Content and playback controls
 
-- **Telemetry coverage:** use
-  `camscanner/misc/telemetry/DisableTelemetryPatch.kt` and
-  `soundcloud/misc/telemetry/DisableTelemetryPatch.kt` to compare collection,
-  queued events, and dispatch against our analytics DAO and Crashlytics coverage.
-  Add only proven gaps; do not disable a generic message handler or transport.
+- Investigate content-WebView autoplay. Trace native Timeline/Video players
+  separately; preserve tap-to-play, calls, and explicit media previews.
+- Compare search keypress/focus events against existing telemetry coverage. Add
+  only proven gaps and preserve suggestions and actual searches.
+- Investigate whether Zalo has equivalent local playback controls and player
+  support; preserve default speed, seeking, audio sync, and lifecycle behavior.
+  Exclude calls and live playback initially.
 
-### P2: Native video playback-speed controls
+### P3: Optional capture, bubbles, and theme controls
 
-- Investigate `primevideo/speed/EnableSpeedPatch.kt`, which enables existing
-  experimental controls rather than implementing a player.
-- Trace whether Zalo has equivalent local controls and player support; preserve
-  default speed, seeking, audio sync, and lifecycle behavior.
-- Exclude calls and live playback initially. Verify normal playback and speed
-  changes against an unmodified control before claiming support.
-
-### P3: Optional true-black dark theme
-
-- Investigate `github/misc/theme/AmoledPatch.kt` and
-  `soundcloud/misc/theme/AmoledPatch.kt` for resource and runtime-color approaches,
-  not their app-specific parameter positions or resource names.
-- Scope changes to the existing dark theme and keep the option default-off.
-  Validate light mode, contrast, dialogs, system bars, and theme switching.
-- This is local appearance only, not zStyle or a theme entitlement unlock.
+- Establish whether Zalo has capture restrictions and outbound capture events.
+  Treat capture permission and notification suppression as separate behaviors;
+  keep options default-off, warn about sensitive-content exposure, and verify
+  remote effects with a second account. Do not globally clear security flags.
+- Investigate existing native bubble support. Preserve Android API, permission,
+  and resource requirements; do not force unsupported devices to report
+  eligibility.
+- Investigate resource and runtime-color approaches for a true-black theme,
+  without relying on app-specific parameter positions or resource names. Scope
+  changes to the existing dark theme and keep the option default-off. Validate
+  light mode, contrast, dialogs, system bars, and theme switching.
 
 ### Boundaries
 
-- Do not import generic premium/RevenueCat spoofing or broad MicroG rewrites;
-  these are not evidence of a Zalo entitlement or Drive OAuth fix.
+- HTTP-header mutation is not an acceptable Drive OAuth fix.
+- Do not add global paid-account spoofing, broad MicroG rewrites, or shared
+  helper frameworks without a concrete, independently verified need.
 - Pairip, native, and Hermes infrastructure require a demonstrated consumer;
   unrelated app ports remain outside this roadmap.
 - Signing-identity qualification and other engineering ideas belong in the
