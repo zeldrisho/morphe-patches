@@ -23,36 +23,50 @@ public final class ZaloMicroGSupport {
   private static final Object REFRESH_LOCK = new Object();
   private static final Map<Object, RefreshRequest> PENDING_REFRESHES = new WeakHashMap<>();
 
-  /** Prevents instantiation of this static runtime helper. */
+  interface ProviderResolver {
+    android.content.pm.PackageInfo resolve() throws PackageManager.NameNotFoundException;
+  }
+
+  interface InstallPrompt {
+    void show(Activity activity, Runnable install, Runnable cancel);
+  }
+
+  interface RefreshScheduler {
+    void schedule(Runnable request, long delayMillis);
+
+    void cancel(Runnable request);
+  }
+
   private ZaloMicroGSupport() {}
 
-  /** Returns whether a resolved provider package is present and enabled. */
   static boolean isProviderEnabled(android.content.pm.PackageInfo packageInfo) {
     return packageInfo != null
         && packageInfo.applicationInfo != null
         && packageInfo.applicationInfo.enabled;
   }
 
-  /**
-   * Shows an optional installation prompt when MicroG is unavailable.
-   *
-   * @return true when the provider is installed or the check failed; false when the caller should
-   *     stop the current provider-dependent operation and let the user retry after installation.
-   */
+  /** Checks the provider and prompts only when it is definitely unavailable. */
   public static boolean checkGmsCore(Activity activity) {
     if (activity == null) return true;
+    return checkGmsCore(
+        activity,
+        () ->
+            activity
+                .getPackageManager()
+                .getPackageInfo(GMS_CORE_PACKAGE, PackageManager.GET_ACTIVITIES),
+        ZaloMicroGSupport::showInstallDialog);
+  }
 
+  static boolean checkGmsCore(Activity activity, ProviderResolver resolver, InstallPrompt prompt) {
+    if (activity == null) return true;
     try {
-      PackageManager packageManager = activity.getPackageManager();
-      android.content.pm.PackageInfo packageInfo =
-          packageManager.getPackageInfo(GMS_CORE_PACKAGE, PackageManager.GET_ACTIVITIES);
-      if (!isProviderEnabled(packageInfo)) {
-        showInstallDialog(activity);
+      if (!isProviderEnabled(resolver.resolve())) {
+        prompt.show(activity, () -> openDownload(activity), () -> {});
         return false;
       }
       return true;
     } catch (PackageManager.NameNotFoundException exception) {
-      showInstallDialog(activity);
+      prompt.show(activity, () -> openDownload(activity), () -> {});
       return false;
     } catch (RuntimeException ignored) {
       // Never turn an optional provider check into a host-app crash.
@@ -60,27 +74,20 @@ public final class ZaloMicroGSupport {
     }
   }
 
-  /**
-   * Gives Zalo time to persist the AccountManager result before refreshing Drive state.
-   *
-   * <p>The picker callback otherwise starts the first Drive request while Zalo still has its old
-   * account/token state. Re-entering the backup screen works because that lifecycle boundary
-   * performs the same refresh later, so mirror that boundary explicitly here.
-   *
-   * @param view the Zalo Drive view to refresh; {@code null} skips scheduling
-   * @param accountName the selected account name; {@code null} or empty skips scheduling
-   */
+  /** Schedules one refresh per view; a newer account replaces the older request. */
   public static void scheduleAccountRefresh(Object view, String accountName) {
     if (view == null || accountName == null || accountName.isEmpty()) return;
+    scheduleAccountRefresh(view, accountName, new HandlerScheduler(handler()));
+  }
 
+  static void scheduleAccountRefresh(Object view, String accountName, RefreshScheduler scheduler) {
+    if (view == null || accountName == null || accountName.isEmpty()) return;
     RefreshRequest request = new RefreshRequest(view, accountName);
     synchronized (REFRESH_LOCK) {
       RefreshRequest previous = PENDING_REFRESHES.put(view, request);
-      if (previous != null) {
-        handler().removeCallbacks(previous);
-      }
+      if (previous != null) scheduler.cancel(previous);
     }
-    handler().postDelayed(request, ACCOUNT_REFRESH_DELAY_MS);
+    scheduler.schedule(request, ACCOUNT_REFRESH_DELAY_MS);
   }
 
   private static Handler handler() {
@@ -95,6 +102,24 @@ public final class ZaloMicroGSupport {
       }
     }
     return result;
+  }
+
+  private static final class HandlerScheduler implements RefreshScheduler {
+    private final Handler handler;
+
+    HandlerScheduler(Handler handler) {
+      this.handler = handler;
+    }
+
+    @Override
+    public void schedule(Runnable request, long delayMillis) {
+      handler.postDelayed(request, delayMillis);
+    }
+
+    @Override
+    public void cancel(Runnable request) {
+      handler.removeCallbacks(request);
+    }
   }
 
   /** A coalesced refresh that does not retain the host view past its lifecycle. */
@@ -119,33 +144,36 @@ public final class ZaloMicroGSupport {
         // A changed/hidden Zalo method must not crash the host app.
       } finally {
         synchronized (REFRESH_LOCK) {
-          if (PENDING_REFRESHES.get(target) == this) {
-            PENDING_REFRESHES.remove(target);
-          }
+          if (PENDING_REFRESHES.get(target) == this) PENDING_REFRESHES.remove(target);
         }
       }
     }
   }
 
-  /** Prompts the user to install MicroG before retrying the provider-dependent operation. */
-  private static void showInstallDialog(Activity activity) {
-    if (activity == null || activity.isFinishing()) return;
+  static boolean canShowInstallDialog(Activity activity) {
+    return activity != null && canShowInstallDialog(activity.isFinishing(), activity.isDestroyed());
+  }
 
+  static boolean canShowInstallDialog(boolean finishing, boolean destroyed) {
+    return !finishing && !destroyed;
+  }
+
+  private static void showInstallDialog(Activity activity, Runnable install, Runnable cancel) {
+    if (!canShowInstallDialog(activity)) return;
     try {
       new AlertDialog.Builder(activity)
           .setTitle("MicroG required")
           .setMessage(
               "Google Drive backup and restore requires MicroG-RE. Install it and try again, or "
                   + "cancel to continue using Zalo normally.")
-          .setNegativeButton("Cancel", null)
-          .setPositiveButton("Install", (dialog, which) -> openDownload(activity))
+          .setNegativeButton("Cancel", (dialog, which) -> cancel.run())
+          .setPositiveButton("Install", (dialog, which) -> install.run())
           .show();
     } catch (RuntimeException ignored) {
       // Dialog creation is best effort; normal app use must remain unaffected.
     }
   }
 
-  /** Opens the configured MicroG download page when an external activity is available. */
   private static void openDownload(Activity activity) {
     try {
       activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(GMS_CORE_DOWNLOAD)));

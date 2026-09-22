@@ -51,6 +51,10 @@ artifacts under the ignored analysis directory.
 | Threads feed filtering | Test feed containing organic and sponsored units | Sponsored units disappear while organic ordering, scrolling, and refresh remain intact |
 | Notification delivery | Notifications enabled, app backgrounded | Chat/call/alert notifications remain delivered; only intended promotional notifications change |
 
+Versioned blank execution sheets are provided for [Zalo 26.08.01](journeys/zalo-26.08.01.md)
+and [Threads 445.0.0.46.83](journeys/threads-445.0.0.46.83.md). They intentionally
+contain no device results.
+
 Evaluate each action in order. Mark every assertion `PASS`, `FAIL`, or `BLOCKED`;
 if a step fails, leave later steps explicitly unexecuted. A successful tap is not
 itself evidence of the expected state. Record package/version, APK and bundle
@@ -91,14 +95,23 @@ PATCHES='<first patch>,<second patch>' python3 scripts/repatch.py /path/to/input
 `PATCHES` disables every bundle patch not named and rejects unknown names, so a
 control cannot silently include default-on patches.
 
-Release qualification includes one SDK-verified re-patch. Compilation alone only
-proves that the toolchain ran because the patcher verifier defaults to existence
-checks:
+Release qualification includes one SDK-verified re-patch and a repeated private
+output-signing identity check. Compilation alone only proves that the toolchain ran
+because the patcher verifier defaults to existence checks:
 
 ```bash
 MPP="patches/build/libs/patches-<version>.mpp" VERIFY_SDK=1 \
   python3 scripts/repatch.py /path/to/input.apkm /tmp/verified.apk
+
+ZALO_OUTPUT_APK=/private/patched.apk \
+ZALO_OUTPUT_CERTIFICATE='certificate SHA-256 digest: ...' \
+./gradlew :patches:qualifySignedOutput --no-daemon
 ```
+
+`qualifySignedOutput` repeats `apksigner` inspection twice by default; set
+`QUALIFICATION_REPEATS` for a larger private release check. Keep certificate
+output and APKs outside Git. The stock input certificate is validated separately
+by `qualifyZaloApk`; never use it as the output identity.
 
 `VERIFY_SDK=1` uses `$ANDROID_HOME`, then `$ANDROID_SDK_ROOT`, then the OS-default
 SDK location. Set `VERIFY_SDK=/path/to/sdk` to pin a specific SDK. Record the

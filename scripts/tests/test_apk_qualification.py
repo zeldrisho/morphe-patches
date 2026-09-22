@@ -48,6 +48,18 @@ class ApkQualificationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "versionCode"):
             QUALIFICATION.validate_split(base, split, "stock", "stock")
 
+    def test_output_certificate_is_checked_against_output_identity(self):
+        self.assertEqual(
+            QUALIFICATION.validate_output_certificate("release", expected="release"),
+            "release",
+        )
+        with self.assertRaisesRegex(ValueError, "output APK"):
+            QUALIFICATION.validate_output_certificate("other", expected="release")
+
+    def test_output_certificate_requires_configuration(self):
+        with self.assertRaisesRegex(ValueError, "configured"):
+            QUALIFICATION.validate_output_certificate("release", expected="")
+
 
 if __name__ == "__main__":
     unittest.main()

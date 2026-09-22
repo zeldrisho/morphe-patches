@@ -44,6 +44,23 @@ class ManifestSecurityDiffTest(unittest.TestCase):
             ["android.permission.INTERNET", "android.permission.READ_CONTACTS"][-1:],
         )
 
+    def test_uri_path_permissions_and_query_visibility_are_reported(self):
+        patched = MANIFEST.replace(
+            'android:grantUriPermissions="true" />',
+            """android:grantUriPermissions="true">
+      <path-permission android:pathPrefix="/private" android:readPermission="x.READ" />
+    </provider>""",
+        ).replace(
+            "</manifest>",
+            """<queries><provider android:authorities="com.example.files" />
+    <intent><action android:name="android.intent.action.SEND" /></intent></queries>
+</manifest>""",
+        )
+        delta = DIFF.security_delta(MANIFEST, patched)
+        self.assertTrue(delta["components"]["added"])
+        self.assertEqual(delta["queries_providers"]["added"], ["com.example.files"])
+        self.assertTrue(delta["queries_intents"]["added"])
+
 
 if __name__ == "__main__":
     unittest.main()

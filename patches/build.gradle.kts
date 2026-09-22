@@ -230,6 +230,36 @@ tasks {
         }
     }
 
+    register("qualifySignedOutput") {
+        group = "verification"
+        description = "Check a private patched APK's output signing identity repeatedly"
+        doLast {
+            val apk = providers.environmentVariable("ZALO_OUTPUT_APK").orNull
+                ?.let(::file)
+                ?: error("ZALO_OUTPUT_APK is required for qualifySignedOutput")
+            val expected = providers.environmentVariable("ZALO_OUTPUT_CERTIFICATE").orNull?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: error("ZALO_OUTPUT_CERTIFICATE is required for qualifySignedOutput")
+            check(apk.isFile && apk.length() > 0) {
+                "ZALO_OUTPUT_APK does not name a non-empty APK: $apk"
+            }
+            val repeats = providers.environmentVariable("QUALIFICATION_REPEATS").orNull
+                ?.toIntOrNull()?.also { check(it > 0) { "QUALIFICATION_REPEATS must be positive" } }
+                ?: 2
+            repeat(repeats) { iteration ->
+                val process = ProcessBuilder("apksigner", "verify", "--print-certs", apk.absolutePath)
+                    .redirectErrorStream(true)
+                    .start()
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                check(process.waitFor() == 0) { "apksigner could not inspect output APK: $apk" }
+                check(output.contains(expected, ignoreCase = true)) {
+                    "output APK signer does not match ZALO_OUTPUT_CERTIFICATE on pass ${iteration + 1}"
+                }
+                logger.lifecycle("Output APK signing identity pass ${iteration + 1}/$repeats: PASS")
+            }
+        }
+    }
+
     register<JavaExec>("generatePatchesListForVerification") {
         description = "Generate current-source patch metadata in an isolated build directory"
         dependsOn("classes")

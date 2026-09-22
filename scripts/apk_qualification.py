@@ -38,3 +38,16 @@ def validate_input_certificate(certificate, *, expected=None):
             "input APK signing certificate is not the expected certificate"
         )
     return certificate.strip()
+
+
+def validate_output_certificate(certificate, *, expected):
+    """Validate a produced APK against its separately configured output signer."""
+    if not certificate or not certificate.strip():
+        raise ValueError("output APK has no signing certificate")
+    if not expected or not expected.strip():
+        raise ValueError("output signing certificate is not configured")
+    if certificate.strip() != expected.strip():
+        raise ValueError(
+            "output APK signing certificate does not match configured signer"
+        )
+    return certificate.strip()

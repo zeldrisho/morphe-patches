@@ -8,6 +8,9 @@ import com.android.tools.smali.dexlib2.immutable.ImmutableMethodImplementation
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction35c
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction3rc
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodReference
+import com.zeldrisho.patches.zalo.microg.accountRefreshInvocation
+import com.zeldrisho.patches.zalo.microg.replaceWithAccountPicker
+import com.zeldrisho.patches.zalo.microg.requireProviderCheckScratch
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
