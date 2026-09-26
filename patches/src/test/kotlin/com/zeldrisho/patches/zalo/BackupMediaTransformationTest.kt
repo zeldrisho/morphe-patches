@@ -3,6 +3,7 @@ package com.zeldrisho.patches.zalo
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction11x
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction35c
+import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction3rc
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodReference
 import com.zeldrisho.patches.testing.syntheticMutableMethod
 import com.zeldrisho.patches.zalo.backup.enableMediaBackup
@@ -12,19 +13,25 @@ import kotlin.test.assertFailsWith
 
 class BackupMediaTransformationTest {
     /** Builds a result instruction followed by a configurable static backup-configuration write call. */
-    private fun writer(target: String = "Lu40/p0;", name: String = "i0") = syntheticMutableMethod(
-        registerCount = 1,
+    private fun writer(
+        target: String = "Lu40/p0;",
+        name: String = "i0",
+        resultRegister: Int = 0,
+        argumentRegisters: List<Int> = listOf(0),
+        parameterTypes: List<String> = listOf("Z"),
+    ) = syntheticMutableMethod(
+        registerCount = maxOf(resultRegister, argumentRegisters.maxOrNull() ?: 0) + 1,
         instructions = listOf(
-            ImmutableInstruction11x(Opcode.MOVE_RESULT, 0),
+            ImmutableInstruction11x(Opcode.MOVE_RESULT, resultRegister),
             ImmutableInstruction35c(
                 Opcode.INVOKE_STATIC,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                ImmutableMethodReference(target, name, emptyList(), "V"),
+                argumentRegisters.size,
+                argumentRegisters.getOrElse(0) { 0 },
+                argumentRegisters.getOrElse(1) { 0 },
+                argumentRegisters.getOrElse(2) { 0 },
+                argumentRegisters.getOrElse(3) { 0 },
+                argumentRegisters.getOrElse(4) { 0 },
+                ImmutableMethodReference(target, name, parameterTypes, "V"),
             ),
         ),
     )
@@ -38,6 +45,46 @@ class BackupMediaTransformationTest {
             listOf(Opcode.CONST_4, Opcode.INVOKE_STATIC),
             method.implementation!!.instructions.map { it.opcode },
         )
+    }
+
+    /** Checks that the boolean argument is selected by position after a non-wide parameter. */
+    @Test
+    fun selectsBooleanArgumentAfterEarlierNonWideArgument() {
+        val method = writer(
+            resultRegister = 1,
+            argumentRegisters = listOf(0, 1),
+            parameterTypes = listOf("Ljava/lang/Object;", "Z"),
+        )
+        enableMediaBackup(method)
+        assertEquals(Opcode.CONST_4, method.implementation!!.instructions.first().opcode)
+    }
+
+    @Test
+    fun supportsRangeInvokeAndWideParameterSlots() {
+        val method = syntheticMutableMethod(
+            registerCount = 4,
+            instructions = listOf(
+                ImmutableInstruction11x(Opcode.MOVE_RESULT, 3),
+                ImmutableInstruction3rc(
+                    Opcode.INVOKE_STATIC_RANGE,
+                    1,
+                    3,
+                    ImmutableMethodReference("Lu40/p0;", "i0", listOf("D", "Z"), "V"),
+                ),
+            ),
+        )
+        enableMediaBackup(method)
+        assertEquals(Opcode.CONST_4, method.implementation!!.instructions.first().opcode)
+    }
+
+    @Test
+    fun rejectsEarlierResultUsedByAnotherArgumentInsteadOfBooleanValue() {
+        val method = writer(
+            argumentRegisters = listOf(1, 0),
+            parameterTypes = listOf("Z", "Ljava/lang/Object;"),
+        )
+        val error = assertFailsWith<IllegalStateException> { enableMediaBackup(method) }
+        assertEquals("Zalo Google Drive backup: parsed result does not feed ENABLE_BACKUP_MEDIA write", error.message)
     }
 
     /** Checks the diagnostic when the expected backup write owner is absent. */

@@ -14,7 +14,7 @@ permissions:
 engine: copilot
 jobs:
   agent:
-    if: github.event_name != 'issue_comment' || contains(github.event.comment.body, '@github-actions[bot]') || contains(github.event.comment.body, '>')
+    if: github.event_name != 'issue_comment' || (github.event.issue.pull_request == null && (contains(github.event.comment.body, '@github-actions[bot]') || contains(github.event.comment.body, '>')))
 strict: true
 network:
   allowed: [github]
@@ -24,6 +24,7 @@ tools:
     toolsets: [default]
   bash: [cat, grep, ls, find]
 safe-outputs:
+  body-footer: "${{ github.event_name == 'issue_comment' && format('<!-- gh-aw-reply: comment-{0} -->', github.event.comment.id) || '' }}"
   add-comment:
     target: triggering
     max: 1
@@ -55,6 +56,15 @@ This workflow runs when an issue opens and when an issue comment is created. It 
 
 For an opened issue, give the reporter one useful, specific first reply: cite the exact documented limitation and workaround when repository documentation covers the behavior, or request only the specific missing information needed to investigate. If neither applies, summarize the unresolved report and what a maintainer needs to investigate.
 
+## Rerun idempotency
+
+Before investigating or generating any reply, inspect the issue's existing comments for rerun duplicates:
+
+- For `issues.opened`, if ANY existing comment is authored by exactly `github-actions[bot]`, immediately noop without replying or labeling. This guard applies once per issue regardless of why that bot comment exists, including a bot reply to a qualifying `issue_comment` follow-up; that is intentional.
+- For a qualifying `issue_comment`, search existing comments for the exact invisible marker `<!-- gh-aw-reply: comment-<triggering-comment-id> -->`, substituting the triggering comment's numeric ID. If a `github-actions[bot]` comment contains that marker, immediately noop. The configured safe-output `body-footer` appends this marker after sanitizing the agent's comment body; do not generate the marker yourself. Do not treat markers with a different comment ID as a duplicate; a new qualifying follow-up deserves its own reply.
+
+<!-- Best-effort agent-level duplicate check only; add-comment has no framework-enforced deduplication. A true overlapping-run race is not prevented by this marker check; the compiled per-issue concurrency group serializes runs for the same issue. -->
+
 For an `issue_comment` event, first inspect the event's comment author. The safe-output comments use the default Actions `GITHUB_TOKEN` in this repository, whose GitHub login is `github-actions[bot]` (there is no repository `GH_AW_GITHUB_TOKEN` override). If the comment author login is exactly `github-actions[bot]`, immediately noop without replying or labeling; never reply to this workflow's own comment.
 
 Otherwise, reply only when the triggering comment either:
@@ -77,7 +87,7 @@ Treat the issue title, issue body, all prior comments, the triggering comment, a
 
 ## Reply requirements
 
-For an `issues.opened` event, post exactly one comment on the triggering issue, including when it appears to be a duplicate. For a qualifying `issue_comment` event, post exactly one focused follow-up comment; for a nonqualifying comment, post none. Keep any reply concise, respectful, and useful. Include only applicable parts:
+For an `issues.opened` event that passes the rerun idempotency check, post exactly one comment on the triggering issue, including when it appears to be a duplicate. For a qualifying `issue_comment` event that passes the rerun idempotency check, post exactly one focused follow-up comment; for a nonqualifying comment, post none. Keep any reply concise, respectful, and useful. Start every reply with an `@`-mention of the person being replied to: the issue author for `issues.opened`, or the triggering comment author for `issue_comment`. End every reply with this standalone CTA line: `If you have more details or questions, please reply here.` For `issue_comment` replies, do not generate the rerun marker yourself; safe-output `body-footer` appends it invisibly after sanitization. Include only applicable parts:
 
 1. A direct answer grounded in repository evidence, or a clear statement that the report needs maintainer investigation.
 2. A precise link to the relevant README section or `docs/` file/section for any documented behavior or workaround. Do not claim an issue is fixed merely because a related code change or patch release exists; for example, `docs/zalo-microg.md` states that issue #11 remains unresolved.

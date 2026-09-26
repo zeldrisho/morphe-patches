@@ -150,7 +150,9 @@ public class ZaloMicroGSupportTest {
     assertFalse(ZaloMicroGSupport.canShowInstallDialog(false, true));
   }
 
-  /** Exercises cancellation with a null handler and checks the cause if reflection propagates it. */
+  /**
+   * Exercises cancellation with a null handler and checks the cause if reflection propagates it.
+   */
   @Test
   public void handlerSchedulerContainsAHandlerFailure() throws Exception {
     Class<?> schedulerClass =
