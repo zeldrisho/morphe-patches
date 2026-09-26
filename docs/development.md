@@ -4,7 +4,7 @@
 
 1. [Toolchain setup](toolchain.md) — provision a host and registry credentials.
 2. [CLI patching](cli.md) — patch, sign, and install an APK.
-3. [Reverse engineering](reverse-engineering.md) and [analysis workspace](analysis.md) — find targets and organize local evidence.
+3. [Reverse engineering](reverse-engineering.md) and [analysis workspace](reverse-engineering.md#analysis-workspace) — find targets and organize local evidence.
 4. [Patch development](patch-development.md) — file layout, fingerprints, and the build/test loop.
 5. [Validation](validation.md) — real-APK and device checks.
 6. [Release process](release.md) — branching, changelog, generated-file ownership, and publishing.
@@ -35,11 +35,28 @@ python3 -m unittest discover -s scripts/tests -v
 ./gradlew verify --no-daemon
 ```
 
-`verify` runs quality checks, patch tests, both extension unit-test suites, and
-`:patches:verifyBundleExtension` (builds the `.mpp` and checks embedded artifacts).
-`:patches:checkExtensionArtifact` is the faster artifact pre-check.
-`buildAndroid` alone does **not** run the quality gate. Successful verification
-still requires [real-APK and device validation](validation.md).
+`verify` runs quality checks, patch tests, both extension unit-test suites, bundle
+verification, and coverage verification. Coverage floors are 80% for patches,
+91% for Threads, and 80% for Zalo. Reports are written beneath each module's
+`build/` directory; coverage is a regression signal, not proof of real-APK or
+device compatibility. `buildAndroid` alone does **not** run the quality gate.
+
+### Testing guidance
+
+Prefer pure synthetic inputs for transformation and descriptor-matching logic:
+small in-memory DEX/class descriptors exercise exact compatibility constraints
+without proprietary APK fixtures. APK qualification tests are opt-in through
+`THREADS_TEST_APK` or `ZALO_TEST_APK` and skip when those private inputs are
+absent. Keep APK-dependent qualification separate from standard CI.
+
+Use Robolectric for Android extension behavior that depends on `Context`,
+`PackageManager`, dialogs, handlers, or looper timing; tests must remain local
+JVM tests and must not require an emulator/device. The Zalo runtime uses a paused
+main looper for deterministic delayed-refresh assertions. Add assertions for
+observable behavior, including missing-provider fallback, invalid/null inputs,
+activity lifecycle edges, and superseded callbacks. Avoid introducing custom
+source-set fragmentation merely to accommodate tests.
+Successful verification still requires [real-APK and device validation](validation.md).
 
 ## Code quality
 

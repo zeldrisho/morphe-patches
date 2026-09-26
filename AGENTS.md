@@ -34,10 +34,10 @@
 | Host setup and credentials | `docs/toolchain.md` |
 | Patch authoring and fingerprints | `docs/patch-development.md` |
 | APK analysis and reverse-engineering | `docs/reverse-engineering.md` |
-| Local analysis layout and cleanup | `docs/analysis.md` |
+| Local analysis layout and cleanup | `docs/reverse-engineering.md#analysis-workspace` |
 | Bytecode and smali reference | `docs/bytecode-reference.md` |
-| Bypass patterns and SDK recipes | `docs/bypass-patterns.md` |
+| Bypass patterns and target selection | `docs/patch-development.md#target-selection` |
 | CLI patching and signing | `docs/cli.md` |
 | Release and generated-file policy | `docs/release.md` |
 | Device validation and Zalo feature roadmap | `docs/validation.md`, `docs/plan.md` |
-| Cross-app maintenance backlog | `docs/maintenance.md` |
+| Cross-app maintenance backlog and provenance | `docs/maintenance.md` |

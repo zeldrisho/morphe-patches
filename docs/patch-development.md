@@ -3,7 +3,7 @@
 How patches in this repo are structured, written, built, and tested.
 See the [reverse engineering workflow](reverse-engineering.md) (finding targets),
 the fingerprint reference below,
-[bypass patterns](bypass-patterns.md) (per-SDK techniques), and
+[target selection](#target-selection), and
 [repository structure](development.md#repository-structure) (module layout).
 
 ## Patch types
@@ -191,7 +191,11 @@ Apply the `.mpp` via the terminal ([CLI patching](cli.md)) against the **downloa
 (see [toolchain storage and source conventions](toolchain.md#6-storage-and-path-conventions)
 and [original APK source](toolchain.md#7-original-apk-source)) matching the supported
 the target version and `ApkFileType.APKS` compatibility declaration (never an
-extracted `base.apk`), then `adb install -r` the output.
+extracted `base.apk`), then install the output with
+`android install --apks=<path-to-verified.apk> --device="$SERIAL"` (or use
+`android run --apks=<path-to-verified.apk> --device="$SERIAL"` to install and
+launch). For UI debugging, prefer `android layout --device="$SERIAL" --full`
+and `android screen capture --device="$SERIAL" --output=<path>`.
 To debug one patch in isolation, apply
 only it (`patch --exclusive -e "Name"`, see [CLI patching](cli.md#canonical-flows-this-repo)) before the full suite —
 a fingerprint failure elsewhere won't mask your result that way.
@@ -332,7 +336,7 @@ execute {
 }
 ```
 
-For per-billing-system and per-ad-SDK starting points, see [bypass patterns](bypass-patterns.md).
+For search directions and patch-surface guidance, see [Target selection](#target-selection).
 For confirming a target runs before freezing the fingerprint, see
 [dynamic confirmation](reverse-engineering.md#dynamic-confirmation-for-runtime-gates)
 (Frida log → smali quote → fingerprint).
@@ -375,3 +379,27 @@ the installed patcher exposes `app.morphe.patcher.*` and
 ## Debugging match failures
 
 See [bytecode reference](bytecode-reference.md#fingerprint-debugging) for the full workflow and validation procedure.
+
+## Target selection
+
+Run `scripts/hunt_signals.py <decompiled-or-smali-dir>` to triage protections,
+billing, ads, and networking. Its patterns are authoritative. SDK class names
+can help locate code, but app wrappers and runtime behavior must be verified for
+the pinned version.
+
+| Goal | Candidate area | Important constraint |
+| --- | --- | --- |
+| Entitlement or purchase behavior | Billing SDK result, local preference, remote-config gate | Client changes cannot grant server-side entitlement or defeat server attestation. |
+| Ad reduction | SDK load/show/init paths and mediation adapters | Preserve non-ad content and feed behavior; test controls and refresh. |
+| Integrity or environment checks | License, signature, root, pinning, emulator/debug checks | Confirm runtime gates dynamically when needed; avoid disabling unrelated checks. |
+| Analytics/privacy | Manifest metadata, receivers/services, event dispatch | Prefer narrow opt-outs; preserve unrelated functionality. |
+| Complex runtime behavior | App-specific extension | Keep injection small and fail safely at host-app boundaries. |
+
+These are search directions, not recipes or compatibility evidence. Choose a
+narrow patch surface: manifest/resource changes for flags and values, inline
+smali for simple changes, and extensions for complex runtime behavior. Confirm
+which implementation runs before changing TLS, root, or signature checks. See
+[dynamic confirmation](reverse-engineering.md#dynamic-confirmation-for-runtime-gates).
+Describe limitations and risks honestly; keep risky patches opt-in and validate
+on-device. Server-controlled features and provider authorization remain external
+boundaries.

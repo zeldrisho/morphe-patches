@@ -203,6 +203,10 @@ def main():
             ks.append(f"--keystore-password={store}")
         if entry:
             ks.append(f"--keystore-entry-password={entry}")
+        bytecode_mode = os.environ.get("BYTECODE_MODE", "").upper()
+        if bytecode_mode and bytecode_mode not in {"FULL", "STRIP_SAFE", "STRIP_FAST"}:
+            die("BYTECODE_MODE must be FULL, STRIP_SAFE, or STRIP_FAST")
+        bm = [f"--bytecode-mode={bytecode_mode}"] if bytecode_mode else []
         verify = os.environ.get("VERIFY_SDK", "")
         va = (
             []
@@ -224,6 +228,7 @@ def main():
                     "--options-file",
                     str(opts),
                     *ks,
+                    *bm,
                     *va,
                     "-o",
                     str(out),
@@ -235,7 +240,9 @@ def main():
             )
         except subprocess.CalledProcessError as e:
             raise SystemExit(e.returncode)
-    print(f'\n✅ Patched APK: {out}\nInstall:  adb install -r "{out}"')
+    print(
+        f'\n✅ Patched APK: {out}\nInstall:  android install --apks="{out}" --device="$SERIAL"'
+    )
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,23 +45,40 @@ public class ZaloMicroGSupportTest {
     ZaloMicroGSupport.scheduleAccountRefresh(new Object(), "");
   }
 
+  /** Verifies that delayed refresh tolerates a missing target method or null target. */
   @Test
   public void delayedRefreshIgnoresMissingOrChangedTargetMethods() throws Exception {
-    Constructor<?> constructor = refreshRequestConstructor();
-    Runnable missingMethod =
-        (Runnable) constructor.newInstance(new Object(), "account@example.com");
-    missingMethod.run();
+    RecordingScheduler scheduler = new RecordingScheduler();
+    ZaloMicroGSupport.scheduleAccountRefresh(new Object(), "account@example.com", scheduler);
+    scheduler.scheduled.get(0).run();
 
+    Constructor<?> constructor = refreshRequestConstructor();
     Runnable nullTarget = (Runnable) constructor.newInstance(null, "account@example.com");
     nullTarget.run();
   }
 
+  /** Verifies that exceptions from the reflective refresh target do not escape the callback. */
   @Test
   public void delayedRefreshContainsTargetExceptions() throws Exception {
-    Constructor<?> constructor = refreshRequestConstructor();
-    Runnable failingTarget =
-        (Runnable) constructor.newInstance(new FailingRefreshTarget(), "account@example.com");
-    failingTarget.run();
+    RecordingScheduler scheduler = new RecordingScheduler();
+    ZaloMicroGSupport.scheduleAccountRefresh(
+        new FailingRefreshTarget(), "account@example.com", scheduler);
+    scheduler.scheduled.get(0).run();
+  }
+
+  /** Verifies fail-open behavior for null and unattached activities. */
+  @Test
+  public void publicProviderCheckAllowsNullAndContainsUnattachedActivityFailure() {
+    assertTrue(ZaloMicroGSupport.checkGmsCore(null));
+    assertTrue(ZaloMicroGSupport.checkGmsCore(new Activity()));
+  }
+
+  /** Verifies that an enabled provider returned by the resolver passes the check. */
+  @Test
+  public void providerResolverAcceptsEnabledProvider() {
+    assertTrue(
+        ZaloMicroGSupport.checkGmsCore(
+            new Activity(), () -> packageInfo(true), (activity, install, cancel) -> {}));
   }
 
   @Test
@@ -75,6 +93,38 @@ public class ZaloMicroGSupportTest {
               throw new AssertionError("prompt must not be shown");
             });
     assertTrue(result);
+  }
+
+  /** Exercises install and cancel callbacks when the resolver returns no package information. */
+  @Test
+  public void nullProviderPromptAndDownloadFallbackAreHandled() {
+    Activity activity = new Activity();
+    boolean result =
+        ZaloMicroGSupport.checkGmsCore(
+            activity,
+            () -> null,
+            (current, install, cancel) -> {
+              install.run();
+              cancel.run();
+            });
+    assertFalse(result);
+  }
+
+  /** Verifies that prompt callbacks tolerate a missing provider on an unattached activity. */
+  @Test
+  public void providerPromptInstallAndCancelCallbacksAreSafe() {
+    Activity activity = new Activity();
+    boolean result =
+        ZaloMicroGSupport.checkGmsCore(
+            activity,
+            () -> {
+              throw new PackageManager.NameNotFoundException();
+            },
+            (current, install, cancel) -> {
+              install.run();
+              cancel.run();
+            });
+    assertFalse(result);
   }
 
   @Test
@@ -98,6 +148,49 @@ public class ZaloMicroGSupportTest {
   public void finishingOrDestroyedActivitiesDoNotReceiveInstallDialogs() {
     assertFalse(ZaloMicroGSupport.canShowInstallDialog(true, false));
     assertFalse(ZaloMicroGSupport.canShowInstallDialog(false, true));
+  }
+
+  /**
+   * Exercises cancellation with a null handler and checks the cause if reflection propagates it.
+   */
+  @Test
+  public void handlerSchedulerContainsAHandlerFailure() throws Exception {
+    Class<?> schedulerClass =
+        Class.forName("com.zeldrisho.zalo.extension.ZaloMicroGSupport$HandlerScheduler");
+    Constructor<?> constructor = schedulerClass.getDeclaredConstructor(Handler.class);
+    constructor.setAccessible(true);
+    Object scheduler = constructor.newInstance(new Object[] {null});
+    java.lang.reflect.Method cancel = schedulerClass.getDeclaredMethod("cancel", Runnable.class);
+    cancel.setAccessible(true);
+    try {
+      cancel.invoke(scheduler, (Runnable) () -> {});
+    } catch (java.lang.reflect.InvocationTargetException expected) {
+      assertTrue(expected.getCause() instanceof RuntimeException);
+    }
+  }
+
+  /** Verifies that dialog creation failure is contained after activity lifecycle checks pass. */
+  @Test
+  public void dialogCreationFailureIsContainedAfterLifecycleCheck() throws Exception {
+    Activity usable =
+        new Activity() {
+          /** Keeps the test activity eligible for the dialog creation failure path. */
+          @Override
+          public boolean isFinishing() {
+            return false;
+          }
+
+          /** Keeps the test activity eligible for the dialog creation failure path. */
+          @Override
+          public boolean isDestroyed() {
+            return false;
+          }
+        };
+    java.lang.reflect.Method method =
+        ZaloMicroGSupport.class.getDeclaredMethod(
+            "showInstallDialog", Activity.class, Runnable.class, Runnable.class);
+    method.setAccessible(true);
+    method.invoke(null, usable, (Runnable) () -> {}, (Runnable) () -> {});
   }
 
   @Test

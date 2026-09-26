@@ -13,3 +13,5 @@
 *.png            binary
 *.apk            binary
 *.apkm           binary
+
+.github/workflows/*.lock.yml linguist-generated=true

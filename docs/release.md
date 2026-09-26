@@ -15,7 +15,7 @@ automatically.
 - Work on a branch.
 - Collect user-visible app patch changes under `## Unreleased` in
   `CHANGELOG.md` as you go (per-app `**App:**` bullets, see below).
-- `Check` runs on pull requests targeting `main` and pushes to `main`; `Release` runs automatically on `v*` tags and can be manually dispatched with a tag for recovery.
+- `CI` runs on pull requests targeting `main` and pushes to `main`; `Release` runs automatically on `v*` tags and can be manually dispatched with a tag for recovery.
 - When the branch is stable, open a PR manually and merge (no squash) into `main`.
 - Ship from this repo (branch → `main` → tag → release). `scripts/repatch.py`
   defaults `GITHUB_REPO` here. Don't split work across sibling patch repos;

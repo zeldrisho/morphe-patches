@@ -53,11 +53,14 @@ object PatchListValidator {
                     require(target["version"]?.asString?.isNotBlank() == true) {
                         "$name/$packageName has an invalid target version"
                     }
-                    require(target["minSdk"]?.asInt ?: 0 > 0) {
+                    require(hasValidMinSdk(target)) {
                         "$name/$packageName has an invalid target minSdk"
                     }
                 }
             }
         }
     }
+
+    /** Accepts an explicit null or positive minimum SDK; rejects an absent or nonpositive value. */
+    private fun hasValidMinSdk(target: JsonObject): Boolean = target["minSdk"]?.let { it.isJsonNull || it.asInt > 0 } == true
 }

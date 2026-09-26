@@ -13,8 +13,24 @@ mark later steps unexecuted. Do not promote a stable release with required check
 
 ## Build validation
 
-Run [canonical verification](development.md#verify). The bundle lands in
-`patches/build/libs/patches-*.mpp`. Successful Check runs retain
+Run the canonical local gates from the repository root:
+
+```bash
+uvx pre-commit run --all-files --show-diff-on-failure
+python3 -m unittest discover -s scripts/tests -v
+./gradlew verify --no-daemon
+```
+
+`verify` includes `coverageVerification` for `:patches`, `:extensions:threads`,
+and `:extensions:zalo`. To generate/verify coverage by itself:
+
+```bash
+./gradlew coverageVerification --no-daemon
+```
+
+Current enforced line floors are 80% for patches, 91% for Threads, and 80%
+for Zalo; see [development verification](development.md#verify) for measured
+baselines. The bundle lands in `patches/build/libs/patches-*.mpp`. Successful CI runs retain
 `patches-<sha>-<attempt>` artifacts for seven days; record run/commit and bundle
 hash. These are test builds, not releases.
 
@@ -36,7 +52,9 @@ Release qualification requires SDK verification:
 ```bash
 MPP="patches/build/libs/patches-<version>.mpp" VERIFY_SDK=1 \
   python3 scripts/repatch.py /path/to/input.apkm /tmp/verified.apk
-adb install -r /tmp/verified.apk
+android install --apks=/tmp/verified.apk --device="$SERIAL"
+# Or install and launch:
+android run --apks=/tmp/verified.apk --device="$SERIAL"
 ```
 
 Update only when signing certificates match; see [signing](cli.md#signing).
@@ -75,12 +93,17 @@ Morphe fixes the verifier. Other required checks still apply.
 ## Repeatable device journeys
 
 Run stock, minimally re-signed no-patch control, and selected-patch builds. Use
-`android layout` for primary UI inspection, screenshots as secondary evidence.
+`android layout --device="$SERIAL" --full` for primary UI inspection and
+`android screen capture --device="$SERIAL" --output=<path>` for visual evidence.
 A successful tap is not proof of the expected state.
 
-Versioned blank execution sheets (no device results):
-[Zalo 26.08.01](journeys/zalo-26.08.01.md) and
-[Threads 445.0.0.46.83](journeys/threads-445.0.0.46.83.md).
+Record stock, minimally re-signed control, and patched results separately for
+these pinned targets: Threads `com.instagram.barcelona` version code
+`511507647`; Zalo `com.zing.zalo` version code `260801903`. Include cold launch,
+feed load/order, sponsored filtering, scrolling and refresh for Threads; include
+background/resume, provider prompt and cancellation, account-picker refresh, Drive,
+and notification behavior for Zalo. Mark each assertion PASS, FAIL, BLOCKED, or
+UNEXECUTED in the release/PR record; keep evidence private as described above.
 
 ## Device validation scope
 
@@ -96,7 +119,6 @@ Versioned blank execution sheets (no device results):
 | Optional coexistence | Renamed-package behavior only where supported by signing/OAuth configuration. |
 
 Test malformed/unexpected intents and unauthorized access where applicable.
-For Zalo-specific media/privacy/session checks, use the [release checklist](plan.md#zalo-specific-release-checks).
 
 ## Controlled performance baseline
 
@@ -105,7 +127,7 @@ the same device and network. Capture startup time, frame timing/jank, memory, an
 background/network activity; at least three repetitions, with variance recorded.
 Set thresholds only after control variance is known. Add backup scheduling when
 implemented. Keep traces/heap dumps private and bounded under the
-[analysis retention policy](analysis.md); do not make release APKs debuggable.
+[analysis retention policy](reverse-engineering.md#analysis-workspace); do not make release APKs debuggable.
 
 ## Zalo microG/Drive issue checklist
 

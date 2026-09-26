@@ -16,7 +16,7 @@ Or add the source URL manually in Morphe Manager → Sources.
 
 Contributor docs: [development guide](docs/development.md) (start here),
 [toolchain setup](docs/toolchain.md) (installs), [validation guide](docs/validation.md) (device testing),
-[release process](docs/release.md) (publishing), [Zalo microG/Drive guide](docs/zalo-microg.md), [analysis workspace](docs/analysis.md) (APK investigation artifacts).
+[release process](docs/release.md) (publishing), [Zalo microG/Drive guide](docs/zalo-microg.md), [analysis workspace](docs/reverse-engineering.md#analysis-workspace) (APK investigation artifacts).
 
 ### FAQ
 
@@ -29,7 +29,7 @@ Contributor docs: [development guide](docs/development.md) (start here),
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.6.0](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.6.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;20 patches total
+> **[v1.6.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.6.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;20 patches total
 <details>
 <summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;16 patches</summary>
 <br>

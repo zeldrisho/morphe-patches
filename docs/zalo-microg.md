@@ -1,56 +1,66 @@
-# Zalo microG Drive support
+# Zalo Google Drive and MicroG-RE
 
-Client compatibility for Zalo **26.08.01** (`260801903`), not a guarantee of
-Google OAuth or Drive authorization.
+Compatibility is pinned to Zalo **26.08.01** (`260801903`). The integration
+routes Zalo's existing Drive account flow through MicroG-RE; it does not
+establish Google OAuth authorization, server-side retention, or support for every
+provider/device combination.
 
-## What the patch changes
+## Patches and current status
 
-- Uses MicroG-RE's `app.revanced` account type through Android `AccountManager`.
-- Refreshes Drive state after the picker and supplies stock certificate metadata.
-- Checks the provider before Drive operations and declares
-  `app.revanced.android.gms` in manifest `<queries>` for package visibility.
-- Opens the [official Morphe MicroG download page](https://morphe.software/microg)
-  from the installation prompt.
+Two patches have separate roles:
 
-## Issue #11: installed MicroG-RE was not recognized
+- **Enable Google Drive photo backup** exposes Zalo's existing photo-backup
+  option. It is opt-in (`default = false`) while its startup-verifier issue is
+  investigated.
+- **microG Drive support** routes account selection/token binding through
+  MicroG-RE, checks for the provider, refreshes Drive state after account
+  selection, and adds manifest package visibility. It links to the official
+  [Morphe MicroG page](https://morphe.software/microg).
 
-[Issue #11](https://github.com/zeldrisho/morphe-patches/issues/11) reported a false
-installation prompt and wrong download link with Zalo 26.08.01 / bundle 1.3.0;
-a suggested nightly did not resolve it. Missing logs, provider metadata, version
-code, and Morphe version prevent a single-root-cause conclusion. Local visibility
-and link defects are addressed; close only after complete device-flow confirmation.
+Initial OAuth and photo-restore flow, plus a complete backup/restore cycle, were
+device-validated for the pinned Zalo version. That evidence does not guarantee
+current provider releases, other Android versions, renamed packages, or every
+media type. Follow [validation](validation.md) for release qualification.
 
-## Installation checklist
+## Open recognition report
 
-1. Apply **microG Drive support** from a current bundle for the pinned Zalo target.
-2. Install compatible upstream MicroG-RE with package exactly
-   `app.revanced.android.gms`; other forks/package names are not equivalent.
-   Keep provider account/background/notification components enabled.
+[Repository issue #11](https://github.com/zeldrisho/morphe-patches/issues/11) is
+**open** (last updated 2026-09-18). The reporter said Zalo prompted for MicroG
+although it was installed; the install button also opened the wrong project page.
+The report lacks version code, Morphe version, and diagnostic logs. A suggested
+MicroG nightly did not resolve the reporter's problem; the maintainer then asked
+them to try the latest patch bundle and reinstall the nightly, with no later
+confirmation in the issue.
+
+Bundle 1.6.0 includes fixes for Android package visibility and the download URL,
+but the issue remains open: do not present those code changes as proof that the
+recognition failure is resolved. To reproduce or report it, include Zalo version
+and code, bundle and Morphe versions, MicroG-RE version/package/enabled state,
+Android version/ABI, and bounded redacted logs.
+
+## Installation and troubleshooting
+
+1. Use the pinned Zalo target and a current bundle. Enable **Enable Google Drive
+   photo backup** only when accepting its opt-in status; apply **microG Drive
+   support** for the provider flow.
+2. Install compatible MicroG-RE with package `app.revanced.android.gms` and
+   account type `app.revanced`. Other package names/forks are not equivalent.
 3. Before replacing a provider, record account state and export or explicitly
-   accept loss of provider-local data. Do not blindly uninstall.
-4. In Zalo's text-message backup/restore screen, select an account and test both
-   backup and restore, including media/message association. Picker success or an
-   account label alone is insufficient.
+   accept loss of provider-local data; do not blindly uninstall it.
+4. In Zalo's text-message backup/restore screen, test account selection and both
+   backup and restore, including media/message association. A visible account or
+   successful picker alone does not prove OAuth authorization or data recovery.
 
-Reports need Zalo version/code, bundle, Morphe, provider version/package, Android/ABI,
-and bounded redacted logcat. Follow [validation evidence rules](validation.md);
-never include tokens, account contents, private APKs, or keys.
-
-## Failure classification
-
-| Symptom | Boundary / next check |
+| Symptom | Check / boundary |
 | --- | --- |
-| Install prompt despite installed provider | Package name, enabled state, visibility, patched manifest. |
-| Picker has no account | AccountManager registration and `app.revanced` account type; not Drive authorization. |
-| Selected account rejected | OAuth/provider backend; mark attestation failures BLOCKED. No paid-state spoofing or HTTP mutation. |
-| Missing restored media | Separately test retention, index, download, and message association; absent/discarded media cannot be recovered by this patch. |
-| Crash after package rename | Package/certificate-bound state; test stock package first ([issue #14](https://github.com/zeldrisho/morphe-patches/issues/14)). |
+| Install prompt although provider is installed | Exact package name, enabled state, manifest package visibility; issue #11 remains open. |
+| Picker has no account | MicroG account registration and `app.revanced` account type; this does not prove Drive authorization. |
+| Account selected but request rejected | OAuth/provider backend; treat attestation rejection as **BLOCKED**, not a client patch failure. |
+| Photos/media missing after restore | Separate account, server retention/indexing, download, and message association; this patch cannot recover absent remote data. |
 
-## Scope and evidence
-
-Prior device evidence covered initial photo restore and a full backup/restore cycle,
-not every provider release, Android version, account, media type, or renamed package.
-Repeat with the release bundle; see [remaining Drive checks](plan.md#google-drive-backup-and-restore).
-Provider regressions belong in the [upstream tracker](https://github.com/MorpheApp/MicroG-RE/issues).
-[Issue #276](https://github.com/MorpheApp/MicroG-RE/issues/276) concerns already-backed-up
-photos not appearing: provider installation does not establish index/object visibility.
+Avoid paid-state spoofing and HTTP mutation. Keep tokens, account contents, APKs,
+keys, and raw logs private. Provider regressions belong in the
+[MicroG-RE issue tracker](https://github.com/MorpheApp/MicroG-RE/issues). The
+upstream [issue #276](https://github.com/MorpheApp/MicroG-RE/issues/276) is about
+photos missing from Google Photos after MicroG-RE upgrade, not a confirmed Zalo
+Drive defect; do not use it as evidence for this integration.

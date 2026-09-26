@@ -1,14 +1,11 @@
 package com.zeldrisho.patches.zalo.microg
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
-import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
-import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
-import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
-import com.android.tools.smali.dexlib2.iface.reference.MethodReference
-import com.android.tools.smali.dexlib2.iface.reference.StringReference
+import com.android.tools.smali.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.iface.Method
 import com.zeldrisho.patches.shared.bytecode.clearBody
 import com.zeldrisho.patches.shared.bytecode.ensureRegisters
 import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
@@ -47,6 +44,104 @@ internal fun replaceWithAccountPicker(method: MutableMethod) {
     )
 }
 
+/** Dispatches compatible class members through the method transformer and totals the edits. */
+internal fun rewriteMicroGClass(
+    classType: String,
+    methods: Iterable<Pair<Method, MutableMethod>>,
+): MicroGMethodReplacementCounts {
+    val replacement = when (classType) {
+        "Lo9/a;" -> "com.google.android.gms" to MICROG_PACKAGE
+        in accountTypeClasses -> "com.google" to MICROG_ACCOUNT_TYPE
+        ZALO_LAUNCHER_CLASS -> "" to ""
+        else -> return MicroGMethodReplacementCounts()
+    }
+    var total = MicroGMethodReplacementCounts()
+    methods.forEach { (method, mutableMethod) ->
+        if (method.implementation == null) return@forEach
+        val count = rewriteMicroGMethod(classType, method, mutableMethod, replacement)
+        total = MicroGMethodReplacementCounts(
+            total.binding + count.binding,
+            total.accountType + count.accountType,
+            total.accountPicker + count.accountPicker,
+            total.accountRefresh + count.accountRefresh,
+            total.launchCheck + count.launchCheck,
+        )
+    }
+    return total
+}
+
+/** Scans selected classes and applies all microG rewrites with final count validation. */
+internal fun rewriteMicroGClasses(
+    classes: Iterable<ClassDef>,
+    mutableClassFor: (ClassDef) -> MutableClass,
+): MicroGMethodReplacementCounts {
+    var total = MicroGMethodReplacementCounts()
+    classes.forEach { classDef ->
+        if (classDef.type != "Lo9/a;" && classDef.type !in accountTypeClasses &&
+            classDef.type != ZALO_LAUNCHER_CLASS
+        ) {
+            return@forEach
+        }
+        val mutableClass = mutableClassFor(classDef)
+        val methods = classDef.methods.mapNotNull { method ->
+            if (method.implementation == null) return@mapNotNull null
+            val mutableMethod = mutableClass.methods.first { candidate ->
+                candidate.name == method.name &&
+                    candidate.parameterTypes == method.parameterTypes &&
+                    candidate.returnType == method.returnType
+            }
+            method to mutableMethod
+        }
+        val count = rewriteMicroGClass(classDef.type, methods)
+        total = MicroGMethodReplacementCounts(
+            total.binding + count.binding,
+            total.accountType + count.accountType,
+            total.accountPicker + count.accountPicker,
+            total.accountRefresh + count.accountRefresh,
+            total.launchCheck + count.launchCheck,
+        )
+    }
+    validateMicroGReplacementCounts(total.binding, total.accountType, total.accountPicker, total.accountRefresh, total.launchCheck)
+    return total
+}
+
+/** Applies one method's applicable microG rewrites and reports their counts. */
+internal fun rewriteMicroGMethod(
+    classType: String,
+    method: Method,
+    mutableMethod: MutableMethod,
+    replacement: Pair<String, String>,
+): MicroGMethodReplacementCounts = rewriteMicroGMethodBody(classType, method, mutableMethod, replacement)
+
+/**
+ * Requires one binding, two pickers, one refresh, one launch check, and at least one account type.
+ *
+ * Throws if the totals indicate that an expected microG transformation was missed or duplicated.
+ */
+internal fun validateMicroGReplacementCounts(
+    bindingReplacements: Int,
+    accountTypeReplacements: Int,
+    accountPickerReplacements: Int,
+    accountRefreshReplacements: Int,
+    launchChecks: Int,
+) {
+    check(bindingReplacements == 1) {
+        "Zalo microG support: expected one o9/a service-binding replacement, found $bindingReplacements"
+    }
+    check(accountTypeReplacements > 0) {
+        "Zalo microG support: no Drive account-type literals were found"
+    }
+    check(accountPickerReplacements == 2) {
+        "Zalo microG support: expected two account-picker replacements, found $accountPickerReplacements"
+    }
+    check(accountRefreshReplacements == 1) {
+        "Zalo microG support: expected one delayed account refresh, found $accountRefreshReplacements"
+    }
+    check(launchChecks == 1) {
+        "Zalo microG support: expected one launcher provider check, found $launchChecks"
+    }
+}
+
 /**
  * Redirects Zalo's Google Drive account and token plumbing to microG-RE.
  * Account selection is delegated to AccountManager so Android grants Zalo
@@ -67,111 +162,8 @@ val zaloMicroGSupportPatch = bytecodePatch(
     dependsOn(zaloMicroGManifestPatch)
 
     execute {
-        var bindingReplacements = 0
-        var accountTypeReplacements = 0
-        var accountPickerReplacements = 0
-        var accountRefreshReplacements = 0
-        var launchChecks = 0
-
-        classDefForEach { classDef ->
-            val replacement = when (classDef.type) {
-                "Lo9/a;" -> "com.google.android.gms" to MICROG_PACKAGE
-                in accountTypeClasses -> "com.google" to MICROG_ACCOUNT_TYPE
-                ZALO_LAUNCHER_CLASS -> "" to ""
-                else -> return@classDefForEach
-            }
-
-            val mutableClass = mutableClassDefBy(classDef)
-            classDef.methods.forEach { method ->
-                val implementation = method.implementation ?: return@forEach
-                val mutableMethod = mutableClass.methods.first { candidate ->
-                    candidate.name == method.name &&
-                        candidate.parameterTypes == method.parameterTypes &&
-                        candidate.returnType == method.returnType
-                }
-
-                // Prompt once when the launcher is created, but deliberately ignore the
-                // result: Cancel must leave Zalo usable and picker-level checks remain the
-                // authoritative guard for Drive operations.
-                if (classDef.type == ZALO_LAUNCHER_CLASS &&
-                    method.name == "onCreate" && method.parameterTypes == listOf("Landroid/os/Bundle;")
-                ) {
-                    // onCreate(Bundle) has p0 and p1. v0 is a local only when the
-                    // frame has at least one register beyond those parameters.
-                    requireProviderCheckScratch(mutableMethod.implementation!!.registerCount)
-                    mutableMethod.addInstructionsWithLabels(
-                        0,
-                        """
-                            move-object/from16 v0, p0
-                            invoke-static { v0 }, $MICROG_EXTENSION_CLASS->checkGmsCore(Landroid/app/Activity;)Z
-                            move-result v0
-                        """.trimIndent(),
-                    )
-                    launchChecks++
-                }
-
-                val isAccountPickerMethod =
-                    (
-                        classDef.type == "Lcom/zing/zalo/ui/backuprestore/drive/SyncGoogleAccountBaseView;" &&
-                            method.name == "x6" && method.parameterTypes == listOf("Ljava/lang/String;")
-                        ) ||
-                        (
-                            classDef.type == "Lcom/zing/zalo/ui/backuprestore/drive/ManageGoogleAccountView;" &&
-                                method.name == "I6" && method.parameterTypes == listOf("Ljava/lang/String;")
-                            )
-                if (isAccountPickerMethod) {
-                    replaceWithAccountPicker(mutableMethod)
-                    accountPickerReplacements++
-                    return@forEach
-                }
-
-                implementation.instructions.forEachIndexed { index, instruction ->
-                    val methodReference =
-                        (instruction as? ReferenceInstruction)?.reference as? MethodReference
-                    if (isAccountRefreshCall(classDef.type, method.name, methodReference)) {
-                        mutableMethod.replaceInstruction(index, accountRefreshInvocation(instruction))
-                        accountRefreshReplacements++
-                        return@forEachIndexed
-                    }
-                    if (instruction.opcode != Opcode.CONST_STRING) return@forEachIndexed
-                    val reference = (instruction as? ReferenceInstruction)?.reference as? StringReference
-                        ?: return@forEachIndexed
-                    val register = (instruction as OneRegisterInstruction).registerA
-                    if (classDef.type == "Lcom/zing/zalo/ui/backuprestore/drive/SyncGoogleAccountBaseView;" &&
-                        method.name == "onActivityResult" && reference.string == "authAccount"
-                    ) {
-                        mutableMethod.replaceInstruction(
-                            index,
-                            "sget-object v$register, Landroid/accounts/AccountManager;->KEY_ACCOUNT_NAME:Ljava/lang/String;",
-                        )
-                    }
-                    val isAccountTypeLiteral = reference.string == "com.google" && classDef.type == "Lo9/a;"
-                    if (reference.string != replacement.first && !isAccountTypeLiteral) return@forEachIndexed
-                    val replacementValue = if (isAccountTypeLiteral) MICROG_ACCOUNT_TYPE else replacement.second
-                    mutableMethod.replaceInstruction(index, "const-string v$register, \"$replacementValue\"")
-                    if (classDef.type == "Lo9/a;" && !isAccountTypeLiteral) {
-                        bindingReplacements++
-                    } else {
-                        accountTypeReplacements++
-                    }
-                }
-            }
-        }
-
-        check(bindingReplacements == 1) {
-            "Zalo microG support: expected one o9/a service-binding replacement, found $bindingReplacements"
-        }
-        check(accountTypeReplacements > 0) {
-            "Zalo microG support: no Drive account-type literals were found"
-        }
-        check(accountPickerReplacements == 2) {
-            "Zalo microG support: expected two account-picker replacements, found $accountPickerReplacements"
-        }
-        check(accountRefreshReplacements == 1) {
-            "Zalo microG support: expected one delayed account refresh, found $accountRefreshReplacements"
-        }
-        check(launchChecks == 1) {
-            "Zalo microG support: expected one launcher provider check, found $launchChecks"
-        }
+        val classes = mutableListOf<ClassDef>()
+        classDefForEach(classes::add)
+        rewriteMicroGClasses(classes) { classDef -> mutableClassDefBy(classDef) }
     }
 }

@@ -8,12 +8,11 @@ blocks in bash. For routine work, use [development verification](development.md#
 Fedora WSL includes `python3`. Install host tools and isolated Python applications:
 
 ```fish
-sudo dnf install -y uv curl fish git unzip zip ripgrep fd-find binutils bash jq gh
+sudo dnf install -y uv curl fish git unzip zip ripgrep binutils bash jq gh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fish_add_path /home/linuxbrew/.linuxbrew/bin
 brew install openjdk@21 jadx apktool android-cli
-uv tool install frida-tools
 fish_add_path ~/.local/bin ~/Android/Sdk/build-tools/36.1.0 ~/Android/Sdk/platform-tools ~/Android/Sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin
 ```
 
@@ -50,17 +49,24 @@ and `zipalign`. An already-installed suitable build-tools version is fine; adjus
 PATH accordingly. `ANDROID_HOME` controls Gradle discovery, PATH controls terminal
 tools. No emulator or system image is required.
 
+Use the `android` CLI for supported deployment and UI workflows (install/run,
+layout inspection, and screen capture); see [validation](validation.md). Keep
+`adb` for lower-level device operations such as Wireless debugging pairing,
+connection/listing, and commands not exposed by `android`. `fd-find` is not part
+of the maintained toolchain; use `rg` for repository searches.
+
 ### Python applications: persistent tools versus one-shot runs
 
 | Tool | Command | Use |
 | --- | --- | --- |
-| Frida | `uv tool install frida-tools` | Persistent runtime instrumentation CLI |
+| Frida | `uv tool install frida-tools` (optional) | Runtime instrumentation; install only when needed |
 | Kaggle | `uv tool install kaggle` | Required by `scripts/remote_decompile.py` |
 | APKiD | `uvx apkid app.apk` | On-demand recon |
 | objection | `uvx objection --help` | On-demand dynamic triage; never assume a persistent install |
 
 `uv tool` puts isolated executables in `~/.local/bin`; `uvx` uses cached temporary
-environments. For Frida, install matching-version/ABI `frida-server` **on the device**:
+environments. Install Frida tooling only for runtime instrumentation, with a
+matching-version/ABI `frida-server` **on the device**:
 [releases](https://github.com/frida/frida/releases), [Android setup](https://frida.re/docs/android/).
 Kaggle requires credentials and a private notebook; see [remote decompilation](reverse-engineering.md#remote-decompilation-for-large-apks).
 Host analysis tools are `jadx` (Java), `apktool` (resources/smali), `rg` (search),
@@ -88,18 +94,29 @@ release tooling uses `gh`, `python3`, and `jq`.
 
 ## 5. Morphe CLI and GUI share one JAR
 
-Download the latest stable official JAR (requires `gh auth login`):
+The current official stable release is Morphe Desktop **1.17.0**. Download that
+versioned JAR and verify the published GitHub asset digest before using it:
 
 ```fish
 mkdir -p ~/.local/share/morphe
-gh release download --repo MorpheApp/morphe-desktop --pattern 'morphe-desktop-*-all.jar' --dir ~/.local/share/morphe
+gh release download v1.17.0 --repo MorpheApp/morphe-desktop \
+  --pattern 'morphe-desktop-1.17.0-all.jar' --dir ~/.local/share/morphe
+printf '%s  %s\n' \
+  '8cf6a9eab4ee9dab146bddc24681897851564f53116baec11f36ba2fa2f589be' \
+  "$HOME/.local/share/morphe/morphe-desktop-1.17.0-all.jar" | sha256sum -c -
 ```
 
+This release was checked locally against the pinned Zalo APKM. It still fails
+Morphe's internal DEX hierarchy verification on missing Google IMA classes, in
+both `FULL` and `STRIP_FAST` bytecode modes; upgrading alone does not unblock that
+APK. Do not treat SDK verification as passed or install an output that failed
+patching.
+
 `morphe-desktop-*-all.jar` starts the GUI without a subcommand, the CLI with one.
-Do not replace it during an active patch run. `scripts/repatch.py` discovers the
-newest JAR in this directory; `--jar <path>` overrides discovery. No environment
-configuration is needed for its default JAR, bundle, or keystore discovery.
-See [CLI patching](cli.md) for commands, runtime data-directory resolution, and
+Do not replace a JAR during an active patch run. `scripts/repatch.py` discovers the
+newest JAR in this directory; `--jar <path>` pins a specific one. No environment
+configuration is needed for its default JAR, bundle, or keystore discovery. See
+[CLI patching](cli.md) for commands, runtime data-directory resolution, and
 [signing](cli.md#signing) for key/password selection.
 Upstream: [README](https://github.com/MorpheApp/morphe-desktop),
 [CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
@@ -108,7 +125,7 @@ Upstream: [README](https://github.com/MorpheApp/morphe-desktop),
 
 On the standard Fedora WSL host, APKMirror downloads live in
 `/mnt/c/Users/zeldrisho/Downloads/`; other hosts may use any local directory.
-Keep APK investigation artifacts in the gitignored [analysis workspace](analysis.md).
+Keep APK investigation artifacts in the gitignored [analysis workspace](reverse-engineering.md#analysis-workspace).
 The helper prefers the repository's persistent `Morphe.keystore`, with shared
 Morphe data-directory keys as fallbacks; see [signing](cli.md#signing).
 
