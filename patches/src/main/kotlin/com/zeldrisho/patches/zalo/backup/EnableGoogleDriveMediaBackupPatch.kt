@@ -11,6 +11,8 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
+private const val MAX_CONST16_REGISTER = 0xFF
+
 /**
  * Forces only the value argument of the setter call immediately following the backup-media key.
  * This setter takes two booleans; the second (default) argument is deliberately preserved.
@@ -45,7 +47,10 @@ internal fun enableMediaBackup(method: app.morphe.patcher.util.proxy.mutableType
     }
     val valueRegister = invokeRegisterAt(writeInstruction, 1)
         ?: error("Zalo Google Drive backup: backup value register not found")
-    method.addInstructions(writeIndex, "const/4 v$valueRegister, 0x1")
+    check(valueRegister <= MAX_CONST16_REGISTER) {
+        "Zalo Google Drive backup: backup value register v$valueRegister is out of const/16 range"
+    }
+    method.addInstructions(writeIndex, "const/16 v$valueRegister, 0x1")
 }
 
 /**

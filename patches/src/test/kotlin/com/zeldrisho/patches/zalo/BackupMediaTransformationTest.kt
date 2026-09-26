@@ -55,7 +55,7 @@ class BackupMediaTransformationTest {
         val method = writer()
         enableMediaBackup(method)
         val instructions = method.implementation!!.instructions
-        assertEquals(Opcode.CONST_4, instructions[3].opcode)
+        assertEquals(Opcode.CONST_16, instructions[3].opcode)
         assertEquals(3, (instructions[3] as OneRegisterInstruction).registerA)
         assertEquals(1, (instructions[3] as NarrowLiteralInstruction).narrowLiteral)
         assertEquals(Opcode.INVOKE_STATIC, instructions[4].opcode)
@@ -81,7 +81,7 @@ class BackupMediaTransformationTest {
         enableMediaBackup(method)
 
         val instructions = method.implementation!!.instructions
-        assertEquals(Opcode.CONST_4, instructions[1].opcode)
+        assertEquals(Opcode.CONST_16, instructions[1].opcode)
         assertEquals(3, (instructions[1] as OneRegisterInstruction).registerA)
         assertEquals(Opcode.INVOKE_STATIC_RANGE, instructions[2].opcode)
     }
