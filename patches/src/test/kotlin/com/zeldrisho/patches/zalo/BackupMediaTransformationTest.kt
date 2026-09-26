@@ -1,10 +1,11 @@
 package com.zeldrisho.patches.zalo
 
 import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction21c
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction35c
-import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
-import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
+import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction3rc
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodReference
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableStringReference
 import com.zeldrisho.patches.testing.syntheticMutableMethod
@@ -24,14 +25,23 @@ class BackupMediaTransformationTest {
             // Another setter call in the method must not be selected.
             ImmutableInstruction21c(Opcode.CONST_STRING, 0, ImmutableStringReference("OTHER_SETTING")),
             ImmutableInstruction35c(
-                Opcode.INVOKE_STATIC, 3, 0, 1, 2, 0, 0,
+                Opcode.INVOKE_STATIC,
+                3,
+                0,
+                1,
+                2,
+                0,
+                0,
                 ImmutableMethodReference("Lu40/p0;", "i0", signature, "V"),
             ),
             ImmutableInstruction21c(Opcode.CONST_STRING, 1, ImmutableStringReference(key)),
             ImmutableInstruction35c(
-                Opcode.INVOKE_STATIC, arguments.size,
-                arguments.getOrElse(0) { 0 }, arguments.getOrElse(1) { 0 },
-                arguments.getOrElse(2) { 0 }, arguments.getOrElse(3) { 0 },
+                Opcode.INVOKE_STATIC,
+                arguments.size,
+                arguments.getOrElse(0) { 0 },
+                arguments.getOrElse(1) { 0 },
+                arguments.getOrElse(2) { 0 },
+                arguments.getOrElse(3) { 0 },
                 arguments.getOrElse(4) { 0 },
                 ImmutableMethodReference("Lu40/p0;", "i0", signature, "V"),
             ),
@@ -48,6 +58,29 @@ class BackupMediaTransformationTest {
         assertEquals(1, (instructions[3] as NarrowLiteralInstruction).narrowLiteral)
         assertEquals(Opcode.INVOKE_STATIC, instructions[4].opcode)
         assertEquals(Opcode.INVOKE_STATIC, instructions[1].opcode)
+    }
+
+    @Test
+    fun forcesBackupValueForRangeInvoke() {
+        val method = syntheticMutableMethod(
+            registerCount = 5,
+            instructions = listOf(
+                ImmutableInstruction21c(Opcode.CONST_STRING, 1, ImmutableStringReference("ENABLE_BACKUP_MEDIA")),
+                ImmutableInstruction3rc(
+                    Opcode.INVOKE_STATIC_RANGE,
+                    2,
+                    3,
+                    ImmutableMethodReference("Lu40/p0;", "i0", listOf("Ljava/lang/String;", "Z", "Z"), "V"),
+                ),
+            ),
+        )
+
+        enableMediaBackup(method)
+
+        val instructions = method.implementation!!.instructions
+        assertEquals(Opcode.CONST_4, instructions[1].opcode)
+        assertEquals(3, (instructions[1] as OneRegisterInstruction).registerA)
+        assertEquals(Opcode.INVOKE_STATIC_RANGE, instructions[2].opcode)
     }
 
     @Test
