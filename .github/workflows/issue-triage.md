@@ -1,5 +1,5 @@
 ---
-name: issue-triage
+name: Issue triage
 description: Reply to each new issue with a documented answer or a precise request for missing information, and apply a matching existing label.
 on:
   issues:
@@ -11,9 +11,7 @@ permissions:
   contents: read
   issues: read
   pull-requests: read
-engine:
-  id: copilot
-  model: gpt-5-mini
+engine: copilot
 jobs:
   agent:
     if: github.event_name != 'issue_comment' || (github.event.issue.pull_request == null && (contains(github.event.comment.body, '@github-actions[bot]') || contains(github.event.comment.body, '>')))
