@@ -39,7 +39,9 @@ patches {
 val patchListGeneratorClasspath = configurations.create("patchListGeneratorClasspath")
 
 dependencies {
-    compileOnly(libs.gson)
+    // Patch reflection exposes Gson-backed option types; Morphe's runtime classloader
+    // does not guarantee Gson is visible, so include it on the patch-bundle classpath.
+    implementation(libs.gson)
     patchListGeneratorClasspath(libs.gson)
     testImplementation(libs.gson)
     testImplementation(libs.junit)

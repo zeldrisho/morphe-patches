@@ -1,7 +1,7 @@
 package com.zeldrisho.patches.zalo
 
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction10x
+import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction11x
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction35c
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodReference
 import com.zeldrisho.patches.testing.syntheticMutableMethod
@@ -14,7 +14,7 @@ class BackupMediaTransformationTest {
     private fun writer(target: String = "Lu40/p0;", name: String = "i0") = syntheticMutableMethod(
         registerCount = 1,
         instructions = listOf(
-            ImmutableInstruction10x(Opcode.NOP),
+            ImmutableInstruction11x(Opcode.MOVE_RESULT, 0),
             ImmutableInstruction35c(
                 Opcode.INVOKE_STATIC,
                 0,
@@ -33,7 +33,7 @@ class BackupMediaTransformationTest {
         val method = writer()
         enableMediaBackup(method)
         assertEquals(
-            listOf(Opcode.NOP, Opcode.CONST_4, Opcode.INVOKE_STATIC),
+            listOf(Opcode.CONST_4, Opcode.INVOKE_STATIC),
             method.implementation!!.instructions.map { it.opcode },
         )
     }
