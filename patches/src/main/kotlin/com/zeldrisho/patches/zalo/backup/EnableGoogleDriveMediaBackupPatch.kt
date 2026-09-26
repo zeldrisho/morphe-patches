@@ -5,6 +5,7 @@ import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.Instruction
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.RegisterRangeInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
@@ -29,6 +30,8 @@ internal fun enableMediaBackup(method: app.morphe.patcher.util.proxy.mutableType
         "Zalo Google Drive backup: expected exactly one ENABLE_BACKUP_MEDIA key"
     }
     val keyIndex = keys.single()
+    val keyRegister = (instructions[keyIndex] as? OneRegisterInstruction)?.registerA
+        ?: error("Zalo Google Drive backup: backup key register not found")
     check(
         keyIndex + 1 < instructions.size &&
             instructions[keyIndex + 1].opcode in setOf(Opcode.INVOKE_STATIC, Opcode.INVOKE_STATIC_RANGE),
@@ -37,6 +40,9 @@ internal fun enableMediaBackup(method: app.morphe.patcher.util.proxy.mutableType
     }
     val writeIndex = keyIndex + 1
     val writeInstruction = instructions[writeIndex]
+    check(keyRegister == invokeRegisterAt(writeInstruction, 0)) {
+        "Zalo Google Drive backup: setter key does not match ENABLE_BACKUP_MEDIA"
+    }
     val writeReference = (writeInstruction as? ReferenceInstruction)?.reference as? MethodReference
         ?: error("Zalo Google Drive backup: ENABLE_BACKUP_MEDIA write reference not found")
     check(
@@ -47,6 +53,11 @@ internal fun enableMediaBackup(method: app.morphe.patcher.util.proxy.mutableType
     }
     val valueRegister = invokeRegisterAt(writeInstruction, 1)
         ?: error("Zalo Google Drive backup: backup value register not found")
+    val preservedRegister = invokeRegisterAt(writeInstruction, 2)
+        ?: error("Zalo Google Drive backup: preserved boolean register not found")
+    check(valueRegister != preservedRegister) {
+        "Zalo Google Drive backup: boolean arguments must use distinct registers"
+    }
     check(valueRegister <= MAX_CONST16_REGISTER) {
         "Zalo Google Drive backup: backup value register v$valueRegister is out of const/16 range"
     }

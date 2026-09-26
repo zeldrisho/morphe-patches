@@ -18,7 +18,7 @@ class BackupMediaTransformationTest {
     /** Builds an unrelated setter call followed by a configurable keyed backup setter call. */
     private fun writer(
         signature: List<String> = listOf("Ljava/lang/String;", "Z", "Z"),
-        arguments: List<Int> = listOf(2, 3, 4),
+        arguments: List<Int> = listOf(1, 3, 4),
         key: String = "ENABLE_BACKUP_MEDIA",
     ) = syntheticMutableMethod(
         registerCount = 5,
@@ -68,7 +68,7 @@ class BackupMediaTransformationTest {
         val method = syntheticMutableMethod(
             registerCount = 5,
             instructions = listOf(
-                ImmutableInstruction21c(Opcode.CONST_STRING, 1, ImmutableStringReference("ENABLE_BACKUP_MEDIA")),
+                ImmutableInstruction21c(Opcode.CONST_STRING, 2, ImmutableStringReference("ENABLE_BACKUP_MEDIA")),
                 ImmutableInstruction3rc(
                     Opcode.INVOKE_STATIC_RANGE,
                     2,
@@ -84,6 +84,24 @@ class BackupMediaTransformationTest {
         assertEquals(Opcode.CONST_16, instructions[1].opcode)
         assertEquals(3, (instructions[1] as OneRegisterInstruction).registerA)
         assertEquals(Opcode.INVOKE_STATIC_RANGE, instructions[2].opcode)
+    }
+
+    /** Checks that the keyed setter must receive the register containing the backup key. */
+    @Test
+    fun rejectsSetterWithDifferentKeyRegister() {
+        val error = assertFailsWith<IllegalStateException> {
+            enableMediaBackup(writer(arguments = listOf(2, 3, 4)))
+        }
+        assertEquals("Zalo Google Drive backup: setter key does not match ENABLE_BACKUP_MEDIA", error.message)
+    }
+
+    /** Checks that the setter's boolean arguments cannot alias. */
+    @Test
+    fun rejectsAliasedBooleanArguments() {
+        val error = assertFailsWith<IllegalStateException> {
+            enableMediaBackup(writer(arguments = listOf(1, 3, 3)))
+        }
+        assertEquals("Zalo Google Drive backup: boolean arguments must use distinct registers", error.message)
     }
 
     /** Checks the diagnostic when the keyed setter does not take the expected string and two booleans. */
