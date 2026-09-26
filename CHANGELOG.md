@@ -4,6 +4,9 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+### 🐛 Bug Fixes
+* **Zalo - Enable Google Drive photo backup:** Fixes a patching error on Zalo `26.08.01`.
+
 ## [1.6.1](https://github.com/zeldrisho/morphe-patches/compare/v1.6.0...v1.6.1) (2026-09-26)
 
 ### 🔧 Improvements
