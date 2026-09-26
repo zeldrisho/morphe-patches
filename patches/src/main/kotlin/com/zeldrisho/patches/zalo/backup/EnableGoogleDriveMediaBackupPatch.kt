@@ -48,6 +48,10 @@ internal fun enableMediaBackup(method: app.morphe.patcher.util.proxy.mutableType
     method.addInstructions(writeIndex, "const/4 v$valueRegister, 0x1")
 }
 
+/**
+ * Resolves a non-negative argument slot to its register in a fixed or range invoke.
+ * Returns null when the slot is at or beyond the argument count or the instruction format is unsupported.
+ */
 @Suppress("MagicNumber") // DEX invoke register slots are positional (C through G).
 private fun invokeRegisterAt(instruction: Instruction, registerIndex: Int): Int? = when (instruction) {
     is FiveRegisterInstruction -> if (registerIndex >= instruction.registerCount) {

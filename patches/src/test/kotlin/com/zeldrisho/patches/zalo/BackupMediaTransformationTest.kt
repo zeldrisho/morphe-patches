@@ -15,6 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class BackupMediaTransformationTest {
+    /** Builds an unrelated setter call followed by a configurable keyed backup setter call. */
     private fun writer(
         signature: List<String> = listOf("Ljava/lang/String;", "Z", "Z"),
         arguments: List<Int> = listOf(2, 3, 4),
@@ -48,6 +49,7 @@ class BackupMediaTransformationTest {
         ),
     )
 
+    /** Checks that the keyed setter receives a true value in its first boolean register and both calls remain. */
     @Test
     fun forcesOnlyFirstBooleanArgumentAtKeyedWrite() {
         val method = writer()
@@ -60,6 +62,7 @@ class BackupMediaTransformationTest {
         assertEquals(Opcode.INVOKE_STATIC, instructions[1].opcode)
     }
 
+    /** Checks that a range invoke receives the override in its first boolean register and remains intact. */
     @Test
     fun forcesBackupValueForRangeInvoke() {
         val method = syntheticMutableMethod(
@@ -83,6 +86,7 @@ class BackupMediaTransformationTest {
         assertEquals(Opcode.INVOKE_STATIC_RANGE, instructions[2].opcode)
     }
 
+    /** Checks the diagnostic when the keyed setter does not take the expected string and two booleans. */
     @Test
     fun rejectsUnexpectedSetterSignature() {
         val error = assertFailsWith<IllegalStateException> {
@@ -91,6 +95,7 @@ class BackupMediaTransformationTest {
         assertEquals("Zalo Google Drive backup: unexpected ENABLE_BACKUP_MEDIA setter signature", error.message)
     }
 
+    /** Checks the diagnostic when no ENABLE_BACKUP_MEDIA key is present. */
     @Test
     fun rejectsMissingKey() {
         val error = assertFailsWith<IllegalStateException> {
@@ -99,6 +104,7 @@ class BackupMediaTransformationTest {
         assertEquals("Zalo Google Drive backup: expected exactly one ENABLE_BACKUP_MEDIA key", error.message)
     }
 
+    /** Checks the diagnostic when the configuration method has no bytecode implementation. */
     @Test
     fun rejectsMissingImplementation() {
         val method = syntheticMutableMethod(registerCount = 1, instructions = null)
