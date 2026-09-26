@@ -41,9 +41,29 @@ python3 -m unittest discover -s scripts/tests -v
 `buildAndroid` alone does **not** run the quality gate. `coverageReport` generates
 JaCoCo output for `:patches` and AGP coverage reports for both extensions;
 `coverageVerification` (included in `verify`) enforces line-coverage floors of
-80% for patches, 91% for Threads, and 45.5% for Zalo. Current measured baselines
-are 80.3%, 91.9%, and 46.2%, respectively. Reports are written beneath each
-module's `build/reports/` directory.
+80% for patches, 91% for Threads, and 45.5% for Zalo. Current local reports
+measure 80.33%, 91.9%, and 83.33%, respectively. Zalo's enforced line floor is now 80%.
+Its JaCoCo agent includes no-location classes for Robolectric's sandbox, and the
+runtime suite declares the extension package instrumented. Reports are
+written beneath each module's `build/` report and intermediate coverage
+directories. Coverage is a regression signal, not proof of compatibility with a
+real APK or device.
+
+### Testing guidance
+
+Prefer pure synthetic inputs for transformation and descriptor-matching logic:
+small in-memory DEX/class descriptors exercise exact compatibility constraints
+without proprietary APK fixtures. APK qualification tests are opt-in through
+`THREADS_TEST_APK` or `ZALO_TEST_APK` and skip when those private inputs are
+absent. Keep APK-dependent qualification separate from standard CI.
+
+Use Robolectric for Android extension behavior that depends on `Context`,
+`PackageManager`, dialogs, handlers, or looper timing; tests must remain local
+JVM tests and must not require an emulator/device. The Zalo runtime uses a paused
+main looper for deterministic delayed-refresh assertions. Add assertions for
+observable behavior, including missing-provider fallback, invalid/null inputs,
+activity lifecycle edges, and superseded callbacks. Avoid introducing custom
+source-set fragmentation merely to accommodate tests.
 Successful verification still requires [real-APK and device validation](validation.md).
 
 ## Code quality

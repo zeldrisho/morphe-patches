@@ -13,8 +13,24 @@ mark later steps unexecuted. Do not promote a stable release with required check
 
 ## Build validation
 
-Run [canonical verification](development.md#verify). The bundle lands in
-`patches/build/libs/patches-*.mpp`. Successful CI runs retain
+Run the canonical local gates from the repository root:
+
+```bash
+uvx pre-commit run --all-files --show-diff-on-failure
+python3 -m unittest discover -s scripts/tests -v
+./gradlew verify --no-daemon
+```
+
+`verify` includes `coverageVerification` for `:patches`, `:extensions:threads`,
+and `:extensions:zalo`. To generate/verify coverage by itself:
+
+```bash
+./gradlew coverageVerification --no-daemon
+```
+
+Current enforced line floors are 80% for patches, 91% for Threads, and 80%
+for Zalo; see [development verification](development.md#verify) for measured
+baselines. The bundle lands in `patches/build/libs/patches-*.mpp`. Successful CI runs retain
 `patches-<sha>-<attempt>` artifacts for seven days; record run/commit and bundle
 hash. These are test builds, not releases.
 

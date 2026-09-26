@@ -62,7 +62,7 @@ tasks.register("coverageVerification") {
             (
                 "extensions/zalo/build/intermediates/code_coverage_data/global/collectDebugCoverage/" +
                     "debugExtensionsZaloUnitTestXmlReport.xml"
-                ) to 0.455,
+                ) to 0.80,
         )
         baselines.forEach { (path, minimum) ->
             val report = rootProject.file(path)

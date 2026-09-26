@@ -28,6 +28,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+          cache: gradle
 
       - uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
         with:
@@ -36,7 +37,7 @@ jobs:
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: '0.12.3'
-          enable-cache: false
+          enable-cache: true
 
       - run: uvx pre-commit run --all-files --show-diff-on-failure
       - run: python3 -m unittest discover -s scripts/tests -v

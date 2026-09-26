@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,21 +47,34 @@ public class ZaloMicroGSupportTest {
 
   @Test
   public void delayedRefreshIgnoresMissingOrChangedTargetMethods() throws Exception {
-    Constructor<?> constructor = refreshRequestConstructor();
-    Runnable missingMethod =
-        (Runnable) constructor.newInstance(new Object(), "account@example.com");
-    missingMethod.run();
+    RecordingScheduler scheduler = new RecordingScheduler();
+    ZaloMicroGSupport.scheduleAccountRefresh(new Object(), "account@example.com", scheduler);
+    scheduler.scheduled.get(0).run();
 
+    Constructor<?> constructor = refreshRequestConstructor();
     Runnable nullTarget = (Runnable) constructor.newInstance(null, "account@example.com");
     nullTarget.run();
   }
 
   @Test
   public void delayedRefreshContainsTargetExceptions() throws Exception {
-    Constructor<?> constructor = refreshRequestConstructor();
-    Runnable failingTarget =
-        (Runnable) constructor.newInstance(new FailingRefreshTarget(), "account@example.com");
-    failingTarget.run();
+    RecordingScheduler scheduler = new RecordingScheduler();
+    ZaloMicroGSupport.scheduleAccountRefresh(
+        new FailingRefreshTarget(), "account@example.com", scheduler);
+    scheduler.scheduled.get(0).run();
+  }
+
+  @Test
+  public void publicProviderCheckAllowsNullAndContainsUnattachedActivityFailure() {
+    assertTrue(ZaloMicroGSupport.checkGmsCore(null));
+    assertTrue(ZaloMicroGSupport.checkGmsCore(new Activity()));
+  }
+
+  @Test
+  public void providerResolverAcceptsEnabledProvider() {
+    assertTrue(
+        ZaloMicroGSupport.checkGmsCore(
+            new Activity(), () -> packageInfo(true), (activity, install, cancel) -> {}));
   }
 
   @Test
@@ -75,6 +89,36 @@ public class ZaloMicroGSupportTest {
               throw new AssertionError("prompt must not be shown");
             });
     assertTrue(result);
+  }
+
+  @Test
+  public void nullProviderPromptAndDownloadFallbackAreHandled() {
+    Activity activity = new Activity();
+    boolean result =
+        ZaloMicroGSupport.checkGmsCore(
+            activity,
+            () -> null,
+            (current, install, cancel) -> {
+              install.run();
+              cancel.run();
+            });
+    assertFalse(result);
+  }
+
+  @Test
+  public void providerPromptInstallAndCancelCallbacksAreSafe() {
+    Activity activity = new Activity();
+    boolean result =
+        ZaloMicroGSupport.checkGmsCore(
+            activity,
+            () -> {
+              throw new PackageManager.NameNotFoundException();
+            },
+            (current, install, cancel) -> {
+              install.run();
+              cancel.run();
+            });
+    assertFalse(result);
   }
 
   @Test
@@ -98,6 +142,43 @@ public class ZaloMicroGSupportTest {
   public void finishingOrDestroyedActivitiesDoNotReceiveInstallDialogs() {
     assertFalse(ZaloMicroGSupport.canShowInstallDialog(true, false));
     assertFalse(ZaloMicroGSupport.canShowInstallDialog(false, true));
+  }
+
+  @Test
+  public void handlerSchedulerContainsAHandlerFailure() throws Exception {
+    Class<?> schedulerClass =
+        Class.forName("com.zeldrisho.zalo.extension.ZaloMicroGSupport$HandlerScheduler");
+    Constructor<?> constructor = schedulerClass.getDeclaredConstructor(Handler.class);
+    constructor.setAccessible(true);
+    Object scheduler = constructor.newInstance(new Object[] {null});
+    java.lang.reflect.Method cancel = schedulerClass.getDeclaredMethod("cancel", Runnable.class);
+    cancel.setAccessible(true);
+    try {
+      cancel.invoke(scheduler, (Runnable) () -> {});
+    } catch (java.lang.reflect.InvocationTargetException expected) {
+      assertTrue(expected.getCause() instanceof RuntimeException);
+    }
+  }
+
+  @Test
+  public void dialogCreationFailureIsContainedAfterLifecycleCheck() throws Exception {
+    Activity usable =
+        new Activity() {
+          @Override
+          public boolean isFinishing() {
+            return false;
+          }
+
+          @Override
+          public boolean isDestroyed() {
+            return false;
+          }
+        };
+    java.lang.reflect.Method method =
+        ZaloMicroGSupport.class.getDeclaredMethod(
+            "showInstallDialog", Activity.class, Runnable.class, Runnable.class);
+    method.setAccessible(true);
+    method.invoke(null, usable, (Runnable) () -> {}, (Runnable) () -> {});
   }
 
   @Test

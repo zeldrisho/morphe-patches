@@ -16,14 +16,22 @@ These require devices/private artifacts; documentation and synthetic tests do no
 No private APK results are recorded here. Keep stock and output signing identities
 distinct; retain sanitized results in the release/PR record and raw artifacts outside Git.
 
+## Outstanding CI validation
+
+CI/release workflow updates enable Gradle caching; CI also caches uv environments.
+They pass local workflow linting, but the updated workflows have not yet completed
+on GitHub. Check the next hosted run for cache restore/save behavior and expected
+verification results.
+
 ## Coverage and test architecture
 
 Synthetic DEX/resource fixtures now exercise provider URI rewriting, media-quality
 instruction selection, ads/notification edits, MicroG class/method orchestration,
 patch metadata, and patch-list formatting/validation. The patches module measures
-**80.3% line coverage** against an **80% floor**; Threads and Zalo extension baselines
-are **91.9% / 91%** and **46.2% / 45.5%**. APK-dependent tests remain opt-in through
-their existing environment checks; no custom source set was introduced.
+**80.33% line coverage** against an **80% floor**; Threads measures **91.9% / 91%**,
+and Zalo measures **83.33% / 80%**. Zalo's Robolectric tests include JaCoCo
+no-location classes and instrument the extension package. APK-dependent tests remain
+opt-in through their existing environment checks; no custom source set was introduced.
 
 Remaining work is behavioral, not percentage-driven:
 
@@ -39,9 +47,6 @@ Remaining work is behavioral, not percentage-driven:
 - **P2 — Preserve the 80% baseline:** add focused tests for observable behavior
   and regressions; raise the floor only after a stable measured increase, not to
   chase coverage alone.
-- **P2 — Grow Zalo extension coverage:** exercise provider/lifecycle failure
-  paths and remaining runtime logic with focused Robolectric tests; retain plain
-  JVM tests for logic that does not need Android framework behavior.
 - **P3 — Keep Threads coverage healthy:** preserve meaningful ad-filter edge
   coverage while adding future runtime features; avoid tests that only defend a
   percentage target.

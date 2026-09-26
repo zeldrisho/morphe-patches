@@ -49,6 +49,12 @@ and `zipalign`. An already-installed suitable build-tools version is fine; adjus
 PATH accordingly. `ANDROID_HOME` controls Gradle discovery, PATH controls terminal
 tools. No emulator or system image is required.
 
+Use the `android` CLI for supported deployment and UI workflows (install/run,
+layout inspection, and screen capture); see [validation](validation.md). Keep
+`adb` for lower-level device operations such as Wireless debugging pairing,
+connection/listing, and commands not exposed by `android`. `fd-find` is not part
+of the maintained toolchain; use `rg` for repository searches.
+
 ### Python applications: persistent tools versus one-shot runs
 
 | Tool | Command | Use |
