@@ -14,6 +14,11 @@ internal object BackupConfiguration : Fingerprint(
     parameters = listOf("Lorg/json/JSONObject;", "Lorg/json/JSONObject;", "Lorg/json/JSONObject;", "Z"),
     filters = listOf(
         string("ENABLE_BACKUP_MEDIA"),
-        methodCall(definingClass = "Lu40/p0;", name = "i0", returnType = "V"),
+        methodCall(
+            definingClass = "Lu40/p0;",
+            name = "i0",
+            returnType = "V",
+            parameters = listOf("Ljava/lang/String;", "Z", "Z"),
+        ),
     ),
 )

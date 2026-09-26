@@ -1,6 +1,6 @@
 package com.zeldrisho.patches.zalo.backup
 
-import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
@@ -9,66 +9,66 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.RegisterRangeInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
-private const val WIDE_ARGUMENT_REGISTER_WIDTH = 2
-private const val REGISTER_E_ARGUMENT_INDEX = 2
-private const val REGISTER_F_ARGUMENT_INDEX = 3
-private const val REGISTER_G_ARGUMENT_INDEX = 4
+private const val MAX_CONST16_REGISTER = 0xFF
 
 /**
- * Enables the backup-media boolean only when the selected result feeds the matching write argument.
- *
- * Fails if the method body, write call, boolean argument, or matching result cannot be found.
+ * Forces only the value argument of the setter call immediately following the backup-media key.
+ * This setter takes two booleans; the second (default) argument is deliberately preserved.
  */
 internal fun enableMediaBackup(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
     val implementation = method.implementation
         ?: error("Zalo Google Drive backup: configuration method has no implementation")
     val instructions = implementation.instructions
-    val writeIndex = instructions.indexOfFirst { instruction ->
-        if (instruction.opcode != Opcode.INVOKE_STATIC && instruction.opcode != Opcode.INVOKE_STATIC_RANGE) {
-            return@indexOfFirst false
-        }
-        val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference
-        reference?.definingClass == "Lu40/p0;" && reference.name == "i0"
+    val keys = instructions.indices.filter { index ->
+        (instructions[index] as? ReferenceInstruction)?.reference.let { it as? StringReference }
+            ?.string == "ENABLE_BACKUP_MEDIA"
     }
-    check(writeIndex >= 0) {
-        "Zalo Google Drive backup: ENABLE_BACKUP_MEDIA write not found"
+    check(keys.size == 1) {
+        "Zalo Google Drive backup: expected exactly one ENABLE_BACKUP_MEDIA key"
     }
+    val keyIndex = keys.single()
+    val keyRegister = (instructions[keyIndex] as? OneRegisterInstruction)?.registerA
+        ?: error("Zalo Google Drive backup: backup key register not found")
+    check(
+        keyIndex + 1 < instructions.size &&
+            instructions[keyIndex + 1].opcode in setOf(Opcode.INVOKE_STATIC, Opcode.INVOKE_STATIC_RANGE),
+    ) {
+        "Zalo Google Drive backup: setter call does not follow ENABLE_BACKUP_MEDIA key"
+    }
+    val writeIndex = keyIndex + 1
     val writeInstruction = instructions[writeIndex]
+    check(keyRegister == invokeRegisterAt(writeInstruction, 0)) {
+        "Zalo Google Drive backup: setter key does not match ENABLE_BACKUP_MEDIA"
+    }
     val writeReference = (writeInstruction as? ReferenceInstruction)?.reference as? MethodReference
         ?: error("Zalo Google Drive backup: ENABLE_BACKUP_MEDIA write reference not found")
-    val booleanParameters = writeReference.parameterTypes.withIndex().filter { it.value == "Z" }
-    check(booleanParameters.size == 1) {
-        "Zalo Google Drive backup: expected exactly one boolean argument at ENABLE_BACKUP_MEDIA write"
+    check(
+        writeReference.definingClass == "Lu40/p0;" && writeReference.name == "i0" &&
+            writeReference.parameterTypes == listOf("Ljava/lang/String;", "Z", "Z"),
+    ) {
+        "Zalo Google Drive backup: unexpected ENABLE_BACKUP_MEDIA setter signature"
     }
-
-    // Invoke register lists count words, so wide parameters occupy two slots.
-    val booleanArgumentRegisterIndex = booleanParameters.single().index.let { parameterIndex ->
-        writeReference.parameterTypes.take(parameterIndex).sumOf { type ->
-            if (type == "J" || type == "D") WIDE_ARGUMENT_REGISTER_WIDTH else 1
-        }
+    val valueRegister = invokeRegisterAt(writeInstruction, 1)
+        ?: error("Zalo Google Drive backup: backup value register not found")
+    val preservedRegister = invokeRegisterAt(writeInstruction, 2)
+        ?: error("Zalo Google Drive backup: preserved boolean register not found")
+    check(valueRegister != preservedRegister) {
+        "Zalo Google Drive backup: boolean arguments must use distinct registers"
     }
-    val backupValueRegister = invokeRegisterAt(writeInstruction, booleanArgumentRegisterIndex)
-        ?: error("Zalo Google Drive backup: boolean argument register not found")
-
-    val resultIndex = (writeIndex - 1 downTo 0).firstOrNull { index ->
-        instructions[index].opcode == Opcode.MOVE_RESULT
+    check(valueRegister <= MAX_CONST16_REGISTER) {
+        "Zalo Google Drive backup: backup value register v$valueRegister is out of const/16 range"
     }
-    check(resultIndex != null) {
-        "Zalo Google Drive backup: parsed backup-media result not found"
-    }
-
-    // Only replace a result that is actually consumed as the write's boolean value.
-    // This avoids changing an unrelated result that happens to precede the invocation.
-    val resultRegister = (instructions[resultIndex] as? OneRegisterInstruction)?.registerA
-        ?: error("Zalo Google Drive backup: parsed result register not found")
-    check(resultRegister == backupValueRegister) {
-        "Zalo Google Drive backup: parsed result does not feed ENABLE_BACKUP_MEDIA write"
-    }
-    method.replaceInstruction(resultIndex, "const/4 v$resultRegister, 0x1")
+    method.addInstructions(writeIndex, "const/16 v$valueRegister, 0x1")
 }
 
+/**
+ * Resolves a non-negative argument slot to its register in a fixed or range invoke.
+ * Returns null when the slot is at or beyond the argument count or the instruction format is unsupported.
+ */
+@Suppress("MagicNumber") // DEX invoke register slots are positional (C through G).
 private fun invokeRegisterAt(instruction: Instruction, registerIndex: Int): Int? = when (instruction) {
     is FiveRegisterInstruction -> if (registerIndex >= instruction.registerCount) {
         null
@@ -76,9 +76,9 @@ private fun invokeRegisterAt(instruction: Instruction, registerIndex: Int): Int?
         when (registerIndex) {
             0 -> instruction.registerC
             1 -> instruction.registerD
-            REGISTER_E_ARGUMENT_INDEX -> instruction.registerE
-            REGISTER_F_ARGUMENT_INDEX -> instruction.registerF
-            REGISTER_G_ARGUMENT_INDEX -> instruction.registerG
+            2 -> instruction.registerE
+            3 -> instruction.registerF
+            4 -> instruction.registerG
             else -> null
         }
     }
