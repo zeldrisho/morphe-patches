@@ -4,7 +4,7 @@
 
 1. [Toolchain setup](toolchain.md) — provision a host and registry credentials.
 2. [CLI patching](cli.md) — patch, sign, and install an APK.
-3. [Reverse engineering](reverse-engineering.md) and [analysis workspace](analysis.md) — find targets and organize local evidence.
+3. [Reverse engineering](reverse-engineering.md) and [analysis workspace](reverse-engineering.md#analysis-workspace) — find targets and organize local evidence.
 4. [Patch development](patch-development.md) — file layout, fingerprints, and the build/test loop.
 5. [Validation](validation.md) — real-APK and device checks.
 6. [Release process](release.md) — branching, changelog, generated-file ownership, and publishing.
@@ -35,19 +35,11 @@ python3 -m unittest discover -s scripts/tests -v
 ./gradlew verify --no-daemon
 ```
 
-`verify` runs quality checks, patch tests, both extension unit-test suites, and
-`:patches:verifyBundleExtension` (builds the `.mpp` and checks embedded artifacts).
-`:patches:checkExtensionArtifact` is the faster artifact pre-check.
-`buildAndroid` alone does **not** run the quality gate. `coverageReport` generates
-JaCoCo output for `:patches` and AGP coverage reports for both extensions;
-`coverageVerification` (included in `verify`) enforces line-coverage floors of
-80% for patches, 91% for Threads, and 45.5% for Zalo. Current local reports
-measure 80.33%, 91.9%, and 83.33%, respectively. Zalo's enforced line floor is now 80%.
-Its JaCoCo agent includes no-location classes for Robolectric's sandbox, and the
-runtime suite declares the extension package instrumented. Reports are
-written beneath each module's `build/` report and intermediate coverage
-directories. Coverage is a regression signal, not proof of compatibility with a
-real APK or device.
+`verify` runs quality checks, patch tests, both extension unit-test suites, bundle
+verification, and coverage verification. Coverage floors are 80% for patches,
+91% for Threads, and 80% for Zalo. Reports are written beneath each module's
+`build/` directory; coverage is a regression signal, not proof of real-APK or
+device compatibility. `buildAndroid` alone does **not** run the quality gate.
 
 ### Testing guidance
 

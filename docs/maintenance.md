@@ -1,7 +1,7 @@
 # Remaining repository maintenance
 
-Cross-app backlog only. Implemented procedures: [validation](validation.md) and
-[provenance](provenance.md). Zalo candidates: [plan](plan.md). Publishing: [release](release.md).
+Cross-app backlog only. Validation: [device and build checks](validation.md).
+Zalo candidates: [plan](plan.md). Publishing: [release](release.md).
 
 ## Outstanding private validation
 
@@ -9,7 +9,7 @@ These require devices/private artifacts; documentation and synthetic tests do no
 
 | Priority | Work | Procedure |
 | --- | --- | --- |
-| P1 | Stock/control/patched Zalo and Threads journeys, including malformed intents and access boundaries | [Device scope](validation.md#device-validation-scope), [versioned sheets](validation.md#repeatable-device-journeys) |
+| P1 | Stock/control/patched Zalo and Threads journeys, including malformed intents and access boundaries | [Device scope](validation.md#device-validation-scope), [pinned-target assertions](validation.md#repeatable-device-journeys) |
 | P2 | Cold-launch/Threads-scroll baselines; backup scheduling when implemented | [Performance baseline](validation.md#controlled-performance-baseline) |
 | P2 | Pinned input qualification and repeated output-signing checks | [Build qualification](validation.md#build-validation), [signed output](validation.md#re-patch-and-install) |
 
@@ -25,13 +25,9 @@ verification results.
 
 ## Coverage and test architecture
 
-Synthetic DEX/resource fixtures now exercise provider URI rewriting, media-quality
-instruction selection, ads/notification edits, MicroG class/method orchestration,
-patch metadata, and patch-list formatting/validation. The patches module measures
-**80.33% line coverage** against an **80% floor**; Threads measures **91.9% / 91%**,
-and Zalo measures **83.33% / 80%**. Zalo's Robolectric tests include JaCoCo
-no-location classes and instrument the extension package. APK-dependent tests remain
-opt-in through their existing environment checks; no custom source set was introduced.
+Synthetic DEX/resource fixtures cover representative patch transformations and
+metadata; APK-dependent tests remain opt-in. Coverage floors and reports are
+managed by the verification task (see [development](development.md#verify)).
 
 Remaining work is behavioral, not percentage-driven:
 
@@ -66,6 +62,18 @@ Remaining work is behavioral, not percentage-driven:
 No global entitlement spoofing, HTTP-header OAuth fixes, broad MicroG rewrites,
 unrelated app ports, or shared runtime infrastructure without a concrete consumer
 and independent evidence.
+
+## Code provenance
+
+Borrowed or adapted code must carry attribution next to the implementation and
+be recorded here with its upstream URL, revision, local deviations, and update
+policy before it is changed. `shared/bytecode/MethodExtensions.kt` adapts a
+method-body cleanup pattern from doom-patches, with patterns also derived from
+ReVanced/BiliRoamingX. It remains a dependency-free local implementation using
+Morphe's mutable-method API; re-check upstream and resolved dexlib2 layout before
+changing it. Extension modules contain project-owned runtime code, not vendored
+third-party executable source. Executable filtering rules are updated only via
+reviewed source changes and bundle releases, never fetched at runtime.
 
 ## Acceptance
 

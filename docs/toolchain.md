@@ -125,7 +125,7 @@ Upstream: [README](https://github.com/MorpheApp/morphe-desktop),
 
 On the standard Fedora WSL host, APKMirror downloads live in
 `/mnt/c/Users/zeldrisho/Downloads/`; other hosts may use any local directory.
-Keep APK investigation artifacts in the gitignored [analysis workspace](analysis.md).
+Keep APK investigation artifacts in the gitignored [analysis workspace](reverse-engineering.md#analysis-workspace).
 The helper prefers the repository's persistent `Morphe.keystore`, with shared
 Morphe data-directory keys as fallbacks; see [signing](cli.md#signing).
 
