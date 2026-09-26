@@ -47,6 +47,30 @@ internal fun replaceWithAccountPicker(method: MutableMethod) {
     )
 }
 
+internal fun validateMicroGReplacementCounts(
+    bindingReplacements: Int,
+    accountTypeReplacements: Int,
+    accountPickerReplacements: Int,
+    accountRefreshReplacements: Int,
+    launchChecks: Int,
+) {
+    check(bindingReplacements == 1) {
+        "Zalo microG support: expected one o9/a service-binding replacement, found $bindingReplacements"
+    }
+    check(accountTypeReplacements > 0) {
+        "Zalo microG support: no Drive account-type literals were found"
+    }
+    check(accountPickerReplacements == 2) {
+        "Zalo microG support: expected two account-picker replacements, found $accountPickerReplacements"
+    }
+    check(accountRefreshReplacements == 1) {
+        "Zalo microG support: expected one delayed account refresh, found $accountRefreshReplacements"
+    }
+    check(launchChecks == 1) {
+        "Zalo microG support: expected one launcher provider check, found $launchChecks"
+    }
+}
+
 /**
  * Redirects Zalo's Google Drive account and token plumbing to microG-RE.
  * Account selection is delegated to AccountManager so Android grants Zalo
@@ -158,20 +182,12 @@ val zaloMicroGSupportPatch = bytecodePatch(
             }
         }
 
-        check(bindingReplacements == 1) {
-            "Zalo microG support: expected one o9/a service-binding replacement, found $bindingReplacements"
-        }
-        check(accountTypeReplacements > 0) {
-            "Zalo microG support: no Drive account-type literals were found"
-        }
-        check(accountPickerReplacements == 2) {
-            "Zalo microG support: expected two account-picker replacements, found $accountPickerReplacements"
-        }
-        check(accountRefreshReplacements == 1) {
-            "Zalo microG support: expected one delayed account refresh, found $accountRefreshReplacements"
-        }
-        check(launchChecks == 1) {
-            "Zalo microG support: expected one launcher provider check, found $launchChecks"
-        }
+        validateMicroGReplacementCounts(
+            bindingReplacements,
+            accountTypeReplacements,
+            accountPickerReplacements,
+            accountRefreshReplacements,
+            launchChecks,
+        )
     }
 }

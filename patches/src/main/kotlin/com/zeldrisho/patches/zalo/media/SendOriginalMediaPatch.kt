@@ -7,6 +7,16 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
+private const val SMALI_HEX_RADIX = 16
+
+internal fun forceQualityResult(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod, value: Int) {
+    method.addInstructions(0, "const/4 v0, 0x${value.toString(SMALI_HEX_RADIX)}\nreturn v0")
+}
+
+internal fun forcePickerQualityArgument(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
+    method.addInstructions(0, "const/4 p0, 0x2")
+}
+
 /** Enables Zalo's existing server-supported original-quality photo path. */
 @Suppress("unused")
 val sendZaloOriginalMediaPatch = bytecodePatch(
@@ -18,23 +28,12 @@ val sendZaloOriginalMediaPatch = bytecodePatch(
     compatibleWith(COMPATIBILITY_ZALO)
 
     execute {
-        SelectedMediaQuality.method.addInstructions(
-            0,
-            """
-            const/4 v0, 0x2
-            return v0
-            """.trimIndent(),
-        )
+        forceQualityResult(SelectedMediaQuality.method, 2)
 
         // The quality sheet receives the current selection in a Bundle. Force
         // that initial value too; otherwise the sheet can still open on HD
         // when the stored selection predates this patch.
-        QualityPickerArguments.method.addInstructions(
-            0,
-            """
-            const/4 p0, 0x2
-            """.trimIndent(),
-        )
+        forcePickerQualityArgument(QualityPickerArguments.method)
 
         // MediaPickerView.b7() initializes the photo picker to HD when the
         // quality control is enabled. Change only that initialization; the
@@ -137,28 +136,8 @@ val sendZaloOriginalMediaPatch = bytecodePatch(
         // 26.08.01, f() is the account/config entitlement check that sends a
         // non-entitled selection into the Z Cloud purchase flow. Patching only
         // e() makes the option visible but still leaves that flow reachable.
-        OriginalMediaQualityEnabled.method.addInstructions(
-            0,
-            """
-            const/4 v0, 0x1
-            return v0
-            """.trimIndent(),
-        )
-
-        OriginalMediaQualityEntitled.method.addInstructions(
-            0,
-            """
-            const/4 v0, 0x1
-            return v0
-            """.trimIndent(),
-        )
-
-        OriginalMediaQualityAvailable.method.addInstructions(
-            0,
-            """
-            const/4 v0, 0x1
-            return v0
-            """.trimIndent(),
-        )
+        forceQualityResult(OriginalMediaQualityEnabled.method, 1)
+        forceQualityResult(OriginalMediaQualityEntitled.method, 1)
+        forceQualityResult(OriginalMediaQualityAvailable.method, 1)
     }
 }

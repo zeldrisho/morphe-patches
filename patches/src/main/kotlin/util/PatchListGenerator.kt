@@ -97,6 +97,11 @@ private fun generatePatchList(version: String, patches: Set<Patch<*>>) {
         )
     }
 
+    listJson.writeText(formatPatchList(version, patchesMap))
+}
+
+/** Formats and validates patch metadata independently of bundle loading and filesystem I/O. */
+internal fun formatPatchList(version: String, patches: List<JsonPatch>): String {
     val gson = GsonBuilder()
         .serializeNulls()
         .disableHtmlEscaping()
@@ -111,15 +116,14 @@ private fun generatePatchList(version: String, patches: Set<Patch<*>>) {
             "file can break your releases and break third party tools that use this file.",
     )
     jsonObject.addProperty("version", version)
-    jsonObject.add("patches", gson.toJsonTree(patchesMap))
+    jsonObject.add("patches", gson.toJsonTree(patches))
     PatchListValidator.validate(jsonObject)
-
-    listJson.writeText(gson.toJson(jsonObject))
+    return gson.toJson(jsonObject)
 }
 
 /** JSON representation of a patch entry in patches-list.json. */
 @Suppress("unused")
-private class JsonPatch(
+internal class JsonPatch(
     val name: String? = null,
     val description: String? = null,
     val default: Boolean = true,
@@ -128,7 +132,7 @@ private class JsonPatch(
     val compatiblePackages: List<JsonCompatibility>? = null,
     val options: List<Option>,
 ) {
-    class Option(
+    internal class Option(
         val key: String,
         val title: String?,
         val description: String?,
@@ -141,7 +145,7 @@ private class JsonPatch(
 
 /** JSON representation of a compatible app entry, including name and per-version metadata. */
 @Suppress("unused")
-private class JsonCompatibility(
+internal class JsonCompatibility(
     /** Android package name, e.g. com.google.android.youtube. */
     val packageName: String,
     /** Human-readable app name declared in Compatibility, e.g. "YouTube". */
@@ -156,7 +160,7 @@ private class JsonCompatibility(
     val signatures: Set<String>?,
     val targets: List<Target>,
 ) {
-    class Target(
+    internal class Target(
         val version: String?,
         val versionCodes: Map<String, Int>?,
         val isExperimental: Boolean,

@@ -57,7 +57,7 @@ internal fun suppressBusinessBoxPeriodicBranch(
     method.replaceInstruction(instructionIndex, "return-void")
 }
 
-private object BusinessBoxListInsertionFingerprint : Fingerprint(
+internal object BusinessBoxListInsertionFingerprint : Fingerprint(
     definingClass = "Lje0/u;",
     name = "G",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
@@ -89,7 +89,7 @@ private object BusinessBoxListInsertionFingerprint : Fingerprint(
     ),
 )
 
-private object BusinessBoxPeriodicBranchFingerprint : Fingerprint(
+internal object BusinessBoxPeriodicBranchFingerprint : Fingerprint(
     definingClass = "Lof1/o;",
     name = "a",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
@@ -101,4 +101,9 @@ private object BusinessBoxPeriodicBranchFingerprint : Fingerprint(
         opcode(Opcode.CHECK_CAST),
         string("business_box_thread"),
     ),
+)
+
+internal val businessBoxFingerprints = listOf(
+    BusinessBoxListInsertionFingerprint,
+    BusinessBoxPeriodicBranchFingerprint,
 )

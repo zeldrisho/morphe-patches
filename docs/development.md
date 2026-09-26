@@ -41,8 +41,8 @@ python3 -m unittest discover -s scripts/tests -v
 `buildAndroid` alone does **not** run the quality gate. `coverageReport` generates
 JaCoCo output for `:patches` and AGP coverage reports for both extensions;
 `coverageVerification` (included in `verify`) enforces line-coverage floors of
-40% for patches, 91% for Threads, and 45.5% for Zalo. Current measured baselines
-are 40.8%, 91.9%, and 46.2%, respectively. Reports are written beneath each
+65% for patches, 91% for Threads, and 45.5% for Zalo. Current measured baselines
+are 65.4%, 91.9%, and 46.2%, respectively. Reports are written beneath each
 module's `build/reports/` directory.
 Successful verification still requires [real-APK and device validation](validation.md).
 
