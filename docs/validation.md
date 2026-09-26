@@ -14,7 +14,7 @@ mark later steps unexecuted. Do not promote a stable release with required check
 ## Build validation
 
 Run [canonical verification](development.md#verify). The bundle lands in
-`patches/build/libs/patches-*.mpp`. Successful Check runs retain
+`patches/build/libs/patches-*.mpp`. Successful CI runs retain
 `patches-<sha>-<attempt>` artifacts for seven days; record run/commit and bundle
 hash. These are test builds, not releases.
 
