@@ -54,7 +54,7 @@ tasks.register("coverageVerification") {
     dependsOn("coverageReport", ":patches:jacocoTestCoverageVerification")
     doLast {
         val baselines = listOf(
-            "patches/build/reports/jacoco/test/jacocoTestReport.xml" to 0.65,
+            "patches/build/reports/jacoco/test/jacocoTestReport.xml" to 0.80,
             (
                 "extensions/threads/build/intermediates/code_coverage_data/global/collectDebugCoverage/" +
                     "debugExtensionsThreadsUnitTestXmlReport.xml"

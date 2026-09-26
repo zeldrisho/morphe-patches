@@ -3,6 +3,7 @@ package com.zeldrisho.patches.zalo.ads
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction10x
 import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction11x
+import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction21t
 import com.zeldrisho.patches.testing.syntheticMutableMethod
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,6 +22,25 @@ class ZaloAdsTransformationsTest {
         forceReturnFalse(method)
 
         assertEquals(listOf(Opcode.CONST_4, Opcode.RETURN), method.implementation!!.instructions.map { it.opcode })
+    }
+
+    @Test
+    fun networkSkipBranchIsNoppedWithoutChangingAdjacentInstructions() {
+        val method = syntheticMutableMethod(
+            registerCount = 2,
+            instructions = listOf(
+                ImmutableInstruction10x(Opcode.NOP),
+                ImmutableInstruction21t(Opcode.IF_NEZ, 0, 1),
+                ImmutableInstruction10x(Opcode.RETURN_VOID),
+            ),
+        )
+
+        neutralizeNetworkSkipBranch(method, 1)
+
+        assertEquals(
+            listOf(Opcode.NOP, Opcode.NOP, Opcode.RETURN_VOID),
+            method.implementation!!.instructions.map { it.opcode },
+        )
     }
 
     @Test

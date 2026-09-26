@@ -16,29 +16,29 @@ These require devices/private artifacts; documentation and synthetic tests do no
 No private APK results are recorded here. Keep stock and output signing identities
 distinct; retain sanitized results in the release/PR record and raw artifacts outside Git.
 
-## Coverage and test architecture still in progress
+## Coverage and test architecture
 
-The synthetic-method fixture, resource/bytecode transformation tests, extracted
-MicroG/media/telemetry helpers, and patch-list formatter tests are in place. The
-patches module currently measures **65.4% line coverage** against a **65% floor**;
-Threads and Zalo extension baselines are **91.9% / 91%** and **46.2% / 45.5%**.
-The approximate 80% patches goal remains unmet. Integration/APK tests remain in
-`src/test` and are opt-in through their existing environment checks; no custom
-source set was introduced.
+Synthetic DEX/resource fixtures now exercise provider URI rewriting, media-quality
+instruction selection, ads/notification edits, MicroG class/method orchestration,
+patch metadata, and patch-list formatting/validation. The patches module measures
+**80.3% line coverage** against an **80% floor**; Threads and Zalo extension baselines
+are **91.9% / 91%** and **46.2% / 45.5%**. APK-dependent tests remain opt-in through
+their existing environment checks; no custom source set was introduced.
 
-- **P1 — Complete synthetic fingerprint matcher coverage:** add positive and
-  near-miss synthetic DEX tests for Zalo media, Business Box chat, and telemetry
-  fingerprints. The current inventory test initializes fingerprint definitions
-  and checks descriptor metadata; it does not validate every matcher against
-  matching and mutated methods.
-- **P1 — Cover patch orchestration paths:** exercise fallback, required-match
-  failures, and replacement-count validation for MicroG, media, telemetry, and
-  resource patch execution. Existing unit tests cover extracted helpers, not
-  every Morphe execution-closure branch.
-- **P2 — Continue toward the 80% patches floor:** add behavior-focused coverage
-  for remaining production transformations and error paths; retain tooling in
-  scope unless it is explicitly excluded with a documented rationale. Do not
-  raise the floor beyond a durable measured baseline.
+Remaining work is behavioral, not percentage-driven:
+
+- **P1 — Close synthetic fingerprint gaps:** add positive and one-constraint
+  near-miss DEX cases for remaining Zalo media, Business Box, and telemetry
+  fingerprints. The descriptor inventory initializes definitions but does not
+  validate every filter against both matching and mutated methods.
+- **P1 — Exercise remaining Morphe lifecycle closures:** synthetic helper tests
+  do not run every registered `bytecodePatch` / `resourcePatch` callback. Prioritize
+  package-resource finalization and option application, AD_ID resource callbacks,
+  the complete Send Original Media callback, and telemetry orchestration, including
+  missing/ambiguous target failures where meaningful.
+- **P2 — Preserve the 80% baseline:** add focused tests for observable behavior
+  and regressions; raise the floor only after a stable measured increase, not to
+  chase coverage alone.
 - **P2 — Grow Zalo extension coverage:** exercise provider/lifecycle failure
   paths and remaining runtime logic with focused Robolectric tests; retain plain
   JVM tests for logic that does not need Android framework behavior.

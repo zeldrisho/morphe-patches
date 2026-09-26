@@ -4,6 +4,7 @@ import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.patch.stringOption
+import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
@@ -14,6 +15,28 @@ private val PROVIDER_URIS = setOf(
     "content://$ORIGINAL_ZALO_PACKAGE.db.preferencesprovider",
     "content://$ORIGINAL_ZALO_PACKAGE.provider.InternalProvider",
 )
+
+internal fun validateProviderUriReplacementCounts(replacementCounts: Map<String, Int>) {
+    check(replacementCounts.values.all { it == 1 }) {
+        "Zalo package rename: expected one reference per provider URI, found $replacementCounts"
+    }
+}
+
+internal fun rewriteProviderUriStrings(method: MutableMethod, packageName: String): Map<String, Int> {
+    val replacements = PROVIDER_URIS.associateWith { 0 }.toMutableMap()
+    val instructions = method.implementation?.instructions?.toList().orEmpty()
+    instructions.forEachIndexed { index, instruction ->
+        if (instruction.opcode != Opcode.CONST_STRING) return@forEachIndexed
+        val reference = (instruction as? ReferenceInstruction)?.reference as? StringReference
+            ?: return@forEachIndexed
+        if (reference.string !in PROVIDER_URIS) return@forEachIndexed
+        val register = (instruction as OneRegisterInstruction).registerA
+        val replacement = rewriteZaloProviderUri(reference.string, packageName)
+        method.replaceInstruction(index, "const-string v$register, \"$replacement\"")
+        replacements[reference.string] = replacements.getValue(reference.string) + 1
+    }
+    return replacements
+}
 
 private val packageNameOption = stringOption(
     key = "packageName",
@@ -67,22 +90,12 @@ val changeZaloPackageNamePatch = bytecodePatch(
                         candidate.parameterTypes == method.parameterTypes &&
                         candidate.returnType == method.returnType
                 }
-                implementation.instructions.forEachIndexed { index, instruction ->
-                    if (instruction.opcode != Opcode.CONST_STRING) return@forEachIndexed
-                    val reference = (instruction as? ReferenceInstruction)?.reference as? StringReference
-                        ?: return@forEachIndexed
-                    if (reference.string !in PROVIDER_URIS) return@forEachIndexed
-                    val register = (instruction as OneRegisterInstruction).registerA
-                    val replacement = rewriteZaloProviderUri(reference.string, packageName!!)
-                    mutableMethod.replaceInstruction(index, "const-string v$register, \"$replacement\"")
-                    replacementCounts[reference.string] =
-                        replacementCounts.getValue(reference.string) + 1
+                rewriteProviderUriStrings(mutableMethod, packageName!!).forEach { (uri, count) ->
+                    replacementCounts[uri] = replacementCounts.getValue(uri) + count
                 }
             }
         }
 
-        check(replacementCounts.values.all { it == 1 }) {
-            "Zalo package rename: expected one reference per provider URI, found $replacementCounts"
-        }
+        validateProviderUriReplacementCounts(replacementCounts)
     }
 }
