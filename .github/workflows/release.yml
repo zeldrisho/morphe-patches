@@ -94,7 +94,7 @@ jobs:
       - name: Test and build bundle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest :patches:verifyBundleExtension --no-daemon
+        run: ./gradlew verify --no-daemon
 
       - name: Locate bundle
         run: |
@@ -119,7 +119,7 @@ jobs:
             echo "Release $TAG exists (retry); keeping its notes and adding a missing asset if needed."
             if ! gh api "repos/${{ github.repository }}/releases/tags/$TAG" \
                 --jq '.assets[].name' | grep -qx "patches-${{ env.VERSION }}.mpp"; then
-              gh release upload "$TAG" "$MPP" --clobber
+              gh release upload "$TAG" "$MPP"
             fi
           else
             gh release create "$TAG" --title "$TAG" --notes-file /tmp/release-notes.md --latest "$MPP"

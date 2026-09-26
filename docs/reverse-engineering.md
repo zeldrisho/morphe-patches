@@ -309,7 +309,7 @@ Never trust JADX or third-party opcode tables alone — they can mis-decompile o
 misdescribe obfuscated code. The [Android bytecode specification](https://source.android.com/docs/core/runtime/dalvik-bytecode)
 is authoritative for instruction formats and register limits. For every candidate:
 
-1. Find the smali file across **all** DEX dirs: `find <analysis>/smali -name '<ClassName>.smali'`.
+1. Find the smali file across **all** DEX dirs: `fd --hidden --no-ignore --type f --name '<ClassName>.smali' <analysis>/smali`.
 2. Read the exact method: `rg -B 2 -A 50 '\.method.*<methodName>' <file>`.
 3. Record: access flags, return type (the descriptor after `)` in the method header),
    full parameter descriptors, register count, invoke sequence **in order**, and which

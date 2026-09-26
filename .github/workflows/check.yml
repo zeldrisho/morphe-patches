@@ -24,6 +24,7 @@ jobs:
   check:
     name: Unit tests + lint + build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -58,22 +59,12 @@ jobs:
       - name: Python script tests
         run: python3 -m unittest discover -s scripts/tests -v
 
-      - name: JVM formatting and static analysis
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew qualityCheck --no-daemon
-
-      - name: Unit tests
+      - name: Gradle verification gate
         env:
           # Morphe Gradle plugin resolves from GitHub Packages, which needs
           # auth even for public packages (see docs/toolchain.md).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:test :extensions:threads:testDebugUnitTest :extensions:zalo:testDebugUnitTest --no-daemon
-
-      - name: Build bundle and verify embedded extension
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:verifyBundleExtension --no-daemon
+        run: ./gradlew verify --no-daemon
 
       # Only the distributable bundle, never APKs, signing keys, or analysis data.
       - name: Upload bundle for device QA

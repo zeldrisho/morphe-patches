@@ -32,3 +32,15 @@ tasks.register("qualityCheck") {
         ":extensions:zalo:lintDebug",
     )
 }
+
+tasks.register("verify") {
+    group = "verification"
+    description = "Run the canonical JVM, extension, and bundle verification gate"
+    dependsOn(
+        "qualityCheck",
+        ":patches:test",
+        ":extensions:threads:testDebugUnitTest",
+        ":extensions:zalo:testDebugUnitTest",
+        ":patches:verifyBundleExtension",
+    )
+}

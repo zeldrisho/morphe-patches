@@ -1,17 +1,12 @@
 # Patching with the Morphe CLI
 
-This repo patches from the terminal. The phone **Manager UI is out of scope**
-here — every flow below is the Morphe CLI plus `scripts/repatch.py`.
-Upstream GUI docs are linked, not duplicated.
+Terminal workflow using Morphe CLI and `scripts/repatch.py`; Manager/GUI flows are out of scope.
 
 ## Prerequisites
 
-Toolchain, JAR download, and GitHub Packages credentials:
-[toolchain setup](toolchain.md) (esp. §5). Original split bundles (`.apkm`)
-only from APKMirror: [toolchain §7](toolchain.md#7-original-apk-source); host paths are
-centralized in [toolchain §6](toolchain.md#6-storage-and-path-conventions). On this
-host, APKMirror downloads are stored in `/mnt/c/Users/zeldrisho/Downloads/`;
-use the `.apkm` file matching the target version there.
+Follow [toolchain setup](toolchain.md) for tools, JAR, and registry credentials.
+Use the target-version `.apkm` from [APKMirror](toolchain.md#7-original-apk-source);
+see [storage conventions](toolchain.md#6-storage-and-path-conventions) for local paths.
 
 ## The JAR is the CLI
 
@@ -20,21 +15,15 @@ the Morphe GUI; with a subcommand it is the Morphe CLI. Full upstream reference:
 [Morphe documentation](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
 
 ```bash
-MORPHE="${MORPHE:-$(find ~/.local/share/morphe -maxdepth 1 -type f \
-  -name 'morphe-desktop-*-all.jar' -print0 |
-  xargs -0 ls -t | head -n1)}"
+MORPHE="$HOME/.local/share/morphe/morphe-desktop-<version>-all.jar"
 java -jar "$MORPHE" --version
 java -jar "$MORPHE" --help
 java -jar "$MORPHE" patch --help
 java -jar "$MORPHE" list-patches --help
 ```
 
-The JAR is kept at `~/.local/share/morphe/morphe-desktop-1.15.0-all.jar` (see
-[toolchain setup](toolchain.md)). `scripts/repatch.py` works out of the box
-with zero environment variable configuration:
-it discovers the newest `morphe-desktop-*-all.jar` in
-`~/.local/share/morphe/` (`--jar <path>` overrides discovery for manual
-testing).
+For raw CLI commands, replace `<version>` with your installed JAR version.
+The helper discovers the newest JAR automatically (`--jar <path>` overrides it).
 
 Data root (patches cache, logs, scratch, default keystore): `MORPHE_DATA_DIR`
 when set to a writable directory, else `morphe-data/` next to the JAR
@@ -74,28 +63,18 @@ CLI flags beat the options file when both set one patch. A nonexistent
 
 ## Canonical flows (this repo)
 
-Fast path (first success):
-
-```bash
-./gradlew buildAndroid --no-daemon
-MPP="patches/build/libs/patches-<version>.mpp" \
-  python3 scripts/repatch.py /path/to/app.apkm /tmp/app_patched.apk
-adb install -r /tmp/app_patched.apk
-```
-
-Build first — the `.mpp` lands in `patches/build/libs/`:
+Build/test, then use the helper (pins bundle, scratch directory, and keystore).
+Replace `<version>` with the built bundle version:
 
 ```bash
 ./gradlew :patches:test buildAndroid --no-daemon
-```
-
-Full re-patch via the helper (preferred — pins bundle, tmp dir, keystore):
-
-```bash
 MPP="patches/build/libs/patches-<version>.mpp" \
   python3 scripts/repatch.py /path/to/app.apkm /tmp/app_patched.apk
 adb install -r /tmp/app_patched.apk
 ```
+
+For release QA, follow [full verification](development.md#verify) and
+[device validation](validation.md); this quick loop is not a substitute.
 
 What `repatch.py` does: picks newest local `.mpp` (or latest GitHub release
 via `GITHUB_REPO`), runs `options-create`, applies `APP_NAME` /
@@ -105,6 +84,9 @@ with `--options-file`, `-o`, `-t`, and `--keystore*`. Optional overrides:
 KEYSTORE_ENTRY_PASSWORD VERIFY_SDK GITHUB_REPO` — unset means
 automatic discovery (newest local `.mpp`, standard-dir JAR, and the repository's
 persistent `Morphe.keystore`; shared data-dir keys are fallback).
+When downloading a release, `GITHUB_REPO` must be an `owner/repository`
+value. The helper accepts only HTTPS URLs hosted by GitHub or its release
+asset CDN and validates every redirect.
 `VERIFY_SDK` is opt-in SDK verification: `1` uses SDK discovery, a path value
 passes `--verify-with-sdk=<path>` (required release-QA step; see
 [validation guide](validation.md#re-patch-and-install)).
@@ -148,7 +130,9 @@ compatibility constants, not this document.
 | `-i [SERIAL]`, `--mount` | ADB install after patch; `--mount` = root mount over stock (needs `su`, stock installed) |
 | `utility install -a <apk> [--route-links] [--disable-stock PKG]`, `utility uninstall -p <pkg> [--unmount]`, `utility clear-cache [--info]` | Post-patch device ops; link routing = GUI "open with" step, reversible, ADB-only |
 
-## Signing (keystore flags need `=`)
+## Signing
+
+Keystore flags need `=`; space-separated forms are rejected.
 
 ```bash
 java -jar "$MORPHE" patch -p "$MPP" \
@@ -180,10 +164,7 @@ certificate and can use `adb install -r`; switching keys still requires one
 uninstall. PKCS12/JKS inputs are auto-detected and
 converted to a BKS copy (original untouched). The repo's `Morphe.keystore` is
 BKS — plain `keytool` says "unrecognized format" unless loaded with the
-BouncyCastle provider from the Morphe JAR (see
-[lessons learned](cli.md#signing)). Re-patch updates install over
-the old build **only** when the signing key is unchanged; mismatched certs
-need uninstall first (`adb install -r` fails otherwise).
+BouncyCastle provider from the Morphe JAR.
 
 ## Updating and debugging
 
@@ -197,11 +178,3 @@ need uninstall first (`adb install -r` fails otherwise).
 - Post-install link routing (patched app opens its web links; optionally strip
   stock's claim after a rename): `utility install -a /tmp/out.apk --route-links
   [--disable-stock com.example.app]` — needs ADB-authorized device.
-
-## Not here
-
-GUI walkthroughs (Quick/Expert, Icon Studio, source manager), Manager phone
-flows (sources, Your apps, update badges), and general patch authoring live
-upstream or in sibling docs: [toolchain](toolchain.md),
-[patch development](patch-development.md), [validation](validation.md),
-[validation](validation.md). This file owns the terminal path only.
