@@ -12,6 +12,7 @@ val extensionArtifacts = mapOf(
 plugins {
     // Matches the Kotlin 2.4.10 compiler supplied by Morphe; see docs/development.md.
     id("dev.detekt") version "2.0.0-alpha.6"
+    jacoco
 }
 
 detekt {
@@ -44,6 +45,28 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.smali)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            element = "BUNDLE"
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.40".toBigDecimal()
+            }
+        }
+    }
 }
 
 tasks {

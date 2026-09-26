@@ -339,9 +339,12 @@ Covered in the the fingerprint reference in [patch development](patch-developmen
 
 Check the patch is registered (`list-patches` in the Morphe CLI against
 `patches/build/libs/patches-*.mpp`), apply to the **downloaded split bundle**
-(never an extracted `base.apk`), install via `adb install -r`. If a fingerprint fails to
-match, go back to the hunt step and re-verify smali — the app version probably
-moved the code.
+(never an extracted `base.apk`), install with
+`android install --apks=<path-to-verified.apk> --device="$SERIAL"`. To inspect
+UI behavior, prefer `android layout --device="$SERIAL" --full` and
+`android screen capture --device="$SERIAL" --output=<path>`. If a fingerprint
+fails to match, go back to the hunt step and re-verify smali — the app version
+probably moved the code.
 
 
 # Native patching

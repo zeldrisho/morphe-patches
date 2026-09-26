@@ -191,7 +191,11 @@ Apply the `.mpp` via the terminal ([CLI patching](cli.md)) against the **downloa
 (see [toolchain storage and source conventions](toolchain.md#6-storage-and-path-conventions)
 and [original APK source](toolchain.md#7-original-apk-source)) matching the supported
 the target version and `ApkFileType.APKS` compatibility declaration (never an
-extracted `base.apk`), then `adb install -r` the output.
+extracted `base.apk`), then install the output with
+`android install --apks=<path-to-verified.apk> --device="$SERIAL"` (or use
+`android run --apks=<path-to-verified.apk> --device="$SERIAL"` to install and
+launch). For UI debugging, prefer `android layout --device="$SERIAL" --full`
+and `android screen capture --device="$SERIAL" --output=<path>`.
 To debug one patch in isolation, apply
 only it (`patch --exclusive -e "Name"`, see [CLI patching](cli.md#canonical-flows-this-repo)) before the full suite —
 a fingerprint failure elsewhere won't mask your result that way.

@@ -38,8 +38,13 @@ python3 -m unittest discover -s scripts/tests -v
 `verify` runs quality checks, patch tests, both extension unit-test suites, and
 `:patches:verifyBundleExtension` (builds the `.mpp` and checks embedded artifacts).
 `:patches:checkExtensionArtifact` is the faster artifact pre-check.
-`buildAndroid` alone does **not** run the quality gate. Successful verification
-still requires [real-APK and device validation](validation.md).
+`buildAndroid` alone does **not** run the quality gate. `coverageReport` generates
+JaCoCo output for `:patches` and AGP coverage reports for both extensions;
+`coverageVerification` (included in `verify`) enforces line-coverage floors of
+40% for patches, 91% for Threads, and 45.5% for Zalo. Current measured baselines
+are 40.8%, 91.9%, and 46.2%, respectively. Reports are written beneath each
+module's `build/reports/` directory.
+Successful verification still requires [real-APK and device validation](validation.md).
 
 ## Code quality
 

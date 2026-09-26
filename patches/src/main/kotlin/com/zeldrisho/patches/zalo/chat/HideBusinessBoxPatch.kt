@@ -33,20 +33,28 @@ val hideZaloBusinessBoxPatch = bytecodePatch(
         // standard Conversation categories and avoiding a broad method short-circuit.
         val insertion = BusinessBoxListInsertionFingerprint.instructionMatches
             .single { it.instruction.opcode == Opcode.INVOKE_DIRECT }
-        BusinessBoxListInsertionFingerprint.method.replaceInstruction(
-            insertion.index,
-            "return-void",
-        )
+        suppressBusinessBoxInsertion(BusinessBoxListInsertionFingerprint.method, insertion.index)
 
         // of1/o.a() periodically revisits visible items. Skip only its q00/a branch,
         // preserving the surrounding list refresh and processing of standard items.
         val periodicMatch = BusinessBoxPeriodicBranchFingerprint.instructionMatches
             .single { it.instruction.opcode == Opcode.CHECK_CAST }
-        BusinessBoxPeriodicBranchFingerprint.method.replaceInstruction(
-            periodicMatch.index,
-            "return-void",
-        )
+        suppressBusinessBoxPeriodicBranch(BusinessBoxPeriodicBranchFingerprint.method, periodicMatch.index)
     }
+}
+
+internal fun suppressBusinessBoxInsertion(
+    method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
+    instructionIndex: Int,
+) {
+    method.replaceInstruction(instructionIndex, "return-void")
+}
+
+internal fun suppressBusinessBoxPeriodicBranch(
+    method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
+    instructionIndex: Int,
+) {
+    method.replaceInstruction(instructionIndex, "return-void")
 }
 
 private object BusinessBoxListInsertionFingerprint : Fingerprint(

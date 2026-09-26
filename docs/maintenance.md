@@ -16,10 +16,29 @@ These require devices/private artifacts; documentation and synthetic tests do no
 No private APK results are recorded here. Keep stock and output signing identities
 distinct; retain sanitized results in the release/PR record and raw artifacts outside Git.
 
+## Coverage and test architecture still in progress
+
+The reusable synthetic-method fixture and initial Zalo/Threads transformation
+checks are in place. They do not yet provide broad coverage of production patch
+execution or extension lifecycle behavior. Current line coverage and enforced
+floors are: patches **40.8% / 40%**, Threads **91.9% / 91%**, and Zalo
+**46.2% / 45.5%**. The approximate 80% goal remains unmet for patches and Zalo.
+
+- **P1 — Grow meaningful patch coverage:** prioritize bytecode/resource
+  transformations, fallback/error paths, and mismatch handling across Zalo,
+  Threads, and future app targets. Reuse
+  `patches/src/test/kotlin/com/zeldrisho/patches/testing/`; do not test only
+  fingerprint declarations or proprietary APK fixtures. Raise floors only after
+  durable behavior coverage exists.
+- **P2 — Grow Zalo extension coverage:** exercise provider/lifecycle failure
+  paths and remaining runtime logic with focused Robolectric tests; retain plain
+  JVM tests for logic that does not need Android framework behavior.
+- **P3 — Keep Threads coverage healthy:** preserve meaningful ad-filter edge
+  coverage while adding future runtime features; avoid tests that only defend a
+  percentage target.
+
 ## Deferred until a concrete trigger
 
-- **Transformation/ambiguity fixtures:** add when a patch exposes a qualification
-  gap; proprietary APKs stay out of Git and public CI.
 - **Shrinker safety/size:** establish whether extension packaging invokes R8.
   If enabled, protect injected names, descriptors/flags, and reflection contracts;
   extend embedded-Dex checks and measure savings before narrowing keep rules.

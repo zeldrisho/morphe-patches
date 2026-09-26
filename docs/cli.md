@@ -70,7 +70,9 @@ Replace `<version>` with the built bundle version:
 ./gradlew :patches:test buildAndroid --no-daemon
 MPP="patches/build/libs/patches-<version>.mpp" \
   python3 scripts/repatch.py /path/to/app.apkm /tmp/app_patched.apk
-adb install -r /tmp/app_patched.apk
+android install --apks=/tmp/app_patched.apk --device="$SERIAL"
+# Or to install and launch:
+android run --apks=/tmp/app_patched.apk --device="$SERIAL"
 ```
 
 For release QA, follow [full verification](development.md#verify) and
@@ -160,21 +162,25 @@ then falls back to shared data-dir keys. For the repository key it uses an
 empty store password and the `Morphe` entry password by default. Override
 `KEYSTORE`, `KEYSTORE_PASSWORD`, and `KEYSTORE_ENTRY_PASSWORD` for a different
 persistent key. Consecutive builds using the same key have the same signing
-certificate and can use `adb install -r`; switching keys still requires one
-uninstall. PKCS12/JKS inputs are auto-detected and
+certificate and can be installed as updates with `android install`; switching
+keys still requires one uninstall. PKCS12/JKS inputs are auto-detected and
 converted to a BKS copy (original untouched). The repo's `Morphe.keystore` is
 BKS — plain `keytool` says "unrecognized format" unless loaded with the
 BouncyCastle provider from the Morphe JAR.
 
 ## Updating and debugging
 
-- Update = re-patch with the new `.mpp` (or new APK) and `adb install -r`;
-  no uninstall when the cert matches. `Your apps`-style update badges are a
+- Update = re-patch with the new `.mpp` (or new APK) and install with
+  `android install --apks=<path-to-verified.apk> --device="$SERIAL"` (or
+  `android run --apks=<path-to-verified.apk> --device="$SERIAL"` to install and
+  launch); no uninstall when the cert matches. `Your apps`-style update badges are a
   Manager concept; on CLI compare `list-versions` output and the `-r` result JSON.
 - Failed run: keep scratch (`--disable-purge`), save the result
   (`-r result.json`), read `morphe-data/logs/`, then device logcat:
   `adb logcat | grep 'morphe\|AndroidRuntime'`. Patched-app runtime logs are
-  just logcat — no special CLI log subcommand.
+  just logcat — no special CLI log subcommand. For UI diagnosis, prefer
+  `android layout --device="$SERIAL" --full` and
+  `android screen capture --device="$SERIAL" --output=<path>`.
 - Post-install link routing (patched app opens its web links; optionally strip
   stock's claim after a rename): `utility install -a /tmp/out.apk --route-links
   [--disable-stock com.example.app]` — needs ADB-authorized device.

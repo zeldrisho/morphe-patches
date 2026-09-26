@@ -36,7 +36,9 @@ Release qualification requires SDK verification:
 ```bash
 MPP="patches/build/libs/patches-<version>.mpp" VERIFY_SDK=1 \
   python3 scripts/repatch.py /path/to/input.apkm /tmp/verified.apk
-adb install -r /tmp/verified.apk
+android install --apks=/tmp/verified.apk --device="$SERIAL"
+# Or install and launch:
+android run --apks=/tmp/verified.apk --device="$SERIAL"
 ```
 
 Update only when signing certificates match; see [signing](cli.md#signing).
@@ -75,7 +77,8 @@ Morphe fixes the verifier. Other required checks still apply.
 ## Repeatable device journeys
 
 Run stock, minimally re-signed no-patch control, and selected-patch builds. Use
-`android layout` for primary UI inspection, screenshots as secondary evidence.
+`android layout --device="$SERIAL" --full` for primary UI inspection and
+`android screen capture --device="$SERIAL" --output=<path>` for visual evidence.
 A successful tap is not proof of the expected state.
 
 Versioned blank execution sheets (no device results):

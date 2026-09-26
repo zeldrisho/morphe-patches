@@ -24,9 +24,13 @@ val suppressZaloSeenStatusPatch = bytecodePatch(
     compatibleWith(COMPATIBILITY_ZALO)
 
     execute {
-        SeenStatusSend.method.clearBody()
-        SeenStatusSend.method.addInstructions(0, "return-void")
+        suppressSeenStatus(SeenStatusSend.method)
     }
+}
+
+internal fun suppressSeenStatus(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
+    method.clearBody()
+    method.addInstructions(0, "return-void")
 }
 
 /** Zalo 26.08.01's dedicated seen-status RequestPacket builder. */

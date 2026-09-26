@@ -134,7 +134,7 @@ val disableZaloTelemetryPatch = bytecodePatch(
         forceReturnInt(EventBatchInsert.matchAll(1..1).single().method)
         for (match in NativeCrashHandlerInitCall.matchAll(0..Int.MAX_VALUE)) {
             match.instructionMatches.forEach { instruction ->
-                match.method.replaceInstruction(instruction.index, "nop")
+                disableNativeCrashHandler(match.method, instruction.index)
             }
         }
 
@@ -157,12 +157,16 @@ val disableZaloTelemetryPatch = bytecodePatch(
     }
 }
 
-private fun forceReturnVoid(method: MutableMethod) {
+internal fun disableNativeCrashHandler(method: MutableMethod, instructionIndex: Int) {
+    method.replaceInstruction(instructionIndex, "nop")
+}
+
+internal fun forceReturnVoid(method: MutableMethod) {
     method.clearBody()
     method.addInstructions(0, "return-void")
 }
 
-private fun forceReturnInt(method: MutableMethod) {
+internal fun forceReturnInt(method: MutableMethod) {
     method.clearBody()
     method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
 }

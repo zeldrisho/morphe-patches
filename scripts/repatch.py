@@ -235,7 +235,9 @@ def main():
             )
         except subprocess.CalledProcessError as e:
             raise SystemExit(e.returncode)
-    print(f'\n✅ Patched APK: {out}\nInstall:  adb install -r "{out}"')
+    print(
+        f'\n✅ Patched APK: {out}\nInstall:  android install --apks="{out}" --device="$SERIAL"'
+    )
 
 
 if __name__ == "__main__":

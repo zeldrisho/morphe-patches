@@ -8,12 +8,11 @@ blocks in bash. For routine work, use [development verification](development.md#
 Fedora WSL includes `python3`. Install host tools and isolated Python applications:
 
 ```fish
-sudo dnf install -y uv curl fish git unzip zip ripgrep fd-find binutils bash jq gh
+sudo dnf install -y uv curl fish git unzip zip ripgrep binutils bash jq gh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fish_add_path /home/linuxbrew/.linuxbrew/bin
 brew install openjdk@21 jadx apktool android-cli
-uv tool install frida-tools
 fish_add_path ~/.local/bin ~/Android/Sdk/build-tools/36.1.0 ~/Android/Sdk/platform-tools ~/Android/Sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/linux-x86_64/bin
 ```
 
@@ -54,13 +53,14 @@ tools. No emulator or system image is required.
 
 | Tool | Command | Use |
 | --- | --- | --- |
-| Frida | `uv tool install frida-tools` | Persistent runtime instrumentation CLI |
+| Frida | `uv tool install frida-tools` (optional) | Runtime instrumentation; install only when needed |
 | Kaggle | `uv tool install kaggle` | Required by `scripts/remote_decompile.py` |
 | APKiD | `uvx apkid app.apk` | On-demand recon |
 | objection | `uvx objection --help` | On-demand dynamic triage; never assume a persistent install |
 
 `uv tool` puts isolated executables in `~/.local/bin`; `uvx` uses cached temporary
-environments. For Frida, install matching-version/ABI `frida-server` **on the device**:
+environments. Install Frida tooling only for runtime instrumentation, with a
+matching-version/ABI `frida-server` **on the device**:
 [releases](https://github.com/frida/frida/releases), [Android setup](https://frida.re/docs/android/).
 Kaggle requires credentials and a private notebook; see [remote decompilation](reverse-engineering.md#remote-decompilation-for-large-apks).
 Host analysis tools are `jadx` (Java), `apktool` (resources/smali), `rg` (search),
