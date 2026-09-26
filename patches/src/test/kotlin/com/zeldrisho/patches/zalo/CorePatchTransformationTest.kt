@@ -17,6 +17,7 @@ import kotlin.test.assertEquals
 
 /** Exercises production bytecode transformations against synthetic mutable methods. */
 class CorePatchTransformationTest {
+    /** Builds a synthetic method with a NOP and return for body-replacement assertions. */
     private fun method(returnType: String = "V", registerCount: Int = 1) = syntheticMutableMethod(
         returnType = returnType,
         registerCount = registerCount,
@@ -26,6 +27,7 @@ class CorePatchTransformationTest {
         ),
     )
 
+    /** Verifies that seen-status suppression leaves only a void return. */
     @Test
     fun seenSuppressionReplacesWholeBodyWithReturnVoid() {
         val target = method()
@@ -33,6 +35,7 @@ class CorePatchTransformationTest {
         assertEquals(listOf(Opcode.RETURN_VOID), target.implementation!!.instructions.map { it.opcode })
     }
 
+    /** Verifies that typing-status suppression leaves only a void return. */
     @Test
     fun typingSuppressionReplacesWholeBodyWithReturnVoid() {
         val target = method()
@@ -40,6 +43,7 @@ class CorePatchTransformationTest {
         assertEquals(listOf(Opcode.RETURN_VOID), target.implementation!!.instructions.map { it.opcode })
     }
 
+    /** Checks that both business-box helpers place a void return at the selected instruction. */
     @Test
     fun businessBoxInsertionAndPeriodicBranchReturnAtSelectedInstruction() {
         val insertion = method()
@@ -51,6 +55,7 @@ class CorePatchTransformationTest {
         assertEquals(Opcode.RETURN_VOID, periodic.implementation!!.instructions[0].opcode)
     }
 
+    /** Verifies that disabling crash registration preserves the following return instruction. */
     @Test
     fun nativeCrashRegistrationCallIsNoppedWithoutRemovingAdjacentInstructions() {
         val target = syntheticMutableMethod(
@@ -76,6 +81,7 @@ class CorePatchTransformationTest {
         )
     }
 
+    /** Checks the replacement instruction sequences for void and integer telemetry sinks. */
     @Test
     fun telemetryVoidSinksBecomeNoOpsAndIntegerSinksReturnZero() {
         val voidSink = method()

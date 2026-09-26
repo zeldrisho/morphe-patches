@@ -80,11 +80,12 @@ val disableZaloSponsoredPatch = bytecodePatch(
     }
 }
 
-/** Wipes a boolean gate and returns false; clears try-blocks to keep ART verification happy. */
+/** Replaces the selected network skip branch with a NOP, leaving neighboring instructions intact. */
 internal fun neutralizeNetworkSkipBranch(method: MutableMethod, instructionIndex: Int) {
     method.replaceInstruction(instructionIndex, "nop")
 }
 
+/** Wipes a boolean gate and returns false; clears try-blocks to keep ART verification happy. */
 internal fun forceReturnFalse(method: MutableMethod) {
     method.clearBody()
     method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")

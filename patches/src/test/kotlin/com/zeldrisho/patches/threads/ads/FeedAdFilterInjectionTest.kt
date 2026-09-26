@@ -16,6 +16,7 @@ import kotlin.test.assertEquals
  * asserts the emitted instructions, not just the generated smali strings.
  */
 class FeedAdFilterInjectionTest {
+    /** Builds a synthetic feed-merge method with the requested register frame and a NOP body. */
     private fun targetMethod(registerCount: Int) = syntheticMutableMethod(
         definingClass = "Lcom/test/FeedCache;",
         name = "merge",
@@ -35,6 +36,7 @@ class FeedAdFilterInjectionTest {
         instructions = listOf(ImmutableInstruction10x(Opcode.NOP)),
     )
 
+    /** Builds a feed-merge signature without bytecode to exercise the injection guard. */
     private fun targetMethodWithoutImplementation() = syntheticMutableMethod(
         definingClass = "Lcom/test/FeedCache;",
         name = "merge",
@@ -109,6 +111,7 @@ class FeedAdFilterInjectionTest {
         assertEquals(Opcode.MOVE_OBJECT_16, opcodes[3])
     }
 
+    /** Verifies that feed-filter injection rejects methods without a bytecode implementation. */
     @Test fun missingImplementationFailsBeforeInjection() {
         val error = kotlin.test.assertFailsWith<IllegalStateException> {
             injectFeedAdFilter(targetMethodWithoutImplementation())

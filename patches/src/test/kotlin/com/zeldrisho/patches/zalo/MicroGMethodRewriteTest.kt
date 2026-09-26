@@ -31,6 +31,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class MicroGMethodRewriteTest {
+    /** Builds a public synthetic void method with configurable parameters, registers, and instructions. */
     private fun immutableMethod(
         owner: String,
         name: String,
@@ -48,10 +49,12 @@ class MicroGMethodRewriteTest {
         ImmutableMethodImplementation(registers, instructions, emptyList(), emptyList()),
     )
 
+    /** Collects string-reference values from a mutable method implementation in instruction order. */
     private fun strings(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) = method.implementation!!.instructions.mapNotNull { instruction ->
         ((instruction as? ReferenceInstruction)?.reference as? StringReference)?.string
     }
 
+    /** Wraps the supplied synthetic methods in a public class extending Object. */
     private fun classDef(owner: String, vararg methods: ImmutableMethod) = ImmutableClassDef(
         owner,
         AccessFlags.PUBLIC.value,
@@ -63,6 +66,7 @@ class MicroGMethodRewriteTest {
         methods.toList(),
     )
 
+    /** Checks microG binding and account-type substitutions while preserving unrelated strings. */
     @Test
     fun replacesServiceBindingAndAccountTypeLiteralsWithPackageSpecificValues() {
         val source = immutableMethod(
@@ -80,6 +84,7 @@ class MicroGMethodRewriteTest {
         assertEquals(listOf(MICROG_PACKAGE, MICROG_ACCOUNT_TYPE, "unrelated"), strings(mutable))
     }
 
+    /** Checks account-key substitution and zero replacement counts for an unrelated bodyless method. */
     @Test
     fun rewritesActivityResultAccountKeyAndIgnoresBodylessMethods() {
         val source = immutableMethod(
@@ -108,6 +113,7 @@ class MicroGMethodRewriteTest {
         )
     }
 
+    /** Checks launcher injection, rejection of insufficient scratch registers, and guarded picker code. */
     @Test
     fun launcherGuardAndPickerPathsAreExercised() {
         val launcher = immutableMethod(
@@ -156,6 +162,7 @@ class MicroGMethodRewriteTest {
         assertTrue(pickerMutable.implementation!!.instructions.any { it.opcode == Opcode.IF_EQZ })
     }
 
+    /** Checks accepted microG totals and each required count when it is below the minimum. */
     @Test
     fun validatesAllOrchestrationCountBoundaries() {
         validateMicroGReplacementCounts(1, 1, 2, 1, 1)
@@ -173,6 +180,7 @@ class MicroGMethodRewriteTest {
         }
     }
 
+    /** Checks per-class count aggregation and skipping of unrelated classes. */
     @Test
     fun classDispatcherHandlesSupportedAndUnrelatedClassesAndAggregatesMethodCounts() {
         val owner = "Lcom/zing/zalo/ui/backuprestore/drive/ManageGoogleAccountView;"
@@ -203,6 +211,7 @@ class MicroGMethodRewriteTest {
         )
     }
 
+    /** Exercises all counted microG rewrites across synthetic classes and checks the final totals. */
     @Test
     @Suppress("LongMethod")
     fun classOrchestrationRunsSyntheticBindingPickerRefreshAndLauncherPaths() {
@@ -271,6 +280,7 @@ class MicroGMethodRewriteTest {
         )
     }
 
+    /** Verifies that method rewriting replaces the refresh invoke with a counted static call. */
     @Test
     fun accountRefreshInvokeIsRewrittenByMethodOrchestration() {
         val source = immutableMethod(

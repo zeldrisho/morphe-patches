@@ -20,6 +20,7 @@ import org.robolectric.shadows.ShadowAlertDialog;
 @RunWith(RobolectricTestRunner.class)
 @LooperMode(LooperMode.Mode.PAUSED)
 public class ZaloMicroGLooperTest {
+  /** Verifies that cancelling the missing-provider prompt dismisses it on the main looper. */
   @Test
   public void missingProviderShowsPromptAndCancelClosesIt() {
     Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
@@ -43,6 +44,7 @@ public class ZaloMicroGLooperTest {
     assertFalse(dialog.isShowing());
   }
 
+  /** Verifies that a finished activity cannot display the provider prompt. */
   @Test
   public void finishedActivityDoesNotShowProviderPrompt() {
     Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
@@ -51,6 +53,7 @@ public class ZaloMicroGLooperTest {
     assertFalse(ZaloMicroGSupport.canShowInstallDialog(activity));
   }
 
+  /** Verifies that account refresh runs once at 250 ms and not before the delay expires. */
   @Test
   public void mainLooperRunsScheduledAccountRefreshAfterDelay() {
     RefreshTarget target = new RefreshTarget();
@@ -66,6 +69,7 @@ public class ZaloMicroGLooperTest {
   public static final class RefreshTarget {
     int refreshCount;
 
+    /** Records a reflective account refresh invocation. */
     public void A6(String accountName) {
       refreshCount++;
     }

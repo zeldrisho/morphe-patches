@@ -113,6 +113,11 @@ internal fun rewriteMicroGMethod(
     replacement: Pair<String, String>,
 ): MicroGMethodReplacementCounts = rewriteMicroGMethodBody(classType, method, mutableMethod, replacement)
 
+/**
+ * Requires one binding, two pickers, one refresh, one launch check, and at least one account type.
+ *
+ * Throws if the totals indicate that an expected microG transformation was missed or duplicated.
+ */
 internal fun validateMicroGReplacementCounts(
     bindingReplacements: Int,
     accountTypeReplacements: Int,

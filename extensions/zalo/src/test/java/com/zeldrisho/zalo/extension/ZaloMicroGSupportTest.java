@@ -45,6 +45,7 @@ public class ZaloMicroGSupportTest {
     ZaloMicroGSupport.scheduleAccountRefresh(new Object(), "");
   }
 
+  /** Verifies that delayed refresh tolerates a missing target method or null target. */
   @Test
   public void delayedRefreshIgnoresMissingOrChangedTargetMethods() throws Exception {
     RecordingScheduler scheduler = new RecordingScheduler();
@@ -56,6 +57,7 @@ public class ZaloMicroGSupportTest {
     nullTarget.run();
   }
 
+  /** Verifies that exceptions from the reflective refresh target do not escape the callback. */
   @Test
   public void delayedRefreshContainsTargetExceptions() throws Exception {
     RecordingScheduler scheduler = new RecordingScheduler();
@@ -64,12 +66,14 @@ public class ZaloMicroGSupportTest {
     scheduler.scheduled.get(0).run();
   }
 
+  /** Verifies fail-open behavior for null and unattached activities. */
   @Test
   public void publicProviderCheckAllowsNullAndContainsUnattachedActivityFailure() {
     assertTrue(ZaloMicroGSupport.checkGmsCore(null));
     assertTrue(ZaloMicroGSupport.checkGmsCore(new Activity()));
   }
 
+  /** Verifies that an enabled provider returned by the resolver passes the check. */
   @Test
   public void providerResolverAcceptsEnabledProvider() {
     assertTrue(
@@ -91,6 +95,7 @@ public class ZaloMicroGSupportTest {
     assertTrue(result);
   }
 
+  /** Exercises install and cancel callbacks when the resolver returns no package information. */
   @Test
   public void nullProviderPromptAndDownloadFallbackAreHandled() {
     Activity activity = new Activity();
@@ -105,6 +110,7 @@ public class ZaloMicroGSupportTest {
     assertFalse(result);
   }
 
+  /** Verifies that prompt callbacks tolerate a missing provider on an unattached activity. */
   @Test
   public void providerPromptInstallAndCancelCallbacksAreSafe() {
     Activity activity = new Activity();
@@ -144,6 +150,7 @@ public class ZaloMicroGSupportTest {
     assertFalse(ZaloMicroGSupport.canShowInstallDialog(false, true));
   }
 
+  /** Exercises cancellation with a null handler and checks the cause if reflection propagates it. */
   @Test
   public void handlerSchedulerContainsAHandlerFailure() throws Exception {
     Class<?> schedulerClass =
@@ -160,15 +167,18 @@ public class ZaloMicroGSupportTest {
     }
   }
 
+  /** Verifies that dialog creation failure is contained after activity lifecycle checks pass. */
   @Test
   public void dialogCreationFailureIsContainedAfterLifecycleCheck() throws Exception {
     Activity usable =
         new Activity() {
+          /** Keeps the test activity eligible for the dialog creation failure path. */
           @Override
           public boolean isFinishing() {
             return false;
           }
 
+          /** Keeps the test activity eligible for the dialog creation failure path. */
           @Override
           public boolean isDestroyed() {
             return false;

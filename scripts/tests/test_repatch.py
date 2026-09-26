@@ -249,6 +249,7 @@ class RepatchTest(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_bytecode_mode_passes_through_and_rejects_invalid_values(self):
+        """Verify that FULL reaches the CLI and unsupported bytecode modes fail validation."""
         result = self.run_helper(BYTECODE_MODE="FULL")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--bytecode-mode=FULL", self.calls()[-1][1])

@@ -11,6 +11,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class ZaloAdsTransformationsTest {
+    /** Checks that replacing a boolean gate leaves only a constant and return instruction. */
     @Test
     fun forceReturnFalseReplacesOriginalBody() {
         val method = syntheticMutableMethod(
@@ -24,6 +25,7 @@ class ZaloAdsTransformationsTest {
         assertEquals(listOf(Opcode.CONST_4, Opcode.RETURN), method.implementation!!.instructions.map { it.opcode })
     }
 
+    /** Checks that neutralizing the network branch preserves surrounding instructions. */
     @Test
     fun networkSkipBranchIsNoppedWithoutChangingAdjacentInstructions() {
         val method = syntheticMutableMethod(
@@ -43,6 +45,7 @@ class ZaloAdsTransformationsTest {
         )
     }
 
+    /** Checks the opt-out store and null-return instruction sequence, with no remaining try blocks. */
     @Test
     fun forceLimitAdTrackingSetsOptOutFlagAndReturnsNull() {
         val method = syntheticMutableMethod(
@@ -58,6 +61,7 @@ class ZaloAdsTransformationsTest {
         assertEquals(0, method.implementation!!.tryBlocks.size)
     }
 
+    /** Checks that a zero assignment is inserted after MOVE_RESULT using its destination register. */
     @Test
     fun zeroConfigResultWritesZeroIntoMoveResultRegister() {
         val method = syntheticMutableMethod(
@@ -78,6 +82,7 @@ class ZaloAdsTransformationsTest {
         assertEquals(2, (method.implementation!!.instructions.toList()[2] as com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction).registerA)
     }
 
+    /** Verifies rejection of a missing method body or missing MOVE_RESULT match. */
     @Test
     fun zeroConfigResultReportsMissingImplementationAndMoveResult() {
         val abstractMethod = syntheticMutableMethod(registerCount = 0, instructions = null)

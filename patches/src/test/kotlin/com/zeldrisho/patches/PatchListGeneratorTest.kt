@@ -10,6 +10,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class PatchListGeneratorTest {
+    /** Checks version, patch, dependency, and option metadata in the generated JSON. */
     @Test
     fun formatsPatchMetadataAsValidatedPrettyJson() {
         val json = formatPatchList(
@@ -45,6 +46,7 @@ class PatchListGeneratorTest {
         assertEquals("enabled", patch.getAsJsonArray("options").single().asJsonObject.get("key").asString)
     }
 
+    /** Checks preservation of compatibility targets, nullable fields, signatures, and option choices. */
     @Test
     fun serializesCompatibilityTargetsAndOptionValuesWithoutLosingMetadata() {
         val patch = JsonPatch(
@@ -107,6 +109,7 @@ class PatchListGeneratorTest {
         assertEquals("Two", option.getAsJsonObject("values").get("two").asString)
     }
 
+    /** Checks that universal compatibility remains null and empty options remain an array. */
     @Test
     fun serializesUniversalPatchesAndNullableFields() {
         val root = JsonParser.parseString(
@@ -121,6 +124,7 @@ class PatchListGeneratorTest {
         assertEquals(0, patch.getAsJsonArray("options").size())
     }
 
+    /** Verifies that formatting rejects a patch with an empty name. */
     @Test
     fun rejectsInvalidMetadataBeforeReturningJson() {
         assertFailsWith<IllegalStateException> {

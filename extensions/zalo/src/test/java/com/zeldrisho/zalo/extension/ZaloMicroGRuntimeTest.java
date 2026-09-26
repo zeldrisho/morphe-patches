@@ -27,6 +27,7 @@ import org.robolectric.shadows.ShadowAlertDialog;
 @Config(instrumentedPackages = "com.zeldrisho.zalo.extension")
 @LooperMode(LooperMode.Mode.PAUSED)
 public class ZaloMicroGRuntimeTest {
+  /** Verifies that null activities and enabled providers pass the provider check. */
   @Test
   public void nullActivityAndEnabledProviderAreAllowed() {
     assertTrue(ZaloMicroGSupport.checkGmsCore(null));
@@ -37,6 +38,7 @@ public class ZaloMicroGRuntimeTest {
     assertTrue(ZaloMicroGSupport.checkGmsCore(activity, () -> info, (a, i, c) -> {}));
   }
 
+  /** Exercises the missing-provider dialog and its negative-button callback. */
   @Test
   public void missingProviderShowsInstallDialogAndInstallOpensLink() {
     Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
@@ -46,6 +48,7 @@ public class ZaloMicroGRuntimeTest {
     dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
   }
 
+  /** Verifies rejection of disabled providers and fail-open handling of lookup failures. */
   @Test
   public void disabledProviderAndUnexpectedPackageFailureAreHandled() {
     Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
@@ -62,6 +65,7 @@ public class ZaloMicroGRuntimeTest {
             (a, i, c) -> {}));
   }
 
+  /** Verifies that only active activities are eligible to show the install dialog. */
   @Test
   public void destroyedAndFinishingActivitiesAreRejectedByLifecycleGuard() {
     Activity finishing = Robolectric.buildActivity(Activity.class).setup().get();
@@ -76,6 +80,7 @@ public class ZaloMicroGRuntimeTest {
     assertTrue(ZaloMicroGSupport.canShowInstallDialog(false, false));
   }
 
+  /** Verifies that rapid account selections trigger one refresh for the latest account. */
   @Test
   public void realHandlerSchedulerCoalescesAndExecutesLatestRefresh() {
     Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
@@ -87,6 +92,7 @@ public class ZaloMicroGRuntimeTest {
     assertEquals("latest", target.account);
   }
 
+  /** Exercises scheduling and cancelling a callback through the real main-thread handler. */
   @Test
   public void handlerSchedulerCancelsPendingCallbacks() throws Exception {
     Class<?> schedulerClass =
@@ -105,6 +111,7 @@ public class ZaloMicroGRuntimeTest {
     cancel.invoke(scheduler, callback);
   }
 
+  /** Verifies that unavailable browsers and blocked intents do not escape the download helper. */
   @Test
   public void downloadWithoutBrowserOrPermissionIsIgnored() throws Exception {
     Method method = ZaloMicroGSupport.class.getDeclaredMethod("openDownload", Activity.class);
@@ -119,6 +126,7 @@ public class ZaloMicroGRuntimeTest {
     int count;
     String account;
 
+    /** Records the refresh count and account selected by the delayed callback. */
     public void A6(String name) {
       count++;
       account = name;
@@ -126,6 +134,7 @@ public class ZaloMicroGRuntimeTest {
   }
 
   public static final class NoBrowserActivity extends Activity {
+    /** Simulates a missing browser by rejecting the outgoing intent. */
     @Override
     public void startActivity(Intent intent) {
       throw new ActivityNotFoundException();
@@ -133,6 +142,7 @@ public class ZaloMicroGRuntimeTest {
   }
 
   public static final class BlockedIntentActivity extends Activity {
+    /** Simulates an external intent blocked by Android permissions. */
     @Override
     public void startActivity(Intent intent) {
       throw new SecurityException("external intent blocked");

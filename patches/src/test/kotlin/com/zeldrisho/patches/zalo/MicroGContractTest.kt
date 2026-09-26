@@ -11,6 +11,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class MicroGContractTest {
+    /** Checks refresh-call recognition and rejection of mismatched owners, methods, and parameters. */
     @Test
     fun accountRefreshRecognitionRequiresExpectedOwnerMethodAndSignature() {
         val expected = ImmutableMethodReference(
@@ -32,6 +33,7 @@ class MicroGContractTest {
         assertFalse(isAccountRefreshCall(SYNC_GOOGLE_ACCOUNT_BASE_VIEW, "onActivityResult", null))
     }
 
+    /** Checks valid microG totals and rejection when any required replacement count is too low. */
     @Test
     fun replacementSummaryAcceptsExpectedCountsAndRejectsMissingTargets() {
         validateMicroGReplacementCounts(1, 1, 2, 1, 1)
@@ -42,6 +44,7 @@ class MicroGContractTest {
         assertFailsWith<IllegalStateException> { validateMicroGReplacementCounts(1, 1, 2, 1, 0) }
     }
 
+    /** Checks that the account-type allowlist includes the known Drive account and restore flows. */
     @Test
     fun accountTypeClassAllowlistContainsAllDriveFlows() {
         assertTrue(accountTypeClasses.contains(SYNC_GOOGLE_ACCOUNT_BASE_VIEW))

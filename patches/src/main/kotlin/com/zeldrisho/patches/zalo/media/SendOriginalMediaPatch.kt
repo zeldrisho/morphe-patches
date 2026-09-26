@@ -11,12 +11,16 @@ import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
 private const val SMALI_HEX_RADIX = 16
 
+/** Returns the referenced field name, or null when the instruction has no field reference. */
 private fun fieldName(instruction: Instruction): String? = ((instruction as? ReferenceInstruction)?.reference as? FieldReference)?.name
 
+/** Returns the sole list index referencing [name]; fails if there are zero or multiple matches. */
 internal fun singleFieldInstructionIndex(instructions: List<Instruction>, name: String): Int = instructions.indices.single { fieldName(instructions[it]) == name }
 
+/** Returns the first list index referencing [name]; fails if no field matches. */
 internal fun firstFieldInstructionIndex(instructions: List<Instruction>, name: String): Int = instructions.indices.first { fieldName(instructions[it]) == name }
 
+/** Returns the lowest list index referencing [name], or fails with [missingMessage]. */
 internal fun earliestFieldInstructionIndex(
     instructions: List<Instruction>,
     name: String,
@@ -24,15 +28,22 @@ internal fun earliestFieldInstructionIndex(
 ): Int = instructions.indices.filter { fieldName(instructions[it]) == name }.minOrNull()
     ?: error(missingMessage)
 
+/** Returns the first MediaItem.q reference index, or fails if the original-quality flag moved. */
 internal fun earliestMediaItemFlagIndex(instructions: List<Instruction>): Int = instructions.indices.filter { index ->
     val reference = (instructions[index] as? ReferenceInstruction)?.reference as? FieldReference
     reference?.definingClass == "Lcom/zing/zalo/data/mediapicker/model/MediaItem;" && reference.name == "q"
 }.minOrNull() ?: error("MediaItem original flag read moved; re-hunt Lbq0/g->a()")
 
+/** Replaces the instruction at [index] with the supplied smali [replacement]. */
 internal fun replaceFieldInstruction(method: MutableMethod, index: Int, replacement: String) {
     method.replaceInstruction(index, replacement)
 }
 
+/**
+ * Replaces the first reference to [name], using its index in [instructions] as the method index.
+ *
+ * The supplied list must have indexes aligned with [method]; absence fails with [missingMessage].
+ */
 internal fun replaceEarliestFieldInstruction(
     method: MutableMethod,
     instructions: List<Instruction>,
@@ -43,6 +54,11 @@ internal fun replaceEarliestFieldInstruction(
     replaceFieldInstruction(method, earliestFieldInstructionIndex(instructions, name, missingMessage), replacement)
 }
 
+/**
+ * Replaces the first MediaItem.q reference with true in the pinned destination register v13.
+ *
+ * The supplied [instructions] must have indexes aligned with [method].
+ */
 internal fun replaceEarliestMediaItemFlag(method: MutableMethod, instructions: List<Instruction>) {
     replaceFieldInstruction(
         method,
@@ -51,10 +67,12 @@ internal fun replaceEarliestMediaItemFlag(method: MutableMethod, instructions: L
     )
 }
 
+/** Prepends an immediate return of [value] through v0, using a const/4-compatible literal. */
 internal fun forceQualityResult(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod, value: Int) {
     method.addInstructions(0, "const/4 v0, 0x${value.toString(SMALI_HEX_RADIX)}\nreturn v0")
 }
 
+/** Prepends an assignment of original quality (2) to the picker argument p0. */
 internal fun forcePickerQualityArgument(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
     method.addInstructions(0, "const/4 p0, 0x2")
 }

@@ -10,6 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TelemetryTransformationTest {
+    /** Checks that only selected telemetry instruction positions become NOPs. */
     @Test
     fun removesSelectedTelemetryCallsAndLeavesSurroundingCode() {
         val caller = syntheticMutableMethod(
@@ -25,6 +26,7 @@ class TelemetryTransformationTest {
         )
     }
 
+    /** Verifies that every supplied telemetry sink is reduced to a void return. */
     @Test
     fun neutralizesEachSinkBody() {
         val first = syntheticMutableMethod(

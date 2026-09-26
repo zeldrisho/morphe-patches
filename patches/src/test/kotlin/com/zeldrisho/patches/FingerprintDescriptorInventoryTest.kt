@@ -17,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 
 class FingerprintDescriptorInventoryTest {
+    /** Exercises descriptor and filter access for the collected fingerprints without loading an APK. */
     @Test
     fun zaloFingerprintDefinitionsExposeNonEmptyDescriptorsAndFilters() {
         val fingerprints = mediaFingerprints + businessBoxFingerprints + telemetryFingerprints + listOf(

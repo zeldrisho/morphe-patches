@@ -14,6 +14,7 @@ import com.zeldrisho.patches.threads.misc.packagename.changePackageNamePatch as 
 
 /** Checks the registered metadata and defaults without requiring an APK patch run. */
 class PatchRegistrationTest {
+    /** Checks Threads and Zalo branding defaults and package-name option validators. */
     @Test
     fun packageAndBrandingPatchDefaultsAreRegistered() {
         assertFalse(threadsPackageNamePatch.default)
@@ -36,6 +37,7 @@ class PatchRegistrationTest {
         assertEquals("Zalo Morphe", changeZaloAppNamePatch.options.values.single { it.name == "appName" }.default)
     }
 
+    /** Verifies that both apps register ad-ID removal as enabled by default. */
     @Test
     fun adIdRemovalPatchesAreEnabledByDefault() {
         assertTrue(removeAdIdPatch.default)

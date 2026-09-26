@@ -7,6 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class SendOriginalMediaHelpersTest {
+    /** Checks the instruction sequences inserted for selected quality and the picker argument. */
     @Test
     fun overridesQualityResultAndPickerArgument() {
         val selected = syntheticMutableMethod(
@@ -26,6 +27,7 @@ class SendOriginalMediaHelpersTest {
         assertEquals(listOf(Opcode.CONST_4), argument.implementation!!.instructions.map { it.opcode })
     }
 
+    /** Checks that both boolean override values emit a constant followed by a return. */
     @Test
     fun falseAndTrueResultOverridesUseRequestedLiteral() {
         for ((expectedValue, opcode) in listOf(0 to Opcode.CONST_4, 1 to Opcode.CONST_4)) {

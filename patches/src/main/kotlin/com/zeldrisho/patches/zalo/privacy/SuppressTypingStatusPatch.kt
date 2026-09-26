@@ -27,6 +27,7 @@ val suppressZaloTypingStatusPatch = bytecodePatch(
     }
 }
 
+/** Clears the typing-status sender body and try blocks, then replaces it with a void return. */
 internal fun suppressTypingStatus(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
     method.clearBody()
     method.addInstructions(0, "return-void")

@@ -61,5 +61,6 @@ object PatchListValidator {
         }
     }
 
+    /** Accepts an explicit null or positive minimum SDK; rejects an absent or nonpositive value. */
     private fun hasValidMinSdk(target: JsonObject): Boolean = target["minSdk"]?.let { it.isJsonNull || it.asInt > 0 } == true
 }

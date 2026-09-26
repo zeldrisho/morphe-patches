@@ -28,6 +28,7 @@ val suppressZaloSeenStatusPatch = bytecodePatch(
     }
 }
 
+/** Clears the seen-status sender body and try blocks, then replaces it with a void return. */
 internal fun suppressSeenStatus(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
     method.clearBody()
     method.addInstructions(0, "return-void")

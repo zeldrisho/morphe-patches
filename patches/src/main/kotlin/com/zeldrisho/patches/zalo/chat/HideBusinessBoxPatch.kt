@@ -43,6 +43,7 @@ val hideZaloBusinessBoxPatch = bytecodePatch(
     }
 }
 
+/** Replaces the selected business-box insertion instruction with an immediate void return. */
 internal fun suppressBusinessBoxInsertion(
     method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
     instructionIndex: Int,
@@ -50,6 +51,7 @@ internal fun suppressBusinessBoxInsertion(
     method.replaceInstruction(instructionIndex, "return-void")
 }
 
+/** Replaces the selected periodic business-box branch instruction with a void return. */
 internal fun suppressBusinessBoxPeriodicBranch(
     method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
     instructionIndex: Int,

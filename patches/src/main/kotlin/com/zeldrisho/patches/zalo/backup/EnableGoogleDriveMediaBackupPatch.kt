@@ -8,6 +8,11 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
+/**
+ * Forces the last MOVE_RESULT before the first Lu40/p0;->i0 call to true.
+ *
+ * Fails if the method body, write call, or preceding result cannot be found.
+ */
 internal fun enableMediaBackup(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
     val implementation = method.implementation
         ?: error("Zalo Google Drive backup: configuration method has no implementation")

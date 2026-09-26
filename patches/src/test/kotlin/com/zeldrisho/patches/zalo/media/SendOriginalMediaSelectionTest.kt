@@ -9,12 +9,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class SendOriginalMediaSelectionTest {
+    /** Builds a synthetic static field read into v0 for the supplied owner and name. */
     private fun field(owner: String, name: String) = ImmutableInstruction21c(
         Opcode.SGET_OBJECT,
         0,
         ImmutableFieldReference(owner, name, "Ltest/Field;"),
     )
 
+    /** Checks field-selection indexes and failures when the requested field is absent. */
     @Test
     fun selectionHelpersApplySingleFirstAndEarliestRules() {
         val instructions = listOf(
@@ -34,6 +36,7 @@ class SendOriginalMediaSelectionTest {
         assertEquals("target moved", error.message)
     }
 
+    /** Checks that replacements affect the first matching field and preserve later reads. */
     @Test
     fun earliestHdPickerFieldAndMediaFlagAreReplacedInTheirDestinationRegisters() {
         val chipFields = listOf(field("Ltest/Owner;", "HD"), field("Ltest/Owner;", "Z1"), field("Ltest/Owner;", "Z1"))
@@ -64,6 +67,7 @@ class SendOriginalMediaSelectionTest {
         assertEquals(Opcode.SGET_OBJECT, mediaInstructions[1].opcode)
     }
 
+    /** Checks owner-specific selection of the first MediaItem.q reference and its absence diagnostic. */
     @Test
     fun mediaItemOriginalFlagSelectionIsClassSpecificAndEarliest() {
         val instructions = listOf(

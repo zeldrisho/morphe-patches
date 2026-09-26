@@ -11,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class BackupMediaTransformationTest {
+    /** Builds a result instruction followed by a configurable static backup-configuration write call. */
     private fun writer(target: String = "Lu40/p0;", name: String = "i0") = syntheticMutableMethod(
         registerCount = 1,
         instructions = listOf(
@@ -28,6 +29,7 @@ class BackupMediaTransformationTest {
         ),
     )
 
+    /** Checks that the result before the backup write is replaced while the call remains intact. */
     @Test
     fun enablesOnlyAtBackupMediaWriteAndPreservesFollowingCall() {
         val method = writer()
@@ -38,6 +40,7 @@ class BackupMediaTransformationTest {
         )
     }
 
+    /** Checks the diagnostic when the expected backup write owner is absent. */
     @Test
     fun rejectsMissingBackupWrite() {
         val error = assertFailsWith<IllegalStateException> {
@@ -46,6 +49,7 @@ class BackupMediaTransformationTest {
         assertEquals("Zalo Google Drive backup: ENABLE_BACKUP_MEDIA write not found", error.message)
     }
 
+    /** Checks the diagnostic when backup configuration has no bytecode implementation. */
     @Test
     fun rejectsMissingImplementation() {
         val method = syntheticMutableMethod(registerCount = 1, instructions = null)

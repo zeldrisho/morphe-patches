@@ -12,6 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ZaloProviderUriBytecodeTest {
+    /** Checks owned URI substitutions, per-URI counts, and preservation of registers and unrelated code. */
     @Test
     fun rewritesOnlyOwnedProviderUriStringsAndPreservesDestinationRegisters() {
         val preferencesUri = "content://com.zing.zalo.db.preferencesprovider"
@@ -49,6 +50,7 @@ class ZaloProviderUriBytecodeTest {
         )
     }
 
+    /** Checks the diagnostic when provider URI replacement counts include zero and duplicate edits. */
     @Test
     fun replacementCountGuardRejectsMissingOrRepeatedUris() {
         val error = kotlin.test.assertFailsWith<IllegalStateException> {
@@ -57,6 +59,7 @@ class ZaloProviderUriBytecodeTest {
         kotlin.test.assertTrue(error.message!!.contains("expected one reference per provider URI"))
     }
 
+    /** Verifies that a method without bytecode reports zero provider URI replacements. */
     @Test
     fun bodylessMethodsAreNoOps() {
         val method = syntheticMutableMethod(registerCount = 0, instructions = null)

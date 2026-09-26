@@ -22,6 +22,7 @@ class PatchListValidatorTest {
         }
     }
 
+    /** Verifies rejection of missing patch and compatibility-target arrays. */
     @Test
     fun rejectsMissingPatchesAndMissingTargetArray() {
         assertFailsWith<IllegalStateException> {
@@ -34,6 +35,7 @@ class PatchListValidatorTest {
         }
     }
 
+    /** Exercises invalid patch defaults, options, package names, and target metadata. */
     @Test
     fun rejectsMissingPatchOptionAndCompatibilityMetadata() {
         val cases = listOf(
@@ -47,6 +49,7 @@ class PatchListValidatorTest {
         cases.forEach { json -> assertFails { PatchListValidator.validate(json) } }
     }
 
+    /** Checks the diagnostics for empty patch names and invalid package names. */
     @Test
     fun invalidPackageAndMissingPatchNameHaveSpecificErrors() {
         val missingName = assertFailsWith<IllegalStateException> {
@@ -76,6 +79,7 @@ class PatchListValidatorTest {
         }
     }
 
+    /** Verifies that an explicit null minimum SDK is accepted as unrestricted. */
     @Test
     fun nullableMinimumSdkMeansAnyDeviceSdk() {
         PatchListValidator.validate(validPatch().replace("\"minSdk\":23", "\"minSdk\":null"))

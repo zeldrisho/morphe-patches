@@ -114,6 +114,7 @@ class ZaloNotifTargetTest {
         }
     }
 
+    /** Checks that dropping a promotional channel replaces only its jump and preserves instruction count. */
     @Test fun dropReplacesOnlyTheArmJump() {
         val cls = classDef("Lpy/i;", listOf(armMethod("SOCIAL_STORY")))
         with(context()) {

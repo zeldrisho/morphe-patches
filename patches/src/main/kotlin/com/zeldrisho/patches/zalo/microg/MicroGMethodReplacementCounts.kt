@@ -43,6 +43,11 @@ internal fun rewriteMicroGMethodBody(
     )
 }
 
+/**
+ * Prepends a provider check to the launcher onCreate(Bundle) method and returns 1, or 0 otherwise.
+ *
+ * Requires a local scratch register; the injected check does not branch on its result.
+ */
 private fun addLauncherProviderCheck(classType: String, method: Method, mutableMethod: MutableMethod): Int {
     if (classType != ZALO_LAUNCHER_CLASS || method.name != "onCreate" ||
         method.parameterTypes != listOf("Landroid/os/Bundle;")
@@ -61,6 +66,7 @@ private fun addLauncherProviderCheck(classType: String, method: Method, mutableM
     return 1
 }
 
+/** Recognizes the two supported account-picker methods by owner, name, and parameter types. */
 private fun isAccountPickerMethod(classType: String, method: Method): Boolean = (
     classType == SYNC_GOOGLE_ACCOUNT_BASE_VIEW && method.name == "x6" &&
         method.parameterTypes == listOf("Ljava/lang/String;")
@@ -70,6 +76,7 @@ private fun isAccountPickerMethod(classType: String, method: Method): Boolean = 
             method.name == "I6" && method.parameterTypes == listOf("Ljava/lang/String;")
         )
 
+/** Rewrites eligible instructions at their original indexes and totals the counted replacements. */
 private fun rewriteMicroGInstructions(
     classType: String,
     method: Method,
@@ -89,6 +96,11 @@ private fun rewriteMicroGInstructions(
     return MicroGMethodReplacementCounts(binding, accountType, accountRefresh = accountRefresh)
 }
 
+/**
+ * Rewrites an eligible refresh call, account-result key, or provider/account-type string in place.
+ *
+ * Returns counts for binding, account-type, and refresh replacements; key substitutions are uncounted.
+ */
 private fun rewriteMicroGInstruction(
     classType: String,
     method: Method,

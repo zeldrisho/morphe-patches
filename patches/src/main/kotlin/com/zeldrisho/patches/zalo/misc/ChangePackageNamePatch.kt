@@ -16,12 +16,18 @@ private val PROVIDER_URIS = setOf(
     "content://$ORIGINAL_ZALO_PACKAGE.provider.InternalProvider",
 )
 
+/** Requires every supplied provider URI count to be exactly one; throws on missing or repeated edits. */
 internal fun validateProviderUriReplacementCounts(replacementCounts: Map<String, Int>) {
     check(replacementCounts.values.all { it == 1 }) {
         "Zalo package rename: expected one reference per provider URI, found $replacementCounts"
     }
 }
 
+/**
+ * Rewrites owned provider URI string constants to [packageName], preserving destination registers.
+ *
+ * Returns a count for each owned URI, including zero counts for methods without an implementation.
+ */
 internal fun rewriteProviderUriStrings(method: MutableMethod, packageName: String): Map<String, Int> {
     val replacements = PROVIDER_URIS.associateWith { 0 }.toMutableMap()
     val instructions = method.implementation?.instructions?.toList().orEmpty()
