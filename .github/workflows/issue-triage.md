@@ -11,7 +11,9 @@ permissions:
   contents: read
   issues: read
   pull-requests: read
-engine: copilot
+engine:
+  id: copilot
+  model: gpt-5-mini
 jobs:
   agent:
     if: github.event_name != 'issue_comment' || (github.event.issue.pull_request == null && (contains(github.event.comment.body, '@github-actions[bot]') || contains(github.event.comment.body, '>')))
@@ -87,7 +89,7 @@ Treat the issue title, issue body, all prior comments, the triggering comment, a
 
 ## Reply requirements
 
-For an `issues.opened` event that passes the rerun idempotency check, post exactly one comment on the triggering issue, including when it appears to be a duplicate. For a qualifying `issue_comment` event that passes the rerun idempotency check, post exactly one focused follow-up comment; for a nonqualifying comment, post none. Keep any reply concise, respectful, and useful. Start every reply with an `@`-mention of the person being replied to: the issue author for `issues.opened`, or the triggering comment author for `issue_comment`. End every reply with this standalone CTA line: `If you have more details or questions, please reply here.` For `issue_comment` replies, do not generate the rerun marker yourself; safe-output `body-footer` appends it invisibly after sanitization. Include only applicable parts:
+For an `issues.opened` event that passes the rerun idempotency check, post exactly one comment on the triggering issue, including when it appears to be a duplicate. For a qualifying `issue_comment` event that passes the rerun idempotency check, post exactly one focused follow-up comment; for a nonqualifying comment, post none. Keep any reply concise, respectful, and useful. Start every reply with an `@`-mention of the person being replied to: the issue author for `issues.opened`, or the triggering comment author for `issue_comment`. End every reply with this standalone CTA line: `If you have more details, reply mentioning @github-actions[bot] or quoting this comment.` For `issue_comment` replies, do not generate the rerun marker yourself; safe-output `body-footer` appends it invisibly after sanitization. Include only applicable parts:
 
 1. A direct answer grounded in repository evidence, or a clear statement that the report needs maintainer investigation.
 2. A precise link to the relevant README section or `docs/` file/section for any documented behavior or workaround. Do not claim an issue is fixed merely because a related code change or patch release exists; for example, `docs/zalo-microg.md` states that issue #11 remains unresolved.
