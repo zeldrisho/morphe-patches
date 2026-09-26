@@ -94,18 +94,29 @@ release tooling uses `gh`, `python3`, and `jq`.
 
 ## 5. Morphe CLI and GUI share one JAR
 
-Download the latest stable official JAR (requires `gh auth login`):
+The current official stable release is Morphe Desktop **1.17.0**. Download that
+versioned JAR and verify the published GitHub asset digest before using it:
 
 ```fish
 mkdir -p ~/.local/share/morphe
-gh release download --repo MorpheApp/morphe-desktop --pattern 'morphe-desktop-*-all.jar' --dir ~/.local/share/morphe
+gh release download v1.17.0 --repo MorpheApp/morphe-desktop \
+  --pattern 'morphe-desktop-1.17.0-all.jar' --dir ~/.local/share/morphe
+printf '%s  %s\n' \
+  '8cf6a9eab4ee9dab146bddc24681897851564f53116baec11f36ba2fa2f589be' \
+  "$HOME/.local/share/morphe/morphe-desktop-1.17.0-all.jar" | sha256sum -c -
 ```
 
+This release was checked locally against the pinned Zalo APKM. It still fails
+Morphe's internal DEX hierarchy verification on missing Google IMA classes, in
+both `FULL` and `STRIP_FAST` bytecode modes; upgrading alone does not unblock that
+APK. Do not treat SDK verification as passed or install an output that failed
+patching.
+
 `morphe-desktop-*-all.jar` starts the GUI without a subcommand, the CLI with one.
-Do not replace it during an active patch run. `scripts/repatch.py` discovers the
-newest JAR in this directory; `--jar <path>` overrides discovery. No environment
-configuration is needed for its default JAR, bundle, or keystore discovery.
-See [CLI patching](cli.md) for commands, runtime data-directory resolution, and
+Do not replace a JAR during an active patch run. `scripts/repatch.py` discovers the
+newest JAR in this directory; `--jar <path>` pins a specific one. No environment
+configuration is needed for its default JAR, bundle, or keystore discovery. See
+[CLI patching](cli.md) for commands, runtime data-directory resolution, and
 [signing](cli.md#signing) for key/password selection.
 Upstream: [README](https://github.com/MorpheApp/morphe-desktop),
 [CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).

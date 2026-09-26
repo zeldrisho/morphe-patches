@@ -83,6 +83,7 @@ class RepatchTest(unittest.TestCase):
                 "KEYSTORE_ENTRY_PASSWORD",
                 "GITHUB_REPO",
                 "VERIFY_SDK",
+                "BYTECODE_MODE",
                 "FAIL_OPTIONS",
                 "FAIL_PATCH",
             }
@@ -246,6 +247,16 @@ class RepatchTest(unittest.TestCase):
         args = calls[0][1]
         self.assertFalse(Path(args[args.index("-o") + 1]).parent.exists())
         self.assertFalse(self.output.exists())
+
+    def test_bytecode_mode_passes_through_and_rejects_invalid_values(self):
+        result = self.run_helper(BYTECODE_MODE="FULL")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--bytecode-mode=FULL", self.calls()[-1][1])
+        result = self.run_helper(BYTECODE_MODE="bad")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(
+            "BYTECODE_MODE must be FULL, STRIP_SAFE, or STRIP_FAST", result.stderr
+        )
 
     def test_verify_sdk_defaults_to_disabled(self):
         """Verify that DEX/APK SDK verification is opt-in and off by default."""

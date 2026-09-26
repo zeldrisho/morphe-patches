@@ -115,7 +115,6 @@ Versioned blank execution sheets (no device results):
 | Optional coexistence | Renamed-package behavior only where supported by signing/OAuth configuration. |
 
 Test malformed/unexpected intents and unauthorized access where applicable.
-For Zalo-specific media/privacy/session checks, use the [release checklist](plan.md#zalo-specific-release-checks).
 
 ## Controlled performance baseline
 

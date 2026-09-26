@@ -4,47 +4,6 @@ Zalo **26.08.01** (`260801903`) roadmap. Keep APKs and evidence in ignored
 `analysis/zalo/26.08.01/`. Cross-app engineering belongs in [maintenance](maintenance.md);
 release execution and evidence requirements belong in [validation](validation.md).
 
-## Validation still outstanding
-
-Safeguards and unit tests do not prove device behavior. No current release-validation
-record exists. The last recorded local qualification passed package/version, stock
-certificate, arm64 native-library, and unsupported-ABI checks for APKM SHA-256
-`b5deaaef517d1ab666cfe6b1d5280969738e054d4765a72d0bafede2a8aa6e88`.
-Device execution was blocked by no connected device; this is not a current connectivity check.
-
-Run the [release procedure](validation.md) on stock, minimally re-signed no-patch
-control, and selected-patch builds. Include manifest/split/signing qualification,
-cold launch, background/resume, force-stop, reboot, login, camera, attachments,
-notifications, messaging, and one-to-one/group calls. Measure performance using
-[controlled baselines](validation.md#controlled-performance-baseline).
-
-### Zalo-specific release checks
-
-| Area | Required evidence |
-| --- | --- |
-| Photo Original quality | Identical source photos across builds; compare source/received hashes, dimensions, metadata, encoding. Test ordinary quality, single/multi-photo, video-only, and mixed selections; video must remain unchanged. No recovery claim for discarded originals. |
-| Seen and typing suppression | Two accounts; one-to-one/group chats, delivery acknowledgements, reconnect/retry, queued messages, unchanged incoming rendering, and Android/Web/Desktop visibility. This does not prove asymmetric privacy or online-presence control. |
-| Expired media | Missing local files, unusable remote URLs, restore, deleted messages; distinguish changed presentation from actual access. |
-| Ads and promotional notifications | `SOCIAL_STORY` / `ZALO_VIDEO` filtering preserves organic feed, chat/group activity, friend requests, calls, and alerts. |
-| Sessions | QR login, read/delivery state, history, media scope, and revocation across Android, Web, and Desktop. |
-| microG / Drive | Re-run provider checks and the previously observed initial photo restore and complete backup/restore cycle with the release bundle; follow [provider guidance](zalo-microg.md). |
-
-### Google Drive backup and restore
-
-- Compare **Remove media backup age limit** with stock: the 365-day filter must
-  be removed on backup and restore, and existing Drive objects remain indexed/downloadable.
-- Test scheduling, Wi-Fi guards, token refresh, upload completion, pagination,
-  retention, restore order, and first-login versus manual restore.
-- Account for every photo: policy exclusion, absent index entry, upload/download
-  failure, missing message association, or restored.
-- Test checkpoints/retries, process death, offline recovery, low storage, duplicate
-  work, wrong accounts, and missing Drive objects. Preserve live data and the last
-  usable backup; never log tokens or contents.
-- Videos, files, voice messages, and groups over 100 members remain stock exclusions
-  unless separately proven. OAuth authorization is a backend boundary; zCloud is out of scope.
-- Update the MicroG-RE source only when a stable upstream release or official page
-  supplies the OAuth SHA-1 normalization fix; verify provenance and checksum first.
-
 ## Feature feasibility investigations
 
 These are **not implemented behavior or release expectations**. Before implementation,

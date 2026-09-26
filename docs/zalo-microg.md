@@ -50,7 +50,7 @@ never include tokens, account contents, private APKs, or keys.
 
 Prior device evidence covered initial photo restore and a full backup/restore cycle,
 not every provider release, Android version, account, media type, or renamed package.
-Repeat with the release bundle; see [remaining Drive checks](plan.md#google-drive-backup-and-restore).
-Provider regressions belong in the [upstream tracker](https://github.com/MorpheApp/MicroG-RE/issues).
+Repeat with the release bundle. Provider regressions belong in the
+[upstream tracker](https://github.com/MorpheApp/MicroG-RE/issues).
 [Issue #276](https://github.com/MorpheApp/MicroG-RE/issues/276) concerns already-backed-up
 photos not appearing: provider installation does not establish index/object visibility.
