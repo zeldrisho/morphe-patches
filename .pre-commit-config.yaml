@@ -35,7 +35,6 @@ repos:
     rev: 914e7df21a07ef503a81201c76d2b11c789d3fca # v1.7.12
     hooks:
       - id: actionlint
-        exclude: '^\.github/workflows/.*\.lock\.yml$'
         args:
           # Remove when rhysd/actionlint supports queue (GitHub added it in May 2026): https://github.blog/changelog/2026-05-07-github-actions-concurrency-groups-now-allow-larger-queues/
           - -ignore
