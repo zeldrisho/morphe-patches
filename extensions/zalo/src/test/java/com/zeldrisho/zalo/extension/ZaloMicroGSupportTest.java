@@ -129,6 +129,8 @@ public class ZaloMicroGSupportTest {
     scheduler.scheduled.get(0).run();
 
     assertEquals(0, target.refreshCount);
+    scheduler.scheduled.get(1).run();
+    assertEquals(1, target.refreshCount);
   }
 
   private static Constructor<?> refreshRequestConstructor() throws Exception {
@@ -146,7 +148,7 @@ public class ZaloMicroGSupportTest {
     }
   }
 
-  private static final class RefreshTarget {
+  public static final class RefreshTarget {
     int refreshCount;
 
     @SuppressWarnings("unused")
