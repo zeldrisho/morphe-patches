@@ -10,6 +10,30 @@ import zipfile
 from pathlib import Path
 
 
+def run_apkid(apk):
+    """Run APKiD when available, preferring a standalone executable over uvx."""
+    executable = shutil.which("apkid")
+    command = [executable, str(apk)] if executable else None
+    if command is None and shutil.which("uvx"):
+        command = ["uvx", "apkid", str(apk)]
+    if command is None:
+        return "unknown (apkid not available)"
+    try:
+        result = subprocess.run(
+            command,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as error:
+        return f"apkid unavailable ({error})"
+    if result.returncode:
+        detail = result.stderr.strip() or f"exit status {result.returncode}"
+        return f"apkid failed: {detail}"
+    return result.stdout.strip() or "apkid returned no results"
+
+
 def main():
     """Inspect an APK or bundle and write identity, DEX, and protection details to a report."""
     p = argparse.ArgumentParser()
@@ -60,17 +84,7 @@ def main():
         libs = sorted(
             {x for x in listing if x.startswith("lib/") and x.endswith(".so")}
         )
-        apkid = "unknown (apkid not available)"
-        if shutil.which("uvx"):
-            apkid = (
-                subprocess.run(
-                    ["uvx", "apkid", str(apk)],
-                    text=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.DEVNULL,
-                ).stdout.strip()
-                or "apkid failed"
-            )
+        apkid = run_apkid(target)
         report = f"""# Recon — {field("application-label:")}
 
 ## Identity
