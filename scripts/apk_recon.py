@@ -11,7 +11,12 @@ from pathlib import Path
 
 
 def run_apkid(apk):
-    """Run APKiD when available, preferring a standalone executable over uvx."""
+    """Scan an APK path, preferring standalone APKiD and using uvx if it is absent.
+
+    Return stripped stdout, or a diagnostic for missing tools, an OSError while
+    running the command, a nonzero exit, or empty output. A failed standalone
+    command does not trigger a retry through uvx. Output decoding errors propagate.
+    """
     executable = shutil.which("apkid")
     command = [executable, str(apk)] if executable else None
     if command is None and shutil.which("uvx"):
@@ -35,7 +40,17 @@ def run_apkid(apk):
 
 
 def main():
-    """Inspect an APK or bundle and write identity, DEX, and protection details to a report."""
+    """Inspect an APK or bundle and write identity, DEX, and protection details to a report.
+
+    Read input and optional output paths from CLI arguments, overwriting recon.md
+    by default. For APKM, XAPK, and APKS bundles, inspect identity and protections
+    on base.apk or base-master.apk when present, otherwise the first sorted APK;
+    count DEX entries and list native libraries across all extracted APKs.
+
+    Exit via SystemExit for invalid arguments, a missing input, or a bundle with
+    no APKs. File, ZIP, aapt launch, and output decoding errors propagate; APKiD
+    availability and command failures are recorded as diagnostics in the report.
+    """
     p = argparse.ArgumentParser()
     p.add_argument("apk")
     p.add_argument("output", nargs="?", default="recon.md")

@@ -21,9 +21,14 @@ private val intervalHours = setOf("1", "3", "6", "12")
 /**
  * Replaces the native interval getter result with [hours] converted to milliseconds.
  *
- * Accepts only 1, 3, 6, or 12 hours. Requires a single known getter, the account-specific
- * key before it, and a wide result immediately after it; validation fails before mutation.
+ * Accepts only 1, 3, 6, or 12 hours. Requires a single known getter, the key-building
+ * pattern recognized by [hasAccountSpecificKey], and a wide result immediately after it;
+ * validation fails before mutation.
  * The remaining scheduler instructions, including native backup guards, are preserved.
+ *
+ * @throws IllegalArgumentException if [hours] is not one of the supported values.
+ * @throws IllegalStateException if [method] has no implementation or the required
+ * getter, key-building pattern, or argument/result registers cannot be found.
  */
 internal fun overrideBackupInterval(method: MutableMethod, hours: String) {
     require(hours in intervalHours) { "Backup interval must be one of 1, 3, 6, or 12 hours" }
@@ -45,6 +50,11 @@ internal fun overrideBackupInterval(method: MutableMethod, hours: String) {
     method.replaceInstruction(resultIndex, "const-wide/32 v$register, $millis")
 }
 
+/**
+ * Returns the zero-based index of the sole static call to the known interval getter.
+ *
+ * @throws IllegalStateException if there are no matching calls or more than one.
+ */
 private fun findIntervalGetter(instructions: List<com.android.tools.smali.dexlib2.iface.instruction.Instruction>): Int {
     val matches = instructions.indices.filter { index ->
         val reference = (instructions[index] as? ReferenceInstruction)?.reference as? MethodReference
@@ -55,7 +65,14 @@ private fun findIntervalGetter(instructions: List<com.android.tools.smali.dexlib
     return matches.single()
 }
 
-/** The app builds prefix + account ID at runtime, so the prefix load is not adjacent to the getter. */
+/**
+ * Checks for the runtime key-building pattern before the getter at [getterIndex].
+ *
+ * Returns true when the interval prefix is loaded within the preceding 24 instructions
+ * and a later StringBuilder.toString call before the getter has its result moved into
+ * [keyRegister], the getter's string argument register. Returns false if no pattern matches.
+ * This heuristic does not verify that the prefix or an account ID feeds the builder.
+ */
 private fun hasAccountSpecificKey(
     instructions: List<com.android.tools.smali.dexlib2.iface.instruction.Instruction>,
     getterIndex: Int,
