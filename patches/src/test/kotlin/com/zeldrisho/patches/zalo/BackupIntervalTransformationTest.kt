@@ -22,6 +22,7 @@ class BackupIntervalTransformationTest {
         key: String = "SERVER_CONFIG_SYNC_MESSAGE_INTERVAL_",
         keyRegister: Int = 3,
         keyOpcode: Opcode = Opcode.CONST_STRING,
+        appendRegister: Int = 5,
     ) = syntheticMutableMethod(
         registerCount = 6,
         instructions = listOf(
@@ -30,10 +31,27 @@ class BackupIntervalTransformationTest {
             } else {
                 ImmutableInstruction21c(keyOpcode, 5, ImmutableStringReference(key))
             },
+            ImmutableInstruction21c(Opcode.CONST_STRING, 4, ImmutableStringReference("UNRELATED_CONFIG_KEY")),
+            ImmutableInstruction35c(
+                Opcode.INVOKE_VIRTUAL,
+                2,
+                1,
+                appendRegister,
+                0,
+                0,
+                0,
+                ImmutableMethodReference(
+                    "Ljava/lang/StringBuilder;",
+                    "append",
+                    listOf("Ljava/lang/String;"),
+                    "Ljava/lang/StringBuilder;",
+                ),
+            ),
+            ImmutableInstruction11x(Opcode.MOVE_RESULT_OBJECT, 1),
             ImmutableInstruction35c(
                 Opcode.INVOKE_VIRTUAL,
                 1,
-                2,
+                1,
                 0,
                 0,
                 0,
@@ -93,6 +111,9 @@ class BackupIntervalTransformationTest {
         }
         assertFailsWith<IllegalStateException> {
             overrideBackupInterval(scheduler(keyRegister = 5), "6")
+        }
+        assertFailsWith<IllegalStateException> {
+            overrideBackupInterval(scheduler(appendRegister = 4), "6")
         }
     }
 }

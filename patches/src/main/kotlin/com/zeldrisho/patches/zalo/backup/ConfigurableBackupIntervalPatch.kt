@@ -80,21 +80,81 @@ private fun hasAccountSpecificKey(
 ): Boolean = (maxOf(0, getterIndex - KEY_LOOKBACK_INSTRUCTIONS) until getterIndex).any { prefixIndex ->
     val prefixLoad = instructions[prefixIndex]
     val prefixReference = (prefixLoad as? ReferenceInstruction)?.reference as? StringReference
-    if (prefixLoad.opcode !in setOf(Opcode.CONST_STRING, Opcode.CONST_STRING_JUMBO) ||
-        prefixReference?.string != INTERVAL_KEY
-    ) {
-        false
-    } else {
-        (prefixIndex + 1 until getterIndex).any { index ->
-            val result = instructions.getOrNull(index + 1)
-            val resultRegister = (result as? OneRegisterInstruction)?.registerA
-            val reference = (instructions[index] as? ReferenceInstruction)?.reference as? MethodReference
-            instructions[index].opcode in setOf(Opcode.INVOKE_VIRTUAL, Opcode.INVOKE_VIRTUAL_RANGE) &&
-                reference?.definingClass == "Ljava/lang/StringBuilder;" &&
-                reference.name == "toString" && reference.returnType == "Ljava/lang/String;" &&
-                result?.opcode == Opcode.MOVE_RESULT_OBJECT && resultRegister == keyRegister
+    val prefixRegister = (prefixLoad as? OneRegisterInstruction)?.registerA
+    prefixLoad.opcode in setOf(Opcode.CONST_STRING, Opcode.CONST_STRING_JUMBO) &&
+        prefixReference?.string == INTERVAL_KEY && prefixRegister != null &&
+        prefixFlowsToKey(instructions, prefixIndex, getterIndex, prefixRegister, keyRegister)
+}
+
+private fun prefixFlowsToKey(
+    instructions: List<com.android.tools.smali.dexlib2.iface.instruction.Instruction>,
+    prefixIndex: Int,
+    getterIndex: Int,
+    prefixRegister: Int,
+    keyRegister: Int,
+): Boolean {
+    var builderRegister: Int? = null
+    var prefixAppended = false
+    for (index in prefixIndex + 1 until getterIndex) {
+        val instruction = instructions[index]
+        val reference = stringBuilderReference(instruction) ?: continue
+        if (isStringAppend(reference)) {
+            val receiver = invokeRegisterAt(instruction, 0)
+            val argument = invokeRegisterAt(instruction, 1)
+            val resultRegister = moveResultObjectRegister(instructions, index)
+            if (resultRegister != null) {
+                if (argument == prefixRegister) {
+                    prefixAppended = true
+                    builderRegister = resultRegister
+                } else if (prefixAppended && receiver == builderRegister) {
+                    builderRegister = resultRegister
+                }
+            }
+        } else if (prefixAppended && isGetterKeyConstruction(
+                instructions,
+                index,
+                instruction,
+                reference,
+                builderRegister,
+                keyRegister,
+            )
+        ) {
+            return true
         }
     }
+    return false
+}
+
+private fun stringBuilderReference(instruction: com.android.tools.smali.dexlib2.iface.instruction.Instruction): MethodReference? {
+    if (instruction.opcode !in setOf(Opcode.INVOKE_VIRTUAL, Opcode.INVOKE_VIRTUAL_RANGE)) return null
+    val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference
+    return reference?.takeIf { it.definingClass == "Ljava/lang/StringBuilder;" }
+}
+
+private fun isStringAppend(reference: MethodReference): Boolean = reference.name == "append" &&
+    reference.parameterTypes == listOf("Ljava/lang/String;") &&
+    reference.returnType == "Ljava/lang/StringBuilder;"
+
+private fun isStringBuilderToString(reference: MethodReference): Boolean = reference.name == "toString" && reference.returnType == "Ljava/lang/String;"
+
+private fun isGetterKeyConstruction(
+    instructions: List<com.android.tools.smali.dexlib2.iface.instruction.Instruction>,
+    index: Int,
+    instruction: com.android.tools.smali.dexlib2.iface.instruction.Instruction,
+    reference: MethodReference,
+    builderRegister: Int?,
+    keyRegister: Int,
+): Boolean = isStringBuilderToString(reference) &&
+    invokeRegisterAt(instruction, 0) == builderRegister &&
+    moveResultObjectRegister(instructions, index) == keyRegister
+
+private fun moveResultObjectRegister(
+    instructions: List<com.android.tools.smali.dexlib2.iface.instruction.Instruction>,
+    invokeIndex: Int,
+): Int? {
+    val result = instructions.getOrNull(invokeIndex + 1)
+    if (result?.opcode != Opcode.MOVE_RESULT_OBJECT) return null
+    return (result as? OneRegisterInstruction)?.registerA
 }
 
 @Suppress("MagicNumber") // DEX invoke registers are positional (C through G).
