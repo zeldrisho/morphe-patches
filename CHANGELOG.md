@@ -4,6 +4,9 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+### 🐛 Bug Fixes
+* **Zalo - Configurable native backup interval:** Target the actual backup execution method and validate its runtime-built account-specific interval key, allowing the supported Zalo APK to patch successfully.
+
 ## [1.7.0](https://github.com/zeldrisho/morphe-patches/compare/v1.6.3...v1.7.0) (2026-10-02)
 
 ### ✨ New Features
