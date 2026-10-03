@@ -4,6 +4,8 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+## [1.7.1](https://github.com/zeldrisho/morphe-patches/compare/v1.7.0...v1.7.1) (2026-10-03)
+
 ### 🐛 Bug Fixes
 * **Zalo - Configurable native backup interval:** Fixes patching for the supported Zalo APK.
 
