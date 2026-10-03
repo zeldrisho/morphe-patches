@@ -23,7 +23,7 @@
 - Follow `docs/patch-development.md#file-layout` for exact compatibility targets, patch descriptions, and risky-patch defaults.
 - Follow `docs/release.md#rules` for generated-file ownership; do not hand-edit release metadata or the generated README patch list.
 - Follow `docs/release.md#changelog-policy` for `CHANGELOG.md`; add only user-visible app changes under `## Unreleased`.
-- Work on branches and follow `docs/release.md` for staging and publishing.
+- Follow `docs/release.md` for staging and publishing.
 - Follow `docs/development.md#testing-guidance` for synthetic DEX tests, Robolectric tests, and opt-in private APK qualification.
 - Before APK reverse-engineering or qualification, inspect the existing gitignored `analysis/<app>/<version>/` workspace and its notes; reuse verified local evidence and avoid redundant extraction. Follow `docs/reverse-engineering.md#analysis-workspace`.
 - Build and unit-test success does not establish real-APK compatibility or device behavior; use `docs/validation.md`.

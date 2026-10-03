@@ -63,7 +63,7 @@ def main() -> int:
         missing = True
 
     if mode == "analysis":
-        for tool in ("file", "unzip", "rg", "aapt", "jadx", "baksmali"):
+        for tool in ("file", "unzip", "rg", "aapt", "baksmali"):
             check(tool, True)
     else:
         check("pre-commit", True)
@@ -71,11 +71,7 @@ def main() -> int:
         if mode == "device":
             check("adb", True)
 
-    cli = Path(os.environ.get("MORPHE_CLI", ROOT / "morphe-cli.jar")).expanduser()
-    if cli.is_file():
-        print(f"Morphe CLI jar: {cli}")
-    else:
-        print(f"OPTIONAL Morphe CLI jar not found at {cli}")
+    check("morphe", False)
 
     if missing:
         print(

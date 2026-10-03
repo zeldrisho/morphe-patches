@@ -4,6 +4,21 @@ Zalo **26.08.01** (`260801903`) roadmap. Keep APKs and evidence in ignored
 `analysis/zalo/26.08.01/`. Cross-app engineering belongs in [maintenance](maintenance.md);
 release execution and evidence requirements belong in [validation](validation.md).
 
+## Local data migration plan
+
+Remaining validation and cleanup for the migrated data:
+
+- Run a patch/sign job through `scripts/repatch.py` and confirm the startup log
+  selects Homebrew's stable `var/morphe`; see
+  [data-location rules](toolchain.md#default-data-location).
+- Verify the output signing certificate matches the installed app, then test
+  an update install without uninstalling; follow [validation](validation.md).
+- Validate migrated shared-key use with an explicit `KEYSTORE` if needed;
+  the helper normally prefers repo-root `Morphe.keystore`.
+- Keep the legacy `~/.local/share/morphe/morphe-data/` and private backup until
+  validation passes. Only then remove obsolete data/JARs after confirming no
+  callers depend on them. Keep a private backup for rollback.
+
 ## Feature feasibility investigations
 
 These are **not implemented behavior or release expectations**. Before implementation,

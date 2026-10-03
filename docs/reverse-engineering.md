@@ -44,8 +44,8 @@ Cleanup removes the whole directory, including notes and runs.
 
 See [toolchain setup](toolchain.md) for the complete inventory and install
 commands, including PATH setup and optional `uv tool` versus `uvx` usage.
-The Morphe CLI applies `.mpp` bundles; `scripts/repatch.py` finds the Morphe
-JAR in its standard locations with no setup.
+Morphe applies `.mpp` bundles; `scripts/repatch.py` uses `morphe` from PATH
+with no additional setup.
 
 `scripts/apk_recon.py` wraps recon; `scripts/extract_smali.py` uses baksmali for
 DEX → smali conversion, including split `.apkm`/`.xapk` handling. Run
@@ -66,7 +66,7 @@ Manual equivalent:
 1. `aapt dump badging <apk>` — package, version, versionCode, SDK levels, label, launch activity.
 2. `aapt dump xmltree <apk> AndroidManifest.xml | rg -i 'split|requiredSplit'` — split-APK detection.
    For `.apkm`/`.xapk`, extract `base.apk` to a temp dir first and run `aapt` on that.
-3. `uvx apkid <apk>` — compiler, obfuscator, packer, anti-debug, anti-VM (per DEX / lib).
+3. `apkid <apk>` (install with `brew install apkid`) — compiler, obfuscator, packer, anti-debug, anti-VM (per DEX / lib).
 4. `unzip -l <apk> | rg '\.dex'` — DEX count.
 5. `unzip -l <apk> | rg 'index.android.bundle|libflutter|libapp'` — framework:
    `index.android.bundle` = React Native, `libflutter.so`/`libapp.so` = Flutter,

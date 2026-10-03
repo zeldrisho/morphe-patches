@@ -12,8 +12,8 @@ brew install pre-commit openjdk@21
 brew install --cask android-cli
 ```
 
-`uv` is optional; install it with `brew install uv` to run on-demand Python
-analysis tools such as APKiD and objection. Java and Android SDK tooling support
+Install APKiD with `brew install apkid` for APK recon. `uv` is optional;
+install it with `brew install uv` for tools such as Frida and objection. Java and Android SDK tooling support
 repository builds and device workflows. If another OpenJDK version takes
 precedence, optionally run `brew link openjdk@21` to select Java 21.
 
@@ -72,17 +72,32 @@ Use `android` only for SDK management. Use `adb` for device operations,
 including pairing, installation, launch, UI inspection, screen capture, and
 logs; see [validation](validation.md).
 
+### Smali tools
+
+`smali` assembles DEX; `baksmali` disassembles DEX. The current local `smali`
+installation is built from source using the formula proposed in
+[homebrew-core PR #314481](https://github.com/Homebrew/homebrew-core/pull/314481),
+while waiting for it to merge. That formula provides both commands on PATH.
+Once available in core, install with `brew install smali`.
+
+```sh
+smali --help
+baksmali --help
+```
+
+Use `scripts/extract_smali.py` for canonical baksmali output.
+
 ### Python applications: persistent tools versus one-shot runs
 
 | Tool | Command | Use |
 | --- | --- | --- |
 | Frida | `uv tool install frida-tools` (optional; requires uv) | Runtime instrumentation; install only when needed |
-| APKiD | `uvx apkid app.apk` (requires uv) | On-demand recon |
+| APKiD | `brew install apkid`, then `apkid app.apk` | APK recon |
 | objection | `uvx objection --help` (requires uv) | On-demand dynamic triage; never assume a persistent install |
 
 These are optional investigation tools, not build or test prerequisites. APKiD
-is used by `scripts/apk_recon.py`; install it persistently or run it on demand
-with `uvx`. Frida and objection are only needed when a specific runtime question
+is used by `scripts/apk_recon.py`; install it with Homebrew. The script retains
+`uvx` as a fallback when no standalone `apkid` is available. Frida and objection are only needed when a specific runtime question
 cannot be answered statically; objection is a convenience layer over Frida, not
 a required workflow step. `uv tool` puts isolated executables in `~/.local/bin`;
 `uvx` uses cached temporary environments. Ruff and actionlint are installed in
@@ -110,56 +125,74 @@ network/firewall must allow access to the phone.
 
 Use a GitHub PAT with `read:packages` for the Morphe Gradle registry:
 `GITHUB_ACTOR` / `GITHUB_TOKEN`, or `gpr.user` / `gpr.key` in private
-`~/.gradle/gradle.properties`. Never commit credentials. No JS toolchain is required;
-release tooling uses `gh` and `python3`.
+`~/.gradle/gradle.properties`. Never commit credentials. Installing Morphe
+does not supply this repository's Gradle dependencies or remove its registry
+authentication requirement. No JS toolchain is required; release tooling uses
+`gh` and `python3`.
 
-## 5. Morphe CLI and GUI share one JAR
+## 5. Morphe
 
-Morphe Desktop is distributed upstream as a JAR; this repo does not configure a
-package-manager package for it. Fetch the latest stable release without hard-coding
-a version, and verify it against the SHA-256 digest published in GitHub release
-metadata before using it. This release digest is an integrity check against GitHub's
-published asset metadata, not an independent trust anchor:
+Install Morphe with Homebrew:
 
 ```bash
-set -euo pipefail
-repo=MorpheApp/morphe-desktop
-release=$(gh release view --repo "$repo" --json tagName,assets)
-tag=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["tagName"])' <<< "$release")
-version=${tag#v}
-asset="morphe-desktop-${version}-all.jar"
-digest=$(python3 -c 'import json,sys; asset=sys.argv[1]; print(next((a.get("digest", "").removeprefix("sha256:") for a in json.load(sys.stdin)["assets"] if a["name"] == asset), ""))' "$asset" <<< "$release")
-[[ "$digest" =~ ^[[:xdigit:]]{64}$ ]] || { echo "Missing published SHA-256 for $asset" >&2; exit 1; }
-mkdir -p "$HOME/.local/share/morphe"
-gh release download "$tag" --repo "$repo" --pattern "$asset" --dir "$HOME/.local/share/morphe"
-printf '%s  %s\n' "$digest" "$HOME/.local/share/morphe/$asset" | sha256sum -c -
+brew install morphe
+morphe --help
 ```
 
-Morphe Desktop 1.17.0 was checked locally against the pinned Zalo APKM. `FULL`
+The current local installation is built from source using the fixed formula in
+[homebrew-core PR #314509](https://github.com/Homebrew/homebrew-core/pull/314509).
+The formula builds Morphe dependencies from source without
+GitHub Packages credentials; this does not remove this repository's Gradle
+authentication requirement.
+
+Homebrew registers `morphe` on PATH. The helper uses it automatically:
+
+```bash
+python3 scripts/repatch.py <app.apkm>
+```
+
+Previous local checks against the pinned Zalo APKM found that `FULL`
 and `STRIP_FAST` fail Morphe's internal DEX hierarchy verification because
 Google IMA classes are absent. `STRIP_SAFE` can produce an unsigned output when
 SDK verification is omitted, but `--verify-with-sdk` still fails on those missing
 classes. This is not a successful qualification: do not install or release that
-output. The latest-release download above may select a newer version, which must
+output. A Homebrew installation or upgrade may select a newer version, which must
 be revalidated against the target APK; record a passing SDK and device check
 before treating the APK as supported.
 
-`morphe-desktop-*-all.jar` starts the GUI without a subcommand, the CLI with one.
-Do not replace a JAR during an active patch run. `scripts/repatch.py` discovers
-the highest numeric version in this directory; `--jar <path>` pins a specific one.
-No environment
-configuration is needed for its default JAR, bundle, or keystore discovery. See
-[CLI patching](cli.md) for commands, runtime data-directory resolution, and
+Do not upgrade Morphe during an active patch run. `scripts/repatch.py` uses
+`morphe` from PATH; legacy JAR discovery remains available as a fallback.
+Bundle and keystore discovery remain unchanged. See
+[patching](cli.md) for commands, runtime data-directory resolution, and
 [signing](cli.md#signing) for key/password selection.
 Upstream: [README](https://github.com/MorpheApp/morphe-desktop),
-[CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
+[command reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
+
+### Default data location
+
+By default, the Homebrew launcher stores Morphe runtime data in the stable
+Homebrew var directory:
+
+```bash
+$(brew --prefix)/var/morphe
+```
+
+This is outside the versioned Cellar installation. No environment setup is
+needed for the default. Set `MORPHE_DATA_DIR` to use a different writable location.
+The startup log reports the selected data root.
+
+See the [local data migration plan](plan.md#local-data-migration-plan) for backup
+and validation before removing the old installation.
 
 ## 6. Storage and path conventions
 
 APKMirror downloads may live in any local directory.
 Keep APK investigation artifacts in the gitignored [analysis workspace](reverse-engineering.md#analysis-workspace).
-The helper prefers the repository's persistent `Morphe.keystore`, with shared
-Morphe data-directory keys as fallbacks; see [signing](cli.md#signing).
+To update an app installed by Morphe Manager on a phone, export the keystore
+from that phone's Manager installation and copy it to `Morphe.keystore` at the
+repository root. This local file is gitignored; never commit or share it.
+The helper prefers that persistent key. Match the exported key's alias and
+passwords; see [signing](cli.md#signing). Shared data-directory keys are fallbacks.
 
 ## 7. Original APK source
 
@@ -186,6 +219,9 @@ java -version
 android sdk list
 adb version
 aapt version
+smali --help
+baksmali --help
+morphe --help
 ```
 
 Then run [canonical verification](development.md#verify), followed by

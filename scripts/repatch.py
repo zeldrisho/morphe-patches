@@ -30,7 +30,7 @@ def die(msg):
 
 
 def jar_version(path):
-    """Parse the numeric version from a Morphe Desktop all-in-one JAR name."""
+    """Parse the numeric version from a legacy Morphe JAR name."""
     match = re.fullmatch(r"morphe-desktop-(\d+(?:\.\d+)*)-all\.jar", path.name)
     if not match:
         return None
@@ -99,6 +99,8 @@ def main():
         if a.jar
         else max(jars, key=lambda item: item[0], default=(None, None))[1]
     )
+    morphe = shutil.which("morphe") if not a.jar else None
+    base = [morphe] if morphe else ["java", "-jar", str(jar)]
     key = os.environ.get("KEYSTORE")
     if not key and (ROOT / "Morphe.keystore").is_file():
         key = str(ROOT / "Morphe.keystore")
@@ -116,9 +118,10 @@ def main():
                 break
     if not inp.is_file():
         die(f"input not found: {inp}")
-    if not jar or not jar.is_file():
+    if not morphe and (not jar or not jar.is_file()):
         die(
-            "Morphe JAR not found. Download morphe-desktop-*-all.jar to ~/.local/share/morphe/ or pass --jar <path>."
+            "Morphe not found. Install with brew install morphe. "
+            "Legacy JARs in ~/.local/share/morphe/ or --jar <path> are also supported."
         )
     if not key or not Path(key).is_file():
         die("keystore not found (set KEYSTORE= or import one into morphe-data/)")
@@ -161,7 +164,6 @@ def main():
         if not Path(mpp).is_file():
             die(f"patch bundle not found: {mpp}")
         opts = Path(td) / "options.json"
-        base = ["java", "-jar", str(jar)]
         try:
             subprocess.run(
                 base + ["options-create", "-p", mpp, "-o", str(opts)],
