@@ -38,6 +38,25 @@ class ApkReconTest(unittest.TestCase):
             self.assertEqual("scan output", apk_recon.run_apkid(Path("app.apk")))
         self.assertEqual(["uvx", "apkid", "app.apk"], run.call_args.args[0])
 
+    def test_reports_timeout(self):
+        with (
+            mock.patch.object(
+                apk_recon.shutil,
+                "which",
+                side_effect=lambda name: "/bin/apkid" if name == "apkid" else None,
+            ),
+            mock.patch.object(
+                apk_recon.subprocess,
+                "run",
+                side_effect=subprocess.TimeoutExpired("apkid", 300),
+            ) as run,
+        ):
+            self.assertEqual(
+                "apkid failed: timed out after 300s",
+                apk_recon.run_apkid(Path("app.apk")),
+            )
+        self.assertEqual(300, run.call_args.kwargs["timeout"])
+
     def test_reports_unavailable_and_failure(self):
         with mock.patch.object(apk_recon.shutil, "which", return_value=None):
             self.assertIn("not available", apk_recon.run_apkid(Path("app.apk")))

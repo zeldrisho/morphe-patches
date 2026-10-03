@@ -71,13 +71,15 @@ commit or download proprietary APKs in tests.
 ## Re-patch and install
 
 Use the original split `.apkm`, with the chosen bundle pinned through `MPP`.
-Release qualification requires SDK verification:
+Release qualification requires SDK verification. Set `SERIAL` to the device ID
+from `adb devices` and `PACKAGE_NAME` to the installed package ID (use the
+renamed ID if applicable):
 
 ```bash
 MPP="patches/build/libs/patches-<version>.mpp" VERIFY_SDK=1 \
   python3 scripts/repatch.py /path/to/input.apkm /tmp/verified.apk
 adb -s "$SERIAL" install -r /tmp/verified.apk
-# Cold-start the patched package (use its renamed ID if applicable):
+# Cold-start the patched package:
 adb -s "$SERIAL" shell am force-stop "$PACKAGE_NAME"
 adb -s "$SERIAL" shell monkey -p "$PACKAGE_NAME" -c android.intent.category.LAUNCHER 1
 ```
@@ -118,8 +120,7 @@ Morphe fixes the verifier. Other required checks still apply.
 ## Repeatable device journeys
 
 Run stock, minimally re-signed no-patch control, and selected-patch builds.
-Set `SERIAL` to the device ID from `adb devices` and `PACKAGE_NAME` to the
-installed package ID. Use ADB for UI inspection and visual evidence:
+Use ADB for UI inspection and visual evidence:
 
 ```bash
 adb -s "$SERIAL" shell uiautomator dump /sdcard/window.xml

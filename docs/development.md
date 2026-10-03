@@ -87,8 +87,9 @@ CI runs the pinned `pre-commit/action` GitHub Action; Ruff and actionlint are
 provided by pinned, isolated hook environments, keeping their versions consistent
 locally and in CI. Other hook repositories and revisions remain pinned in
 `.pre-commit-config.yaml`; update them with `pre-commit autoupdate --freeze`,
-review the resolved commits, then run verification. The hooks run at commit time;
-the Gradle quality hook is not installed for pre-push.
+review the resolved commits, then run verification. A bare `pre-commit install`
+installs both configured hook types. Commits do not run Gradle or SDK builds;
+pushes with files matching the hook's pattern run `gradle-quality`.
 Detekt **2.0.0-alpha.6**
 remains intentional: its compiler matches Morphe's Kotlin **2.4.10**; stable Detekt
 1.23.8 targets Kotlin 2.0.21 and is not a compatible drop-in. Recheck the
@@ -104,8 +105,7 @@ pre-commit install
 ```
 
 Remove it with `pre-commit uninstall`. The first run needs network access to
-fetch the configured isolated hook environments. Commits do not run Gradle or
-SDK builds; Gradle quality checks remain a manual/CI gate.
+fetch the configured isolated hook environments.
 
 ### Apply formatting explicitly
 

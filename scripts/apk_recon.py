@@ -30,7 +30,10 @@ def run_apkid(apk):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
+            timeout=300,
         )
+    except subprocess.TimeoutExpired:
+        return "apkid failed: timed out after 300s"
     except OSError as error:
         return f"apkid unavailable ({error})"
     if result.returncode:
