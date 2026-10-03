@@ -29,7 +29,8 @@ export ANDROID_HOME="$HOME/Android/Sdk"
 
 ### SDK packages: build requirements versus analysis utilities
 
-`android-cli` installs the SDK manager. Gradle downloads the Android 36 platform
+The `android-cli` package provides the `android` command for SDK management.
+Gradle downloads the Android 36 platform
 required by Morphe's `compileSdk` and the AGP-compatible Build-Tools as needed, so
 neither needs a manual install command. The SDK manager can install platform-tools
 and NDK for local device/native analysis. It treats NDK releases as side-by-side
@@ -67,11 +68,9 @@ and `zipalign`. An already-installed suitable build-tools version is fine; adjus
 PATH accordingly. `ANDROID_HOME` controls Gradle discovery, PATH controls terminal
 tools. No emulator or system image is required.
 
-Use the `android` CLI for supported deployment and UI workflows (install/run,
-layout inspection, and screen capture); see [validation](validation.md). Keep
-`adb` for lower-level device operations such as Wireless debugging pairing,
-connection/listing, and commands not exposed by `android`. `fd-find` is not part
-of the maintained toolchain; use `rg` for repository searches.
+Use `android` only for SDK management. Use `adb` for device operations,
+including pairing, installation, launch, UI inspection, screen capture, and
+logs; see [validation](validation.md).
 
 ### Python applications: persistent tools versus one-shot runs
 
