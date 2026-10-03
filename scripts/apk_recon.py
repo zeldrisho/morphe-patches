@@ -14,8 +14,9 @@ def run_apkid(apk):
     """Scan an APK path, preferring standalone APKiD and using uvx if it is absent.
 
     Return stripped stdout, or a diagnostic for missing tools, an OSError while
-    running the command, a nonzero exit, or empty output. A failed standalone
-    command does not trigger a retry through uvx. Output decoding errors propagate.
+    running the command, a timeout after 300 seconds, a nonzero exit, or empty
+    output. A failed standalone command does not trigger a retry through uvx.
+    Output decoding errors propagate.
     """
     executable = shutil.which("apkid")
     command = [executable, str(apk)] if executable else None

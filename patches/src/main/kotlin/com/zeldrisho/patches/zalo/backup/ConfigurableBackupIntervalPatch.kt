@@ -68,10 +68,10 @@ private fun findIntervalGetter(instructions: List<com.android.tools.smali.dexlib
 /**
  * Checks for the runtime key-building pattern before the getter at [getterIndex].
  *
- * Returns true when the interval prefix is loaded within the preceding 24 instructions
- * and a later StringBuilder.toString call before the getter has its result moved into
- * [keyRegister], the getter's string argument register. Returns false if no pattern matches.
- * This heuristic does not verify that the prefix or an account ID feeds the builder.
+ * Returns true when the interval prefix is loaded within the preceding 24 instructions,
+ * appended to a StringBuilder, and that builder's toString result is moved into
+ * [keyRegister], the getter's string argument register. Later StringBuilder appends
+ * on the same builder are followed through. Returns false if no pattern matches.
  */
 private fun hasAccountSpecificKey(
     instructions: List<com.android.tools.smali.dexlib2.iface.instruction.Instruction>,
