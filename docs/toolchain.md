@@ -8,18 +8,17 @@ Install Homebrew by following [brew.sh](https://brew.sh). Repository development
 and Android/Java tools are managed with Brew:
 
 ```sh
-brew install pre-commit openjdk@21
+brew install pre-commit openjdk@21 morphe
 brew install --cask android-cli
+brew link openjdk@21
 ```
 
 Install APKiD with `brew install apkid` for APK recon. `uv` is optional;
-install it with `brew install uv` for tools such as Frida and objection. Java and Android SDK tooling support
-repository builds and device workflows. If another OpenJDK version takes
-precedence, optionally run `brew link openjdk@21` to select Java 21.
+install it with `brew install uv` for tools such as Frida and objection.
 
 ## 2. Java, Android CLI, and analysis tools
 
-Use **Java 21** and the checked-in `./gradlew`; no separate Gradle install.
+Use **Java 21** and the checked-in `./gradlew`; no separate Gradle install. Morphe's Homebrew formula also installs OpenJDK, but the repository requires Java 21.
 Set `ANDROID_HOME` to `$HOME/Android/Sdk` in your shell's environment using its
 normal configuration mechanism, or export it for the current session:
 
@@ -132,18 +131,13 @@ authentication requirement. No JS toolchain is required; release tooling uses
 
 ## 5. Morphe
 
-Install Morphe with Homebrew:
+Morphe is available from Homebrew and installed with the host tools above:
 
 ```bash
-brew install morphe
 morphe --help
 ```
 
-The current local installation is built from source using the fixed formula in
-[homebrew-core PR #314509](https://github.com/Homebrew/homebrew-core/pull/314509).
-The formula builds Morphe dependencies from source without
-GitHub Packages credentials; this does not remove this repository's Gradle
-authentication requirement.
+Its Homebrew formula depends on OpenJDK. That runtime does not replace this repository's Java 21 requirement or remove its Gradle registry authentication requirement.
 
 Homebrew registers `morphe` on PATH. The helper uses it automatically:
 
