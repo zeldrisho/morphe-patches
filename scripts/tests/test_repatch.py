@@ -35,6 +35,16 @@ class RepatchTest(RepatchTestSupport):
             with self.subTest(url=url):
                 self.assertEqual(REPATCH.validate_download_url(url), url)
 
+    def test_patch_name_aliases_are_canonicalized_for_required_patch_checks(self):
+        self.assertEqual(
+            REPATCH.canonical_patch_name("Change package name"),
+            "Change Zalo package name",
+        )
+        self.assertEqual(
+            REPATCH.canonical_patch_name("Change Zalo package name"),
+            "Change Zalo package name",
+        )
+
     def test_redirect_handler_exposes_redirects(self):
         """Ensure redirects are returned for validation instead of followed implicitly."""
         handler = REPATCH.NoRedirectHandler()
@@ -71,6 +81,7 @@ class RepatchTest(RepatchTestSupport):
             KEYSTORE_ENTRY_PASSWORD="entry pass=word",
             APP_NAME="Threads Test",
             PACKAGE_NAME="com.example.threads",
+            FAKE_BADGING_PACKAGE="com.example.threads",
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         args = self.calls()[1][1]
@@ -91,6 +102,61 @@ class RepatchTest(RepatchTestSupport):
             patches["Change package name"]["options"]["packageName"],
             "com.example.threads",
         )
+
+    def test_expected_package_manifest_guard_accepts_matching_clone(self):
+        result = self.run_helper(
+            PACKAGE_NAME="com.example.clone",
+            FAKE_BADGING_PACKAGE="com.example.clone",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.output.is_file())
+        self.assertIn("✅ Patched APK", result.stdout)
+
+    def test_expected_package_manifest_mismatch_quarantines_output(self):
+        result = self.run_helper(
+            "--expected-package",
+            "com.example.expected",
+            FAKE_BADGING_PACKAGE="com.example.wrong",
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("output package mismatch", result.stderr)
+        self.assertFalse(self.output.exists())
+        self.assertTrue(Path(str(self.output) + ".invalid").exists())
+        self.assertNotIn("✅ Patched APK", result.stdout)
+
+    def test_skipped_required_clone_rename_quarantines_output(self):
+        result = self.run_helper(
+            PACKAGE_NAME="com.example.clone",
+            FAKE_BADGING_PACKAGE="com.example.clone",
+            FAKE_PATCH_OUTPUT="INFO: Skipping disabled: Change package name",
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("required patch(es) skipped", result.stderr)
+        self.assertFalse(self.output.exists())
+        self.assertTrue(Path(str(self.output) + ".invalid").exists())
+        self.assertNotIn("✅ Patched APK", result.stdout)
+
+    def test_options_file_mismatch_and_optional_disabled_patch_are_nonfatal(self):
+        result = self.run_helper(
+            FAKE_PATCH_OUTPUT=(
+                "WARNING: Options file is out of date for the patch bundle\\n"
+                "INFO: Skipping disabled: Optional patch"
+            )
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.output.is_file())
+        self.assertIn("✅ Patched APK", result.stdout)
+
+    def test_required_patch_not_applied_quarantines_output(self):
+        result = self.run_helper(
+            PACKAGE_NAME="com.example.clone",
+            FAKE_BADGING_PACKAGE="com.example.clone",
+            FAKE_OMIT_APPLIED="Change package name",
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("required patch(es) not applied", result.stderr)
+        self.assertFalse(self.output.exists())
+        self.assertTrue(Path(str(self.output) + ".invalid").exists())
 
     def test_newest_local_bundle_excludes_documentation(self):
         """Verify the script selects the newest .mpp bundle while excluding javadoc and sources artifacts."""

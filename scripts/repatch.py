@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import urllib.request
 from pathlib import Path
@@ -27,6 +28,51 @@ class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
 
 def die(msg):
     raise SystemExit("❌ " + msg)
+
+
+def read_apk_package(apk):
+    """Read an APK's manifest package with aapt; fail closed if unavailable or unparseable."""
+    aapt = shutil.which("aapt")
+    if not aapt:
+        return None
+    try:
+        result = subprocess.run(
+            [aapt, "dump", "badging", str(apk)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if result.returncode:
+        return None
+    match = re.search(r"(?m)^package: name=['\"]([^'\"]+)['\"]", result.stdout)
+    return match.group(1) if match else None
+
+
+def quarantine_artifact(path):
+    """Move an invalid output aside so it cannot be mistaken for a successful build."""
+    if not path.exists():
+        return None
+    quarantine = path.with_name(path.name + ".invalid")
+    suffix = 1
+    while quarantine.exists():
+        quarantine = path.with_name(path.name + f".invalid.{suffix}")
+        suffix += 1
+    try:
+        path.replace(quarantine)
+        return quarantine
+    except OSError:
+        return None
+
+
+def canonical_patch_name(name):
+    """Normalize legacy/generated aliases to the stable patch name used for validation."""
+    aliases = {
+        "Change package name": "Change Zalo package name",
+        "Change app name": "Change Zalo app name",
+    }
+    return aliases.get(name, name)
 
 
 def jar_version(path):
@@ -107,11 +153,23 @@ def main():
     """Patch the requested APK or APKM and sign the resulting APK."""
     p = argparse.ArgumentParser()
     p.add_argument("--jar")
+    p.add_argument("--expected-package")
     p.add_argument("input")
     p.add_argument("output", nargs="?")
     a = p.parse_args()
     inp = Path(a.input)
     out = Path(a.output or inp.with_name(inp.stem + "_patched.apk"))
+    package_override = os.environ.get("PACKAGE_NAME")
+    expected_package = (
+        a.expected_package
+        or os.environ.get("EXPECTED_PACKAGE_NAME")
+        or package_override
+    )
+    required_patch_names = {
+        name.strip()
+        for name in os.environ.get("REQUIRED_PATCHES", "").split(",")
+        if name.strip()
+    }
     home = Path.home()
     jars = [
         (version, path)
@@ -245,6 +303,17 @@ def main():
                         patches[name]["enabled"] = True
                     if patches[name].get("enabled"):
                         patches[name].setdefault("options", {})[opt] = value
+        if package_override:
+            rename_patches = {
+                name
+                for name, patch in patches.items()
+                if patch.get("options", {}).get("packageName") == package_override
+            }
+            if not rename_patches or not any(
+                patches[name].get("enabled") for name in rename_patches
+            ):
+                die("requested PACKAGE_NAME has no enabled package-rename patch")
+            required_patch_names.update(rename_patches)
         opts.write_text(json.dumps(data, indent=1))
         key_path = Path(key).resolve()
         default_key_paths = {
@@ -286,7 +355,7 @@ def main():
         )
         print(f"Patching '{inp}' -> '{out}'")
         try:
-            subprocess.run(
+            result = subprocess.run(
                 base
                 + [
                     "patch",
@@ -303,10 +372,69 @@ def main():
                     str(Path(td) / "patch"),
                     str(inp),
                 ],
-                check=True,
+                check=False,
+                capture_output=True,
+                text=True,
             )
-        except subprocess.CalledProcessError as e:
-            raise SystemExit(e.returncode)
+        except OSError as e:
+            die(f"failed to run Morphe: {e}")
+        if result.stdout:
+            print(result.stdout, end="")
+        if result.stderr:
+            print(result.stderr, end="", file=sys.stderr)
+        if result.returncode:
+            raise SystemExit(result.returncode)
+
+        combined_output = result.stdout + "\n" + result.stderr
+        skipped = {
+            canonical_patch_name(name)
+            for name in re.findall(
+                r"(?im)^.*Skipping disabled:\s*(.+?)\s*$", combined_output
+            )
+        }
+        applied = {
+            canonical_patch_name(name)
+            for name in re.findall(r"(?im)^.*Applied:\s*(.+?)\s*$", combined_output)
+        }
+        required_patch_names = {
+            canonical_patch_name(name) for name in required_patch_names
+        }
+        skipped_required = sorted(required_patch_names.intersection(skipped))
+        unapplied_required = sorted(required_patch_names - applied)
+        if skipped_required or unapplied_required:
+            quarantined = quarantine_artifact(out)
+            failed_required = sorted(set(unapplied_required) - set(skipped_required))
+            details = []
+            if skipped_required:
+                details.append(
+                    "required patch(es) skipped: " + ", ".join(skipped_required)
+                )
+            if failed_required:
+                details.append(
+                    "required patch(es) not applied: " + ", ".join(failed_required)
+                )
+            detail = "; ".join(details)
+            die(
+                detail
+                + (f"; artifact quarantined at {quarantined}" if quarantined else "")
+            )
+
+        if expected_package:
+            actual_package = read_apk_package(out)
+            if actual_package != expected_package:
+                quarantined = quarantine_artifact(out)
+                detail = (
+                    f"output package mismatch: expected {expected_package}, "
+                    f"got {actual_package or '<unreadable>'}"
+                )
+                die(
+                    detail
+                    + (
+                        f"; artifact quarantined at {quarantined}"
+                        if quarantined
+                        else ""
+                    )
+                )
     print(f"\n✅ Patched APK: {out}")
 
 
