@@ -29,8 +29,9 @@ internal fun rewriteMicroGMethodBody(
     val picker = isAccountPickerMethod(classType, method)
     if (picker) replaceWithAccountPicker(mutableMethod)
     val implementation = method.implementation
-    val rewritten = if (!picker && implementation != null) {
-        rewriteMicroGInstructions(classType, method, mutableMethod, replacement, implementation.instructions)
+    val instructions = implementation?.instructions?.toList()
+    val rewritten = if (!picker && instructions != null) {
+        rewriteMicroGInstructions(classType, method, mutableMethod, replacement, instructions)
     } else {
         MicroGMethodReplacementCounts()
     }

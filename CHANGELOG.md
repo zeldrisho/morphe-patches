@@ -9,6 +9,8 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 * **Zalo - Enable profile cover saving:** Restores the “Save photo” action and allows screenshots for profile cover photos.
 
 ### 🐛 Bug Fixes
+* **Zalo - Change package name:** Renamed clones can sign in to Google Drive with the microG Drive support patch.
+* **Zalo - microG Drive support:** Fixes token requests from renamed clones by preserving their real caller identity while using Zalo's original OAuth identity.
 * **Zalo - Configurable native backup interval:** Recognizes Zalo's constructor-seeded account-specific key when validating the native interval getter, fixing patching failures.
 
 ## [1.7.2](https://github.com/zeldrisho/morphe-patches/compare/v1.7.1...v1.7.2) (2026-10-05)
