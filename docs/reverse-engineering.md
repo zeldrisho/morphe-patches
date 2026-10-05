@@ -67,8 +67,8 @@ Manual equivalent:
 2. `aapt dump xmltree <apk> AndroidManifest.xml | rg -i 'split|requiredSplit'` — split-APK detection.
    For `.apkm`/`.xapk`, extract `base.apk` to a temp dir first and run `aapt` on that.
 3. `apkid <apk>` (install with `brew install apkid`) — compiler, obfuscator, packer, anti-debug, anti-VM (per DEX / lib).
-4. `unzip -l <apk> | rg '\.dex'` — DEX count.
-5. `unzip -l <apk> | rg 'index.android.bundle|libflutter|libapp'` — framework:
+4. `python3 scripts/extract_smali.py <apk-or-bundle> [output]` — inspect extracted DEX/smali to determine DEX count.
+5. `python3 scripts/extract_smali.py <apk-or-bundle> [output]` — inspect extracted files for `index.android.bundle`, `libflutter`, or `libapp` to identify framework:
    `index.android.bundle` = React Native, `libflutter.so`/`libapp.so` = Flutter,
    `assets/www|public/` = Cordova/Capacitor, `libmonodroid.so|assemblies/` = Xamarin/MAUI,
    else native (Compose vs Kotlin distinguished via `androidx.compose` / `kotlin_module`
