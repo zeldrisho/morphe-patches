@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -46,7 +47,7 @@ else:
 
 
 class RepatchTestSupport(unittest.TestCase):
-    """Set up an isolated mock project and fake Morphe CLI invocation."""
+    """Set up an isolated mock project and fake Morphe invocation."""
 
     def setUp(self):
         """Set up a temporary test environment with a fake java executable and mock project structure."""
@@ -63,6 +64,7 @@ class RepatchTestSupport(unittest.TestCase):
         self.home.mkdir()
         bin_dir = self.root / "bin"
         bin_dir.mkdir()
+        (bin_dir / "python3").symlink_to(sys.executable)
         java = bin_dir / "java"
         java.write_text(FAKE_JAVA)
         java.chmod(0o755)
@@ -86,7 +88,7 @@ class RepatchTestSupport(unittest.TestCase):
             }
         }
         self.env.update(
-            PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
+            PATH=str(bin_dir),
             HOME=str(self.home),
             KEYSTORE=str(self.root / "test.keystore"),
             MPP=str(self.root / "bundle.mpp"),
@@ -132,7 +134,7 @@ class RepatchTestSupport(unittest.TestCase):
         )
 
     def calls(self):
-        """Parse and return the list of Morphe CLI commands logged during script execution."""
+        """Parse and return the list of Morphe commands logged during script execution."""
         return [
             json.loads(line)
             for line in Path(self.env["CALLS"]).read_text().splitlines()

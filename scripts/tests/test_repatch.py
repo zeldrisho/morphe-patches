@@ -160,8 +160,33 @@ class RepatchTest(RepatchTestSupport):
         args = self.calls()[1][1]
         self.assertFalse(Path(args[args.index("-t") + 1]).parent.exists())
 
+    def install_morphe_command(self):
+        """Provide a PATH launcher backed by the existing fake Java harness."""
+        command = self.root / "bin/morphe"
+        command.write_text('#!/bin/sh\nexec java -jar "path-command.jar" "$@"\n')
+        command.chmod(0o755)
+
+    def test_morphe_command_preferred_over_legacy_jar(self):
+        """Use Morphe on PATH even when a legacy JAR is present."""
+        self.install_morphe_command()
+        result = self.run_helper()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(Path(self.env["JAR_CAPTURE"]).read_text(), "path-command.jar")
+        self.assertEqual(
+            [call[0] for call in self.calls()], ["options-create", "patch"]
+        )
+
+    def test_morphe_command_without_legacy_jar(self):
+        """A normal command installation needs no manually downloaded JAR."""
+        self.install_morphe_command()
+        self.share_jar.unlink()
+        result = self.run_helper()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(self.output.is_file())
+
     def test_jar_flag_overrides_discovery(self):
         """Verify --jar <path> beats the share-dir JAR for manual testing."""
+        self.install_morphe_command()
         override = self.root / "manual-test-all.jar"
         override.touch()
         os.utime(self.share_jar, (300, 300))
@@ -205,7 +230,8 @@ class RepatchTest(RepatchTestSupport):
         self.share_jar.unlink()
         result = self.run_helper()
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Morphe JAR not found", result.stderr)
+        self.assertIn("Morphe not found", result.stderr)
+        self.assertIn("brew install morphe", result.stderr)
         self.assertIn("~/.local/share/morphe/", result.stderr)
         self.assertIn("--jar", result.stderr)
         self.assertFalse(Path(self.env["CALLS"]).exists())

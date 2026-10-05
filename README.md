@@ -4,32 +4,14 @@ Patches for apps I like, built for [Morphe](https://morphe.software).
 
 ## ❓ About
 
-A personal patch bundle for Morphe.
-Patches, compatible app versions, and options are listed below; the list is
-regenerated on every release.
-
-### How to use these patches
+Patches for apps I like, built for Morphe.
 
 Click here to add these patches to Morphe: https://morphe.software/add-source?github=zeldrisho/morphe-patches
-
-Or add the source URL manually in Morphe Manager → Sources.
-
-Contributor docs: [development guide](docs/development.md) (start here),
-[toolchain setup](docs/toolchain.md) (installs), [validation guide](docs/validation.md) (device testing),
-[release process](docs/release.md) (publishing), [Zalo microG/Drive guide](docs/zalo-microg.md), [analysis workspace](docs/reverse-engineering.md#analysis-workspace) (APK investigation artifacts).
-
-### FAQ
-
-- **What is supported?** Use the versions, version codes, ABI, and APK/APKM format in the generated patch catalog and [validation guide](docs/validation.md); unlisted versions are not compatibility claims.
-- **Can I repatch an installed app?** No. Start with the supported original APK/APKM; refreshing the source only updates patch metadata.
-- **Why can sign-in or Drive fail?** Package/certificate-bound services and provider authorization are external boundaries. MicroG support does not guarantee Google sign-in or Drive access. See the [Zalo microG/Drive troubleshooting guide](docs/zalo-microg.md).
-- **Why does Zalo still say MicroG is missing?** The provider must be enabled and use the exact package `app.revanced.android.gms`; Android package visibility can also hide an installed provider. The patch now declares that package and opens the official [Morphe MicroG download page](https://morphe.software/microg). Details and issue references are in the [guide](docs/zalo-microg.md).
-- **How should I report a failure?** Include the app version code, bundle version, selected patches/options, and redacted logs. Never attach credentials, account data, signing keys, or proprietary APKs.
 
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.7.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.7.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;22 patches total
+> **[v1.7.2](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.7.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;22 patches total
 <details>
 <summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;17 patches</summary>
 <br>
@@ -48,7 +30,7 @@ Contributor docs: [development guide](docs/development.md) (start here),
 | Disable ads | Disables Zalo offline/Google ad networks (forces the Adtima offline gates closed, always drops admob/dfp/ima, and reports limit-ad-tracking opted-out). Sponsored Story/community placements need the companion patch. |  |
 | Disable sponsored placements | Forces Zalo Story/community ad-enable flags to off at their config reads (normal content path kept). Server-stitched or OA-message promos may remain. |  |
 | Disable telemetry and crash reporting | Stops Zalo's first-party analytics records and diagnostic crash data by suppressing its Room analytics writes, Firebase Crashlytics logs/keys, and native crash-handler registration. Messaging, sockets, and database initialization remain intact. |  |
-| Enable Google Drive photo backup | Enables Zalo's existing Google Drive photo-backup option. It does not bypass Google authorization, server retention, encryption, or media exclusions. |  |
+| Enable Google Drive photo backup | Forces Zalo's media-backup feature flag on and bypasses its local Drive-account eligibility check to expose the existing photo-backup option. This optional patch does not bypass Google authorization, server retention, encryption, or media exclusions. |  |
 | Filter promo notifications | Skips Zalo Timeline/Stories and Zalo Video push notifications (like/comment digests, new feeds/stories, video reminders) in the push dispatcher. Message, call, friend-request and birthday notifications are untouched; reaction/activity pushes on other channels may remain. |  |
 | Hide Business Box | Removes Zalo's Business Box service entry from the main chat list without filtering ordinary conversations or user-initiated Official Account chats. |  |
 | Keep expired media accessible | Keeps locally stored large chat media usable after Zalo's client-side expiry window by bypassing the expired/subscription state. It does not restore missing files or bypass server download authorization. |  |
@@ -72,7 +54,7 @@ Contributor docs: [development guide](docs/development.md) (start here),
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| Change app name | Changes the app name shown under the launcher icon. Set the desired name in the patch options. | • App name |
+| Change app name | Opt-in customization: changes the app name shown under the launcher icon. Set the desired name in the patch options. | • App name |
 | Change package name | Changes the app package name so the patched app installs alongside the original. Set the desired name in the patch options. WARNING: hardcoded component/provider references can break login, content providers, or push. Disable this patch if needed. | • Package name |
 | Hide ads | Removes sponsored posts from the Threads feed by filtering ad feed units (detected via Media.DED/DGK) out of the list merged into the feed cache, before they can render. Feed-scoped; other surfaces (clips/reels) are not affected. |  |
 | Open links externally | Opens HTTP(S) links in an external app when one can handle them; otherwise keeps Threads' normal link handling. |  |
