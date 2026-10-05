@@ -66,7 +66,6 @@ def main() -> int:
         for tool in ("file", "unzip", "rg", "aapt", "baksmali"):
             check(tool, True)
     else:
-        check("pre-commit", True)
         check("android", False)
         if mode == "device":
             check("adb", True)
