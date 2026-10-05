@@ -31,7 +31,7 @@ Check prerequisites without installing tools or changing the host:
 
 ```bash
 python3 scripts/doctor.py build      # Java 21+, Python, Gradle wrapper
-python3 scripts/doctor.py analysis   # plus APK recon/decompile tools
+python3 scripts/doctor.py analysis   # plus APK recon tools; baksmali is optional
 python3 scripts/doctor.py device     # Android CLI deployment capability
 ```
 
@@ -67,9 +67,10 @@ Successful verification still requires [real-APK and device validation](validati
 
 ## Code quality
 
-CI runs the Python tests and Gradle verification listed above. Local commit hooks
-handle the pinned file checks; they are not duplicated in CI. Generated metadata,
-build output, and local APK analysis are not formatting targets.
+CI runs the Python tests, Gradle verification, and pinned file checks. Local
+commit hooks also run file checks before commit; the pre-push hook runs
+`gradle-quality` for matching JVM files. Generated metadata, build output, and
+local APK analysis are not formatting targets.
 
 | Check | Configuration / scope |
 | --- | --- |

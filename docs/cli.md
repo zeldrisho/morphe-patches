@@ -27,11 +27,13 @@ The Homebrew launcher defaults runtime data (patches cache, logs, scratch,
 default keystore) to `$(brew --prefix)/var/morphe`, outside the versioned Cellar.
 Set `MORPHE_DATA_DIR` to use a different writable location. The startup log prints
 `Morphe data root: ...`. An unwritable override is ignored by Morphe with a
-warning; check the log before relying on the selected directory.
-Layout: `patches/ logs/ tmp/ libs/
-morphe.keystore config.json`. `--temporary-files-path` defaults to `tmp/`;
-`--keystore` defaults to `morphe.keystore` there. Morphe uses this folder
-for shared app data.
+warning; check the log before relying on the selected directory. This describes
+Morphe's own data-root resolution; `scripts/repatch.py` does not resolve
+`MORPHE_DATA_DIR` or Homebrew's `var/morphe` when discovering a keystore. See
+[signing](#signing) for the helper's separate lookup behavior.
+Layout: `patches/ logs/ tmp/ libs/ morphe.keystore config.json`.
+`--temporary-files-path` defaults to `tmp/`; `--keystore` defaults to
+`morphe.keystore` there.
 
 ## Discovery before patching
 
@@ -84,7 +86,10 @@ with `--options-file`, `-o`, `-t`, and `--keystore*`. Optional overrides:
 `APP_NAME PACKAGE_NAME MPP KEYSTORE KEYSTORE_ALIAS KEYSTORE_PASSWORD
 KEYSTORE_ENTRY_PASSWORD VERIFY_SDK BYTECODE_MODE GITHUB_REPO` — unset means
 automatic discovery (newest local `.mpp`, `morphe` on PATH, and the repository's
-persistent `Morphe.keystore`; shared data-dir keys are fallback).
+persistent `Morphe.keystore`; then legacy keystore candidates under
+`~/.local/share/morphe/morphe-data/` and `~/morphe/`). Those candidates are not
+Morphe's general data-root resolution; `MORPHE_DATA_DIR` and Homebrew's
+`var/morphe` are not searched. Set `KEYSTORE` for any other location.
 When downloading a release, `GITHUB_REPO` must be an `owner/repository`
 value. The helper accepts only HTTPS URLs hosted by GitHub or its release
 asset CDN and validates every redirect.

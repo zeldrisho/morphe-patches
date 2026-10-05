@@ -73,13 +73,15 @@ logs; see [validation](validation.md).
 
 ### Smali tools
 
-`smali` assembles DEX; `baksmali` disassembles DEX. The current local `smali`
-installation is built from source using the formula proposed in
-[homebrew-core PR #314481](https://github.com/Homebrew/homebrew-core/pull/314481),
-while waiting for it to merge. That formula provides both commands on PATH.
-Once available in core, install with `brew install smali`.
+`smali` assembles DEX; `baksmali` disassembles DEX. These are optional APK
+analysis tools, not build prerequisites. The proposed Homebrew Core formula
+([PR #314481](https://github.com/Homebrew/homebrew-core/pull/314481)) is still a
+draft, so `brew install smali` is not currently available. Install them from a
+trusted source when needed; `scripts/doctor.py analysis` reports `baksmali` as
+optional. `scripts/extract_smali.py` requires `baksmali` to disassemble APKs.
 
 ```sh
+# Optional: verify an installed Smali toolchain.
 smali --help
 baksmali --help
 ```
@@ -187,7 +189,11 @@ To update an app installed by Morphe Manager on a phone, export the keystore
 from that phone's Manager installation and copy it to `Morphe.keystore` at the
 repository root. This local file is gitignored; never commit or share it.
 The helper prefers that persistent key. Match the exported key's alias and
-passwords; see [signing](cli.md#signing). Shared data-directory keys are fallbacks.
+passwords; see [signing](cli.md#signing). `scripts/repatch.py` does not resolve
+Morphe's active data root for its fallback search: it checks legacy candidates
+under `~/.local/share/morphe/morphe-data/` and `~/morphe/`, then the `~/morphe/`
+root. Use `KEYSTORE` for keys elsewhere, including Morphe's selected
+`MORPHE_DATA_DIR` or Homebrew `var/morphe` location.
 
 ## 7. Original APK source
 
@@ -214,6 +220,7 @@ java -version
 android sdk list
 adb version
 aapt version
+# Optional Smali tools:
 smali --help
 baksmali --help
 morphe --help

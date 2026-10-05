@@ -63,8 +63,9 @@ def main() -> int:
         missing = True
 
     if mode == "analysis":
-        for tool in ("file", "unzip", "rg", "aapt", "baksmali"):
+        for tool in ("file", "unzip", "rg", "aapt"):
             check(tool, True)
+        check("baksmali", False)
     else:
         check("android", False)
         if mode == "device":
