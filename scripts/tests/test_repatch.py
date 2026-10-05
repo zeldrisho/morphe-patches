@@ -236,11 +236,36 @@ class RepatchTest(RepatchTestSupport):
         self.assertIn("--jar", result.stderr)
         self.assertFalse(Path(self.env["CALLS"]).exists())
 
-    def test_keystore_standard_location_fallback(self):
-        """Verify an imported keystore in the data dir is picked up automatically."""
+    def test_morphe_data_dir_keystore_is_discovered_with_default_credentials(self):
+        """Prefer the selected Morphe data-dir key and apply the shared-key defaults."""
+        data = self.root / "selected-morphe-data"
+        data.mkdir()
+        key = data / "morphe.keystore"
+        key.touch()
+        (data / "imported.keystore").touch()
+        result = self.run_helper(KEYSTORE=None, MORPHE_DATA_DIR=str(data))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        args = self.calls()[1][1]
+        self.assertFalse(any(a.startswith("--keystore") for a in args), args)
+
+    def test_homebrew_data_dir_keystore_is_discovered(self):
+        """Find the Morphe default key beneath HOMEBREW_PREFIX/var/morphe."""
+        prefix = self.root / "homebrew"
+        data = prefix / "var/morphe"
+        data.mkdir(parents=True)
+        key = data / "morphe.keystore"
+        key.touch()
+        result = self.run_helper(KEYSTORE=None, HOMEBREW_PREFIX=str(prefix))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(
+            any(a.startswith("--keystore") for a in self.calls()[1][1]),
+            self.calls()[1][1],
+        )
+
+    def test_legacy_keystore_location_fallback(self):
+        """Retain legacy imported-key discovery when no active Morphe data dir exists."""
         data = self.home / ".local/share/morphe/morphe-data"
         data.mkdir(parents=True)
-        (data / "morphe.keystore").touch()
         imported = data / "imported.keystore"
         imported.touch()
         result = self.run_helper(KEYSTORE=None)

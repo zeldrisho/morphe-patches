@@ -34,7 +34,6 @@ if command == "options-create":
     pathlib.Path(args[args.index("-o") + 1]).write_text(json.dumps([{"patches": patches}]))
 elif command == "patch":
     assert "--purge" not in args, args
-    assert any(a.startswith("--keystore=") for a in args), args
     options = pathlib.Path(args[args.index("--options-file") + 1]).read_text()
     pathlib.Path(os.environ["OPTIONS_CAPTURE"]).write_text(options)
     if os.environ.get("FAIL_PATCH"):
@@ -80,6 +79,8 @@ class RepatchTestSupport(unittest.TestCase):
                 "KEYSTORE_ALIAS",
                 "KEYSTORE_PASSWORD",
                 "KEYSTORE_ENTRY_PASSWORD",
+                "MORPHE_DATA_DIR",
+                "HOMEBREW_PREFIX",
                 "GITHUB_REPO",
                 "VERIFY_SDK",
                 "BYTECODE_MODE",

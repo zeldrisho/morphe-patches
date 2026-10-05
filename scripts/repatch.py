@@ -37,6 +37,30 @@ def jar_version(path):
     return tuple(int(part) for part in match.group(1).split("."))
 
 
+def morphe_data_dirs(home):
+    """Return explicit and Homebrew Morphe data directories, in priority order."""
+    dirs = []
+    configured = os.environ.get("MORPHE_DATA_DIR")
+    if configured:
+        dirs.append(Path(configured).expanduser())
+    brew_prefix = os.environ.get("HOMEBREW_PREFIX")
+    if not brew_prefix and shutil.which("brew"):
+        try:
+            result = subprocess.run(
+                ["brew", "--prefix"],
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=5,
+            )
+            brew_prefix = result.stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
+    if brew_prefix:
+        dirs.append(Path(brew_prefix) / "var/morphe")
+    return list(dict.fromkeys(dirs))
+
+
 def validate_download_url(url):
     """Return a credential-free, default-port HTTPS URL for an allowed GitHub host."""
     parsed = urlparse(url)
@@ -102,19 +126,34 @@ def main():
     morphe = shutil.which("morphe") if not a.jar else None
     base = [morphe] if morphe else ["java", "-jar", str(jar)]
     key = os.environ.get("KEYSTORE")
+    data_dirs = morphe_data_dirs(home)
+    standard_data_keys = {
+        (data_dir / "morphe.keystore").resolve() for data_dir in data_dirs
+    }
+    if not key:
+        for data_dir in data_dirs:
+            candidates = (
+                data_dir / "morphe.keystore",
+                data_dir / "imported.keystore",
+            )
+            if not any(path.is_file() for path in candidates):
+                continue
+            key = str(next(path for path in candidates if path.is_file()))
+            break
     if not key and (ROOT / "Morphe.keystore").is_file():
         key = str(ROOT / "Morphe.keystore")
     if not key:
-        for x in (
-            home / ".local/share/morphe/morphe-data/imported.keystore",
-            home / ".local/share/morphe/morphe-data/morphe.keystore",
-            home / "morphe/morphe-data/imported.keystore",
-            home / "morphe/morphe-data/morphe.keystore",
-            home / "morphe/imported.keystore",
-            home / "morphe/morphe.keystore",
-        ):
-            if x.is_file():
-                key = str(x)
+        legacy_dirs = (
+            home / ".local/share/morphe/morphe-data",
+            home / "morphe/morphe-data",
+            home / "morphe",
+        )
+        for data_dir in legacy_dirs:
+            for x in (data_dir / "imported.keystore", data_dir / "morphe.keystore"):
+                if x.is_file():
+                    key = str(x)
+                    break
+            if key:
                 break
     if not inp.is_file():
         die(f"input not found: {inp}")
@@ -124,7 +163,9 @@ def main():
             "Legacy JARs in ~/.local/share/morphe/ or --jar <path> are also supported."
         )
     if not key or not Path(key).is_file():
-        die("keystore not found (set KEYSTORE= or import one into morphe-data/)")
+        die(
+            "keystore not found (set KEYSTORE= or import one into Morphe's data directory)"
+        )
     mpp = os.environ.get("MPP")
     if not mpp:
         local = [
@@ -205,19 +246,30 @@ def main():
                     if patches[name].get("enabled"):
                         patches[name].setdefault("options", {})[opt] = value
         opts.write_text(json.dumps(data, indent=1))
-        ks = [
-            f"--keystore={key}",
-            f"--keystore-entry-alias={os.environ.get('KEYSTORE_ALIAS', 'Morphe')}",
-        ]
-        default_store = "" if str(key) == str(ROOT / "Morphe.keystore") else "Morphe"
-        store = os.environ.get("KEYSTORE_PASSWORD", default_store)
-        entry = os.environ.get(
-            "KEYSTORE_ENTRY_PASSWORD", "Morphe" if default_store == "" else ""
-        )
-        if store:
-            ks.append(f"--keystore-password={store}")
-        if entry:
-            ks.append(f"--keystore-entry-password={entry}")
+        key_path = Path(key).resolve()
+        default_key_paths = {
+            (data_dir / "morphe.keystore").resolve() for data_dir in data_dirs
+        }
+        if not os.environ.get("KEYSTORE") and key_path in default_key_paths:
+            # Let Morphe resolve its own active default key and credentials.
+            ks = []
+        else:
+            ks = [
+                f"--keystore={key}",
+                f"--keystore-entry-alias={os.environ.get('KEYSTORE_ALIAS', 'Morphe')}",
+            ]
+            is_repository_key = key_path == (ROOT / "Morphe.keystore").resolve()
+            default_store = (
+                "" if is_repository_key or key_path in standard_data_keys else "Morphe"
+            )
+            store = os.environ.get("KEYSTORE_PASSWORD", default_store)
+            entry = os.environ.get(
+                "KEYSTORE_ENTRY_PASSWORD", "Morphe" if default_store == "" else ""
+            )
+            if store:
+                ks.append(f"--keystore-password={store}")
+            if entry:
+                ks.append(f"--keystore-entry-password={entry}")
         bytecode_mode = os.environ.get("BYTECODE_MODE", "").upper()
         if bytecode_mode and bytecode_mode not in {"FULL", "STRIP_SAFE", "STRIP_FAST"}:
             die("BYTECODE_MODE must be FULL, STRIP_SAFE, or STRIP_FAST")

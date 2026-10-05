@@ -2,7 +2,6 @@
 
 ## Toolchain
 - Use the checked-in Gradle wrapper (`./gradlew`) with Java 21.
-- Use `uvx` for on-demand Python tools.
 - Use `adb` for device operations.
 
 ## Commands
@@ -14,6 +13,7 @@
 | Test Zalo extension class | `./gradlew :extensions:zalo:testDebugUnitTest --tests '<fully.qualified.Class>' --no-daemon` |
 | Build bundle and verify embedded extensions | `./gradlew :patches:verifyBundleExtension --no-daemon` |
 | Check Morphe patch flags | `morphe patch --help` |
+| Patch with Morphe's default signing key | `morphe patch -p "$MPP" -o /tmp/out.apk <app.apkm>` (default: `$(brew --prefix)/var/morphe/morphe.keystore`; details: `docs/cli.md#signing`) |
 | Full verification | Follow `docs/development.md#verify` |
 | Locate downloaded APKM | `fd -t f -e apkm . /mnt/c/Users/zeldrisho/Downloads` |
 | Re-patch and sign | `python3 scripts/repatch.py <app.apkm> [out.apk]` (options: `docs/cli.md`) |

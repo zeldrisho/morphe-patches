@@ -4,6 +4,9 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+### 🐛 Bug Fixes
+* **Zalo - Configurable native backup interval:** Recognizes Zalo's constructor-seeded account-specific key when validating the native interval getter, fixing patching failures.
+
 ## [1.7.2](https://github.com/zeldrisho/morphe-patches/compare/v1.7.1...v1.7.2) (2026-10-05)
 
 ### 🔧 Improvements
