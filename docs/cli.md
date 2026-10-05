@@ -10,8 +10,9 @@ see [storage conventions](toolchain.md#6-storage-and-path-conventions) for local
 
 ## Commands
 
-Homebrew registers `morphe` on PATH. Full upstream reference:
-[Morphe documentation](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
+Homebrew registers `morphe` on PATH. Use `morphe patch --help` for flags
+supported by the installed version; the current upstream reference is [Morphe
+documentation](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md#cli).
 
 ```bash
 morphe --version
@@ -30,8 +31,7 @@ warning; check the log before relying on the selected directory.
 Layout: `patches/ logs/ tmp/ libs/
 morphe.keystore config.json`. `--temporary-files-path` defaults to `tmp/`;
 `--keystore` defaults to `morphe.keystore` there. Morphe uses this folder
-for shared app data. See the [local data migration plan](plan.md#local-data-migration-plan)
-when switching from the old installation to Homebrew.
+for shared app data.
 
 ## Discovery before patching
 

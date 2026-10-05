@@ -154,6 +154,12 @@ class PatchesListShapeTest {
             .forEach { assertEquals(false, it.asJsonObject["default"].asBoolean) }
     }
 
+    @Test fun threadsChangeAppNameIsOptIn() {
+        val patches = JsonParser.parseString(listJson()).asJsonObject["patches"].asJsonArray
+        val patch = patches.map { it.asJsonObject }.single { it["name"].asString == "Change app name" }
+        assertEquals(false, patch["default"].asBoolean, "Threads launcher-name change must stay opt-in")
+    }
+
     @Test fun renamePatchIsOptIn() {
         // Change package name must stay off by default: renaming breaks
         // package+cert-bound flows (SSO, providers, push). See lessons-learned.

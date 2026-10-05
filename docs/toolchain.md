@@ -84,7 +84,11 @@ smali --help
 baksmali --help
 ```
 
-Use `scripts/extract_smali.py` for canonical baksmali output.
+Use `scripts/extract_smali.py` for canonical baksmali output. `dexdump` from
+Android SDK build-tools is useful for DEX-level class, method, and instruction
+inspection; locate it under `$ANDROID_HOME/build-tools/<version>/dexdump` and run
+`dexdump -f <file.dex>`. Prefer baksmali for source-like smali and the extractor
+for repeatable APK/APKM output.
 
 ### Python applications: persistent tools versus one-shot runs
 
@@ -174,9 +178,6 @@ $(brew --prefix)/var/morphe
 This is outside the versioned Cellar installation. No environment setup is
 needed for the default. Set `MORPHE_DATA_DIR` to use a different writable location.
 The startup log reports the selected data root.
-
-See the [local data migration plan](plan.md#local-data-migration-plan) for backup
-and validation before removing the old installation.
 
 ## 6. Storage and path conventions
 

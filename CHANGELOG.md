@@ -4,6 +4,9 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+### 🔧 Improvements
+* **Threads - Change app name:** Makes launcher-name customization opt-in; without it, the app keeps its original name.
+
 ## [1.7.1](https://github.com/zeldrisho/morphe-patches/compare/v1.7.0...v1.7.1) (2026-10-03)
 
 ### 🐛 Bug Fixes

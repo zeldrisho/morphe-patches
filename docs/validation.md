@@ -132,8 +132,9 @@ Replace `/private/` with an existing local evidence directory outside Git.
 A successful tap is not proof of the expected state.
 
 Record stock, minimally re-signed control, and patched results separately for
-these pinned targets: Threads `com.instagram.barcelona` version code
-`511507647`; Zalo `com.zing.zalo` version code `260801903`. Include cold launch,
+these targets: Threads `com.instagram.barcelona` version code
+`511908382` (449.0.0.54.82); Zalo `com.zing.zalo` version code `260801903`. Include
+cold launch,
 feed load/order, sponsored filtering, scrolling and refresh for Threads; include
 background/resume, provider prompt and cancellation, account-picker refresh, Drive,
 and notification behavior for Zalo. Mark each assertion PASS, FAIL, BLOCKED, or
@@ -162,12 +163,6 @@ background/network activity; at least three repetitions, with variance recorded.
 Set thresholds only after control variance is known. Add backup scheduling when
 implemented. Keep traces/heap dumps private and bounded under the
 [analysis retention policy](reverse-engineering.md#analysis-workspace); do not make release APKs debuggable.
-
-## Zalo microG/Drive issue checklist
-
-Use the [Zalo microG/Drive guide](zalo-microg.md) to distinguish package discovery,
-account-picker behavior, OAuth rejection, and restore failures. Issue #11's local
-visibility/download-link fixes still require device confirmation.
 
 ## Provider boundaries
 

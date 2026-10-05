@@ -402,3 +402,16 @@ which implementation runs before changing TLS, root, or signature checks. See
 Describe limitations and risks honestly; keep risky patches opt-in and validate
 on-device. Server-controlled features and provider authorization remain external
 boundaries.
+
+## Provenance and scope
+
+Adapted or borrowed code must retain attribution beside its implementation and
+record the source URL, revision, local changes, and update policy here before it
+is modified. `shared/bytecode/MethodExtensions.kt` is a small, locally maintained
+helper using Morphe's mutable-method API; re-check its reflective dexlib2 layout
+before changing it. Extension modules contain project-owned runtime code, not
+vendored third-party executable source; do not fetch filtering rules at runtime.
+
+Avoid global entitlement spoofing, HTTP-header OAuth fixes, broad MicroG rewrites,
+unrelated app ports, or shared runtime infrastructure without a concrete
+consumer and independent evidence.

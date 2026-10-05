@@ -147,10 +147,10 @@ invariants rather than copying framework infrastructure.
    substantial portions. Remote catalogs, settings, recording, and diagnostics
    infrastructure require separate scope decisions, not automatic adoption.
 
-For local-data features, use the [Zalo roadmap](plan.md#local-backupexport) for
-feasibility and recovery requirements. Keep app-specific symbols and experimental
-results in gitignored `analysis/`; do not treat private-file access as proof of
-portable backup or restore.
+For local-data features, establish feasibility and recovery requirements before
+implementation. Keep app-specific symbols and experimental results in gitignored
+`analysis/`; do not treat private-file access as proof of portable backup or
+restore.
 
 ### Recover Kotlin names for obfuscated Kotlin apps
 
