@@ -181,7 +181,7 @@ class ZaloDriveContactsPermissionBypassPatchTest {
         bypassAccountResultContactsGate(method)
 
         val instructions = method.implementation!!.instructions.toList()
-        assertTrue(instructions.map { it.opcode } == listOf(Opcode.CONST_4, Opcode.NOP))
+        assertTrue(instructions.map { it.opcode } == listOf(Opcode.CONST_16, Opcode.NOP))
         assertTrue(methodReferences(method).none { it.definingClass == "Lxo1/b1;" && it.name == "c0" })
     }
 

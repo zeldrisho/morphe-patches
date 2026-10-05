@@ -94,6 +94,7 @@ print("package: name='" + os.environ.get("FAKE_BADGING_PACKAGE", "com.example.ap
                 "APP_NAME",
                 "PACKAGE_NAME",
                 "EXPECTED_PACKAGE_NAME",
+                "SOURCE_PACKAGE_NAME",
                 "REQUIRED_PATCHES",
                 "MPP",
                 "KEYSTORE",

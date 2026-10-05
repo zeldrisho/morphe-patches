@@ -117,7 +117,7 @@ internal fun bypassAccountResultContactsGate(method: MutableMethod) {
         "Zalo Drive Contacts bypass: Contacts gate is not followed by move-result"
     }
     val resultRegister = result.registerA
-    method.replaceInstruction(callIndex, "const/4 v$resultRegister, 0x1")
+    method.replaceInstruction(callIndex, "const/16 v$resultRegister, 0x1")
     method.replaceInstruction(callIndex + 1, "nop")
 }
 

@@ -103,8 +103,23 @@ class RepatchTest(RepatchTestSupport):
             "com.example.threads",
         )
 
-    def test_expected_package_filters_options_to_selected_app(self):
-        result = self.run_helper("--expected-package", "com.example.app")
+    def test_expected_package_does_not_filter_source_patch_compatibility(self):
+        result = self.run_helper(
+            "--expected-package",
+            "com.example.clone",
+            FAKE_BADGING_PACKAGE="com.example.clone",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        options_args = self.calls()[0][1]
+        self.assertNotIn("-f", options_args)
+
+    def test_source_package_filters_options_independently_of_expected_output(self):
+        result = self.run_helper(
+            "--expected-package",
+            "com.example.clone",
+            SOURCE_PACKAGE_NAME="com.example.app",
+            FAKE_BADGING_PACKAGE="com.example.clone",
+        )
         self.assertEqual(result.returncode, 0, result.stderr)
         options_args = self.calls()[0][1]
         self.assertIn("-f", options_args)
