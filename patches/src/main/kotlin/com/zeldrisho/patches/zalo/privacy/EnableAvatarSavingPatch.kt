@@ -26,8 +26,16 @@ val enableZaloAvatarSavingPatch = bytecodePatch(
     execute {
         val match = AvatarScreenshotPolicy.instructionMatches.single { it.instruction.opcode == Opcode.XOR_INT_2ADDR }
         val register = (match.instruction as TwoRegisterInstruction).registerA
-        AvatarScreenshotPolicy.method.replaceInstruction(match.index, "const/4 v$register, 0x0")
+        allowAvatarScreenshots(AvatarScreenshotPolicy.method, match.index, register)
     }
+}
+
+internal fun allowAvatarScreenshots(
+    method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
+    index: Int,
+    register: Int,
+) {
+    method.replaceInstruction(index, "const/4 v$register, 0x0")
 }
 
 /** The profile-only avatar launch builds its screenshot policy in this method. */
