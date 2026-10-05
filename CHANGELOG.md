@@ -4,6 +4,8 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+## [1.8.0](https://github.com/zeldrisho/morphe-patches/compare/v1.7.2...v1.8.0) (2026-10-06)
+
 ### ✨ New Features
 * **Zalo - Enable avatar saving:** Restores the “Save photo” action for avatars opened from a profile and allows screenshots without changing protection for other screens.
 * **Zalo - Enable profile cover saving:** Restores the “Save photo” action and allows screenshots for profile cover photos.
