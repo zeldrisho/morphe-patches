@@ -89,11 +89,15 @@ Update only when signing certificates match; see [signing](cli.md#signing).
 use `VERIFY_SDK=/path/to/sdk` to pin it. Record the result and hashes. Compilation
 alone is insufficient: the patcher verifier defaults to existence checks.
 
-For startup isolation, set the same `MPP` and use strict patch allow-lists.
-Install and cold-start each build before adding the next patch:
+Optional startup diagnosis only: if the normal default-enabled build fails,
+use strict patch allow-lists to find an interaction. This isolation procedure is
+not the routine feature-validation flow and cannot substitute for successfully
+installing and testing the full default-enabled patch set. Install and cold-start
+each diagnostic build before adding the next patch:
 
 ```bash
 export MPP="patches/build/libs/patches-<version>.mpp"
+# Diagnostic only; PATCHES overrides defaults and disables all unlisted patches.
 PATCHES='' python3 scripts/repatch.py /path/to/input.apkm /tmp/control-0.apk
 PATCHES='<first patch>' python3 scripts/repatch.py /path/to/input.apkm /tmp/control-1.apk
 PATCHES='<first patch>,<second patch>' python3 scripts/repatch.py /path/to/input.apkm /tmp/control-2.apk
@@ -119,7 +123,9 @@ Morphe fixes the verifier. Other required checks still apply.
 
 ## Repeatable device journeys
 
-Run stock, minimally re-signed no-patch control, and selected-patch builds.
+Run stock, minimally re-signed no-patch control, and the normal default-enabled
+patch-set build. Leave `PATCHES` unset for the patched build; a single-patch or
+allow-listed build is diagnostic only and does not count as normal-user validation.
 Use ADB for UI inspection and visual evidence:
 
 ```bash

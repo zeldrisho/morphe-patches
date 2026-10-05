@@ -191,13 +191,14 @@ Apply the `.mpp` via the terminal ([CLI patching](cli.md)) against the **downloa
 (see [toolchain storage and source conventions](toolchain.md#6-storage-and-path-conventions)
 and [original APK source](toolchain.md#7-original-apk-source)) matching the supported
 the target version and `ApkFileType.APKS` compatibility declaration (never an
-extracted `base.apk`), then install the output with
-`adb -s "$SERIAL" install -r <path-to-verified.apk>`. For launch and UI
-inspection commands, follow [device validation](validation.md#re-patch-and-install)
-and [repeatable device journeys](validation.md#repeatable-device-journeys).
-To debug one patch in isolation, apply
-only it (`patch --exclusive -e "Name"`, see [CLI patching](cli.md#canonical-flows-this-repo)) before the full suite —
-a fingerprint failure elsewhere won't mask your result that way.
+extracted `base.apk`). Routine patch and device validation must use the normal
+default-enabled patch set (leave `PATCHES` unset), matching how users apply the
+bundle. Install the output with `adb -s "$SERIAL" install -r <path-to-verified.apk>`.
+For launch and UI inspection commands, follow
+[device validation](validation.md#re-patch-and-install) and
+[repeatable device journeys](validation.md#repeatable-device-journeys). Use
+`patch --exclusive -e "Name"` only as a diagnostic follow-up if the full default
+set fails; an isolated success does not replace validation of the normal set.
 
 For branching and publishing, follow the [release process](release.md).
 Generated-file ownership is defined in the [release rules](release.md#rules).

@@ -60,7 +60,10 @@ Command flags beat the options file when both set one patch. A nonexistent
 ## Canonical flows (this repo)
 
 Build/test, then use the helper (pins bundle, scratch directory, and keystore).
-Replace `<version>` with the built bundle version:
+With no `PATCHES` override, `repatch.py` uses the bundle's normal default-enabled
+patch set; this is the required user-like flow for routine feature and device
+validation. Do not set `PATCHES` to only the patch under development for normal
+verification. Replace `<version>` with the built bundle version:
 
 ```bash
 ./gradlew :patches:test buildAndroid --no-daemon
@@ -95,7 +98,7 @@ Raw equivalents when the helper hides what you need:
 ```bash
 # Full suite, defaults:
 morphe patch -p "$MPP" -o /tmp/app_patched.apk /path/to/app.apkm
-# One patch in isolation (debug one fingerprint without others masking it):
+# Optional diagnosis only: isolate a patch after the normal default-set run fails.
 morphe patch -p "$MPP" --exclusive -e "Hide ads" -o /tmp/app_one.apk /path/to/app.apkm
 # Rename + label via flags instead of env:
 morphe patch -p "$MPP" \
@@ -117,7 +120,7 @@ compatibility constants, not this document.
 | ---- | ------ |
 | `-e/-d "Name"`, `--ei/--di N` | Enable/disable by exact name or `list-patches` index |
 | `-Okey=value` | Patch option value (typed; `-Okey` = null). Check `list-patches --with-options` |
-| `--exclusive` | Disable all except `-e/--ei` — single-patch isolation |
+| `--exclusive` | Disable all except `-e/--ei` — diagnostic isolation only; routine validation should use the normal default-enabled set |
 | `-f/--force` | Skip version check (newer-than-pinned APKs; incompatible patches still skip) |
 | `--continue-on-error` | Apply the rest after one patch fails |
 | `--striplibs arm64-v8a` | Keep only these native ABIs (smaller APK; wrong choice = won't run) |
