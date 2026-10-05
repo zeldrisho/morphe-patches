@@ -103,6 +103,13 @@ class RepatchTest(RepatchTestSupport):
             "com.example.threads",
         )
 
+    def test_expected_package_filters_options_to_selected_app(self):
+        result = self.run_helper("--expected-package", "com.example.app")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        options_args = self.calls()[0][1]
+        self.assertIn("-f", options_args)
+        self.assertEqual(options_args[options_args.index("-f") + 1], "com.example.app")
+
     def test_expected_package_manifest_guard_accepts_matching_clone(self):
         result = self.run_helper(
             PACKAGE_NAME="com.example.clone",

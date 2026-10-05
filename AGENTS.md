@@ -22,10 +22,10 @@
 | Extract APK/APKM smali | `python3 scripts/extract_smali.py <apk-or-bundle> [output]` |
 
 ## Key Conventions
-- Before installing, inspect the APK manifest with `aapt dump badging <apk>` and require its package to exactly match the intended target; default to a clone for patched or diagnostic builds.
-- Never install a patched or diagnostic APK over an original user-owned package without explicit approval for that exact in-place update.
+- Before patching, ask the user to choose the output package ID: the original package for an in-place update or a clone package ID; do not assume either choice.
+- Before installing, inspect the APK manifest with `aapt dump badging <apk>` and require its package to exactly match the user-selected target.
+- Never install a patched or diagnostic APK over an original user-owned package without explicit approval for that exact in-place update, even when the user selected the original package ID for patching.
 - Require explicit approval before uninstalling a package or clearing its data; uninstalling wipes app data.
-- Treat `Skipping disabled` or options-file mismatch messages as patch-run failures; do not install the output.
 - Never print account names, tokens, or raw logs; use counts or redacted greps.
 - Patch sources and adjacent fingerprints live under `patches/src/main/kotlin/com/zeldrisho/patches/`; app-agnostic helpers belong in `patches/src/main/kotlin/com/zeldrisho/patches/shared/`.
 - Keep runtime extensions app-specific: `extensions/<app>/` are independent modules.

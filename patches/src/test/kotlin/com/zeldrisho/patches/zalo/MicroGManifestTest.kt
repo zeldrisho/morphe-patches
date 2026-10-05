@@ -53,6 +53,5 @@ class MicroGManifestTest {
             .associate { it.getAttribute("android:name") to it.getAttribute("android:value") }
         assertEquals("existing", metadata["app.revanced.android.gms.SPOOFED_PACKAGE_SIGNATURE"])
         assertEquals("existing-name", metadata["app.revanced.android.gms.SPOOFED_PACKAGE_NAME"])
-
     }
 }

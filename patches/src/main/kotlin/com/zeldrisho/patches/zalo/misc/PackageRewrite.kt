@@ -18,8 +18,7 @@ private val CLONE_PACKAGE_STRINGS = mapOf(
 )
 
 /** Rewrites only package-owned provider/resource identity strings in the pinned app. */
-fun rewriteZaloProviderUri(uri: String, newPackage: String): String =
-    CLONE_PACKAGE_STRINGS[uri]?.format(newPackage) ?: uri
+fun rewriteZaloProviderUri(uri: String, newPackage: String): String = CLONE_PACKAGE_STRINGS[uri]?.format(newPackage) ?: uri
 
 /** Expected exact literal occurrence counts in the pinned Zalo 26.08.01 DEX. */
 internal val EXPECTED_CLONE_STRING_COUNTS = mapOf(

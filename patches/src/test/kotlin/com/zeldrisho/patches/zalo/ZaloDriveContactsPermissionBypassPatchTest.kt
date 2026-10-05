@@ -3,15 +3,15 @@ package com.zeldrisho.patches.zalo
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod.Companion.toMutable
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.immutable.ImmutableMethod
-import com.android.tools.smali.dexlib2.immutable.ImmutableMethodImplementation
-import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction11x
-import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction35c
-import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodReference
-import com.android.tools.smali.dexlib2.immutable.ImmutableMethodParameter
 import com.android.tools.smali.dexlib2.iface.instruction.Instruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.immutable.ImmutableMethod
+import com.android.tools.smali.dexlib2.immutable.ImmutableMethodImplementation
+import com.android.tools.smali.dexlib2.immutable.ImmutableMethodParameter
+import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction11x
+import com.android.tools.smali.dexlib2.immutable.instruction.ImmutableInstruction35c
+import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodReference
 import com.zeldrisho.patches.zalo.microg.bypassAccountResultContactsGate
 import com.zeldrisho.patches.zalo.microg.bypassDriveContactsPermissionGate
 import com.zeldrisho.patches.zalo.microg.bypassMediaRestoreAccountLookup
@@ -43,10 +43,12 @@ class ZaloDriveContactsPermissionBypassPatchTest {
         bypassMediaRestoreAccountLookup(method)
 
         val references = methodReferences(method)
-        assertTrue(references.any {
-            it.definingClass == "Lcom/zing/zalo/ui/backuprestore/drive/SyncGoogleAccountBaseView;" &&
-                it.name == "x6" && it.parameterTypes == listOf("Ljava/lang/String;")
-        })
+        assertTrue(
+            references.any {
+                it.definingClass == "Lcom/zing/zalo/ui/backuprestore/drive/SyncGoogleAccountBaseView;" &&
+                    it.name == "x6" && it.parameterTypes == listOf("Ljava/lang/String;")
+            },
+        )
         assertTrue(references.none { it.definingClass == "Landroid/accounts/AccountManager;" && it.name == "getAccountsByType" })
         assertTrue(method.implementation!!.instructions.any { it.opcode == Opcode.RETURN_VOID })
     }
@@ -92,10 +94,9 @@ class ZaloDriveContactsPermissionBypassPatchTest {
         assertTrue("K6" in methods)
     }
 
-    private fun methodReferences(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) =
-        method.implementation!!.instructions.mapNotNull { instruction ->
-            ((instruction as? ReferenceInstruction)?.reference as? MethodReference)
-        }
+    private fun methodReferences(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) = method.implementation!!.instructions.mapNotNull { instruction ->
+        ((instruction as? ReferenceInstruction)?.reference as? MethodReference)
+    }
 
     private fun syntheticMethod(
         owner: String,

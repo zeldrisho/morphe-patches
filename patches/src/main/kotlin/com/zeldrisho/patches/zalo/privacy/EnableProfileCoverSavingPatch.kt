@@ -43,9 +43,8 @@ val enableZaloProfileCoverSavingPatch = bytecodePatch(
     }
 }
 
-private fun isBranchOn(instruction: com.android.tools.smali.dexlib2.iface.instruction.Instruction, opcode: Opcode, register: Int): Boolean =
-    instruction.opcode == opcode &&
-        (instruction as? OneRegisterInstruction)?.registerA == register
+private fun isBranchOn(instruction: com.android.tools.smali.dexlib2.iface.instruction.Instruction, opcode: Opcode, register: Int): Boolean = instruction.opcode == opcode &&
+    (instruction as? OneRegisterInstruction)?.registerA == register
 
 /** The actual profile-cover launch helper explicitly marks fromProfileCover. */
 private object ProfileCoverScreenshotPolicy : Fingerprint(

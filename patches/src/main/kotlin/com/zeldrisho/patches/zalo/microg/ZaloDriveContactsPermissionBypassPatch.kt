@@ -28,8 +28,9 @@ private val CONTACT_RESULT_PARAMETERS = listOf("I", "[Ljava/lang/String;", "[I")
 
 /** Uses the patched Android account picker instead of enumerating accounts behind a permission gate. */
 internal fun bypassMediaRestoreAccountLookup(method: MutableMethod) {
-    check(method.name == MEDIA_RESTORE_ACCOUNT_LOOKUP_METHOD &&
-        method.parameterTypes == listOf("Ljava/lang/String;") && method.returnType == "V"
+    check(
+        method.name == MEDIA_RESTORE_ACCOUNT_LOOKUP_METHOD &&
+            method.parameterTypes == listOf("Ljava/lang/String;") && method.returnType == "V",
     ) {
         "Zalo Drive Contacts bypass: unexpected account lookup shape ${method.name}${method.parameterTypes}"
     }
@@ -64,10 +65,21 @@ internal fun bypassMediaRestoreSignInPermissionGate(method: MutableMethod) {
     )
 }
 
+private fun isContactsPermissionGate(reference: MethodReference?): Boolean = when {
+    reference == null -> false
+    reference.definingClass != "Lxo1/b1;" -> false
+    reference.name != "c0" -> false
+    !hasBooleanSignature(reference) -> false
+    else -> true
+}
+
+private fun hasBooleanSignature(reference: MethodReference): Boolean = reference.parameterTypes == listOf("Z") && reference.returnType == "Z"
+
 /** Lets the selected Drive account continue through OAuth; Contacts access is unrelated to this result. */
 internal fun bypassAccountResultContactsGate(method: MutableMethod) {
-    check(method.name == ACCOUNT_RESULT_METHOD &&
-        method.parameterTypes == listOf("Ljava/lang/String;") && method.returnType == "V"
+    check(
+        method.name == ACCOUNT_RESULT_METHOD &&
+            method.parameterTypes == listOf("Ljava/lang/String;") && method.returnType == "V",
     ) {
         "Zalo Drive Contacts bypass: unexpected account result shape ${method.name}${method.parameterTypes}"
     }
@@ -76,9 +88,7 @@ internal fun bypassAccountResultContactsGate(method: MutableMethod) {
         ?: error("Zalo Drive Contacts bypass: $ACCOUNT_RESULT_METHOD has no implementation")
     val gateCalls = instructions.mapIndexedNotNull { index, instruction ->
         val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference
-        if (reference?.definingClass == "Lxo1/b1;" && reference.name == "c0" &&
-            reference.parameterTypes == listOf("Z") && reference.returnType == "Z"
-        ) index else null
+        if (isContactsPermissionGate(reference)) index else null
     }
     check(gateCalls.size == 1) {
         "Zalo Drive Contacts bypass: expected one Contacts gate in $ACCOUNT_RESULT_METHOD; found ${gateCalls.size}"
@@ -213,8 +223,9 @@ val zaloDriveContactsPermissionBypassPatch = bytecodePatch(
             replacementCounts[classDef.type] = replacementCounts.getValue(classDef.type) + 1
         }
 
-        check(replacementCounts.values.all { it == 1 } && accountLookupCount == 1 && accountClickCount == 1 &&
-            accountResultCount == 1
+        check(
+            replacementCounts.values.all { it == 1 } && accountLookupCount == 1 && accountClickCount == 1 &&
+                accountResultCount == 1,
         ) {
             "Zalo Drive Contacts bypass: expected one callback per target, one account lookup, one click handler, " +
                 "and one account result; found $replacementCounts, lookup=$accountLookupCount, " +

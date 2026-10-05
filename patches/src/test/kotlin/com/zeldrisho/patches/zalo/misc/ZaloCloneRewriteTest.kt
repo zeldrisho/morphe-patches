@@ -5,8 +5,8 @@ import java.io.ByteArrayInputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 private fun manifest(): Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(

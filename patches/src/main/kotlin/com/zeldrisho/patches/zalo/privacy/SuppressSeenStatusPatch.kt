@@ -26,12 +26,15 @@ val suppressZaloSeenStatusPatch = bytecodePatch(
 
 /** Returns early only when the shared ACK transport is asked to send `seen=true`. */
 internal fun suppressSeenStatus(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod) {
-    method.addInstructionsWithLabels(0, """
+    method.addInstructionsWithLabels(
+        0,
+        """
         if-eqz p2, :keep_ack
         return-void
         :keep_ack
         nop
-    """)
+    """,
+    )
 }
 
 /** Zalo 26.08.01's shared ACK transport; p2 is serialized as the `seen` flag. */

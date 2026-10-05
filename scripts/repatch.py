@@ -263,9 +263,13 @@ def main():
         if not Path(mpp).is_file():
             die(f"patch bundle not found: {mpp}")
         opts = Path(td) / "options.json"
+        options_command = base + ["options-create", "-p", mpp]
+        if expected_package:
+            options_command.extend(["-f", expected_package])
+        options_command.extend(["-o", str(opts)])
         try:
             subprocess.run(
-                base + ["options-create", "-p", mpp, "-o", str(opts)],
+                options_command,
                 check=True,
                 stdout=subprocess.DEVNULL,
             )
