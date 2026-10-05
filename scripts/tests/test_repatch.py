@@ -59,6 +59,8 @@ class RepatchTest(RepatchTestSupport):
         self.assertTrue(patches["Hide ads"]["enabled"])
         self.assertFalse(patches["Change package name"]["enabled"])
         self.assertTrue(self.output.is_file())
+        self.assertIn(f"✅ Patched APK: {self.output}", result.stdout)
+        self.assertNotIn("Install:", result.stdout)
         self.assertFalse(Path(args[args.index("-t") + 1]).parent.exists())
 
     def test_signing_and_rename_overrides(self):

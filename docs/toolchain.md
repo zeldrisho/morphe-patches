@@ -45,7 +45,6 @@ android sdk list
 android sdk install platform-tools
 # Optional: select a stable package ID from `android sdk list --all 'ndk/*'`:
 android sdk install "ndk;29.0.14206865"
-android sdk list
 # Add these directories to PATH using your shell's normal mechanism:
 #   $HOME/.local/bin
 #   $HOME/Android/Sdk/platform-tools
@@ -216,7 +215,6 @@ contract checks the resulting extension DEX descriptors and flags.
 python3 --version
 java -version
 ./gradlew --version
-android sdk list
 adb version
 aapt version
 # Optional Smali tools:

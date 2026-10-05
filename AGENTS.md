@@ -2,15 +2,15 @@
 
 ## Toolchain
 - Use the checked-in Gradle wrapper (`./gradlew`) with Java 21.
-- Use `adb` for device operations.
+- Use `python3` for scripts, `morphe` for patching, and `adb` for device operations.
+- Use `fd` and `rg` for discovery/search; `gh` for release tooling.
 
 ## Commands
 | Task | Command |
 | ---- | ------- |
 | Test Python script file | `python3 -m unittest discover -s scripts/tests -p 'test_<script>.py' -v` |
 | Test patch class | `./gradlew :patches:test --tests '<fully.qualified.Class>' --no-daemon` |
-| Test Threads extension class | `./gradlew :extensions:threads:testDebugUnitTest --tests '<fully.qualified.Class>' --no-daemon` |
-| Test Zalo extension class | `./gradlew :extensions:zalo:testDebugUnitTest --tests '<fully.qualified.Class>' --no-daemon` |
+| Test extension class | `./gradlew :extensions:<app>:testDebugUnitTest --tests '<fully.qualified.Class>' --no-daemon` |
 | Build bundle and verify embedded extensions | `./gradlew :patches:verifyBundleExtension --no-daemon` |
 | Check Morphe patch flags | `morphe patch --help` |
 | Patch with Morphe's default signing key | `morphe patch -p "$MPP" -o /tmp/out.apk <app.apkm>` (default: `$(brew --prefix)/var/morphe/morphe.keystore`; details: `docs/cli.md#signing`) |
@@ -21,12 +21,11 @@
 
 ## Key Conventions
 - Patch sources and adjacent fingerprints live under `patches/src/main/kotlin/com/zeldrisho/patches/`; app-agnostic helpers belong in `patches/src/main/kotlin/com/zeldrisho/patches/shared/`.
-- Keep runtime extensions app-specific: `extensions/threads/` and `extensions/zalo/` are independent modules.
+- Keep runtime extensions app-specific: `extensions/<app>/` are independent modules.
 - Extension artifact or class-descriptor renames must update both Gradle wiring in `patches/build.gradle.kts` and injected bytecode call sites.
 - Follow `docs/patch-development.md#file-layout` for exact compatibility targets, patch descriptions, and risky-patch defaults.
 - Follow `docs/release.md#rules` for generated-file ownership; do not hand-edit release metadata or the generated README patch list.
 - Follow `docs/release.md#changelog-policy` for `CHANGELOG.md`; add only user-visible app changes under `## Unreleased`.
-- Follow `docs/release.md` for staging and publishing.
 - Follow `docs/development.md#testing-guidance` for synthetic DEX tests, Robolectric tests, and opt-in private APK qualification.
 - Locate downloaded APKMs under `/mnt/c/Users/zeldrisho/Downloads` before looking elsewhere; then inspect the existing gitignored `analysis/<app>/<version>/` workspace and notes, reuse verified evidence, and avoid redundant extraction. Follow `docs/reverse-engineering.md#analysis-workspace`.
 - Build and unit-test success does not establish real-APK compatibility or device behavior; use `docs/validation.md`.
@@ -38,6 +37,7 @@
 | Host setup, Morphe, and DEX tools | `docs/toolchain.md` |
 | Morphe CLI workflow and flags | `docs/cli.md` |
 | APK analysis, workspace layout, and cleanup | `docs/reverse-engineering.md` |
+| Staging and publishing | `docs/release.md` |
 | Bytecode and smali reference | `docs/bytecode-reference.md` |
 | Fingerprints, bypass patterns, and target selection | `docs/patch-development.md#fingerprints`, `docs/patch-development.md#target-selection` |
 | Patch scope and code provenance | `docs/patch-development.md#provenance-and-scope` |
