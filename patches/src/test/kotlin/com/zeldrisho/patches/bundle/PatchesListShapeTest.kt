@@ -81,7 +81,7 @@ class PatchesListShapeTest {
 
     @Test fun zaloBundleShape() {
         val json = listJson()
-        for (name in listOf("Bypass native startup tamper check", "Disable ads", "Disable sponsored placements", "Filter promo notifications", "Hide Business Box", "Keep expired media accessible", "Remove AD_ID permission", "Change Zalo app name", "Change Zalo package name", "microG Drive support")) {
+        for (name in listOf("Bypass native startup tamper check", "Disable ads", "Disable sponsored placements", "Enable avatar saving", "Filter promo notifications", "Hide Business Box", "Keep expired media accessible", "Remove AD_ID permission", "Change Zalo app name", "Change Zalo package name", "microG Drive support")) {
             assertTrue(json.contains("\"name\": \"$name\""), "missing patch: $name")
         }
         assertTrue(json.contains("com.zing.zalo"), "missing Zalo package group")
@@ -89,11 +89,11 @@ class PatchesListShapeTest {
     }
 
     /**
-     * Verify that exactly 22 patches are present with no leftover template scaffolding.
+     * Verify that exactly 23 patches are present with no leftover template scaffolding.
      */
     @Test fun patchCountMatchesSources() {
         // Exact-name comparison catches both added patches and removed patches.
-        // Exactly 22 patches (5 Threads + 17 Zalo) — template scaffolding was removed,
+        // Exactly 23 patches (5 Threads + 18 Zalo) — template scaffolding was removed,
         // so any extra entry (e.g. a resurrected "Example Patch") fails loudly.
         // Note: "name" also appears on compatiblePackages entries ("Threads", "Zalo"),
         // so only top-level patch names are counted (6-space indent in output).
@@ -111,6 +111,7 @@ class PatchesListShapeTest {
                 "Disable sponsored placements",
                 "Disable telemetry and crash reporting",
                 "Enable Google Drive photo backup",
+                "Enable avatar saving",
                 "Filter promo notifications",
                 "Hide Business Box",
                 "Hide ads",
@@ -125,7 +126,7 @@ class PatchesListShapeTest {
                 "microG Drive support",
             ),
             names.sorted(),
-            "expected exactly 22 patches, found: $names",
+            "expected exactly 23 patches, found: $names",
         )
     }
 

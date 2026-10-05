@@ -4,6 +4,9 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+### ✨ New Features
+* **Zalo - Enable avatar saving:** Restores the “Save photo” action for avatars opened from a profile and allows screenshots without changing protection for other screens.
+
 ### 🐛 Bug Fixes
 * **Zalo - Configurable native backup interval:** Recognizes Zalo's constructor-seeded account-specific key when validating the native interval getter, fixing patching failures.
 
