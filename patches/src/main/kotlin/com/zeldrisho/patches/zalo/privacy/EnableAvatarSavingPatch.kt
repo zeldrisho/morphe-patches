@@ -30,6 +30,10 @@ val enableZaloAvatarSavingPatch = bytecodePatch(
     }
 }
 
+/**
+ * Replaces the screenshot-policy instruction at zero-based [index] with a false value in [register].
+ * The caller must supply the matched avatar policy instruction and its destination register.
+ */
 internal fun allowAvatarScreenshots(
     method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
     index: Int,

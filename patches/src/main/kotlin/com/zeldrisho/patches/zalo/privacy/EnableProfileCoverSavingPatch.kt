@@ -43,6 +43,7 @@ val enableZaloProfileCoverSavingPatch = bytecodePatch(
     }
 }
 
+/** Matches a single-register branch by opcode and tested register, regardless of its target. */
 private fun isBranchOn(instruction: com.android.tools.smali.dexlib2.iface.instruction.Instruction, opcode: Opcode, register: Int): Boolean = instruction.opcode == opcode &&
     (instruction as? OneRegisterInstruction)?.registerA == register
 

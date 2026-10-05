@@ -45,10 +45,16 @@ fun main() {
 }
 
 /**
- * Validates and writes `patches-list.json`, using `PATCHES_LIST_OUTPUT` when configured.
+ * Validates patch metadata and writes it to [listJson], replacing any existing contents.
  *
  * @param version The patch bundle version string from the manifest.
  * @param patches The set of patches loaded from the bundle JAR.
+ * @param listJson Output file; defaults to `PATCHES_LIST_OUTPUT` or `../patches-list.json`.
+ * Its parent directory must already exist.
+ * @throws IllegalArgumentException if required metadata values fail validation.
+ * @throws IllegalStateException if metadata entries are missing or duplicated.
+ * @throws NullPointerException if a patch name or compatible package name is null.
+ * @throws java.io.IOException if the output cannot be written.
  */
 @Suppress("DEPRECATION")
 internal fun generatePatchList(

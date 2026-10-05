@@ -11,7 +11,12 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import com.zeldrisho.patches.zalo.shared.Constants.COMPATIBILITY_ZALO
 
-/** Requires exact pinned literal counts; fail closed when app strings drift. */
+/**
+ * Requires exact pinned literal counts; fail closed when app strings drift.
+ *
+ * @throws IllegalStateException if any expected literal is missing, has a different count,
+ * or an unexpected literal is present.
+ */
 internal fun validateProviderUriReplacementCounts(replacementCounts: Map<String, Int>) {
     check(replacementCounts == EXPECTED_CLONE_STRING_COUNTS) {
         "Zalo package rename: expected clone identity string counts $EXPECTED_CLONE_STRING_COUNTS, found $replacementCounts"
@@ -19,9 +24,9 @@ internal fun validateProviderUriReplacementCounts(replacementCounts: Map<String,
 }
 
 /**
- * Rewrites Zalo-owned provider/resource identity constants to [packageName], preserving registers.
+ * Rewrites exact non-jumbo Zalo package-name constants to [packageName], preserving registers.
  *
- * Returns a count for every expected literal, including zeros for absent references.
+ * Returns the number of replacements, or zero when [method] has no implementation or matching constants.
  */
 internal fun rewriteMainProcessPackageName(method: MutableMethod, packageName: String): Int {
     var replacements = 0
@@ -38,6 +43,11 @@ internal fun rewriteMainProcessPackageName(method: MutableMethod, packageName: S
     return replacements
 }
 
+/**
+ * Rewrites known non-jumbo provider/resource identity constants to [packageName], preserving registers.
+ *
+ * Returns a count for every expected literal, including zeros for absent references or a missing body.
+ */
 internal fun rewriteProviderUriStrings(method: MutableMethod, packageName: String): Map<String, Int> {
     val replacements = EXPECTED_CLONE_STRING_COUNTS.keys.associateWith { 0 }.toMutableMap()
     val instructions = method.implementation?.instructions?.toList().orEmpty()

@@ -86,6 +86,11 @@ private fun hasAccountSpecificKey(
         prefixFlowsToKey(instructions, prefixIndex, getterIndex, prefixRegister, keyRegister)
 }
 
+/**
+ * Recognizes a StringBuilder seeded or appended with [prefixRegister] whose string result
+ * reaches [keyRegister]. Scans strictly between the zero-based [prefixIndex] and [getterIndex],
+ * returning false when no supported pattern is found.
+ */
 @Suppress("CyclomaticComplexMethod", "LoopWithTooManyJumpStatements")
 private fun prefixFlowsToKey(
     instructions: List<com.android.tools.smali.dexlib2.iface.instruction.Instruction>,
@@ -137,6 +142,7 @@ private fun prefixFlowsToKey(
     return false
 }
 
+/** Returns the reference for a direct StringBuilder(String) constructor call, or null otherwise. */
 private fun stringBuilderConstructorReference(instruction: com.android.tools.smali.dexlib2.iface.instruction.Instruction): MethodReference? {
     if (instruction.opcode !in setOf(Opcode.INVOKE_DIRECT, Opcode.INVOKE_DIRECT_RANGE)) return null
     val reference = (instruction as? ReferenceInstruction)?.reference as? MethodReference

@@ -31,7 +31,11 @@ def die(msg):
 
 
 def read_apk_package(apk):
-    """Read an APK's manifest package with aapt; fail closed if unavailable or unparseable."""
+    """Return the APK's manifest package as reported by aapt.
+
+    Return None if aapt is missing, cannot be started, exits unsuccessfully, or
+    produces no recognizable package name. Output decoding errors propagate.
+    """
     aapt = shutil.which("aapt")
     if not aapt:
         return None
@@ -51,7 +55,12 @@ def read_apk_package(apk):
 
 
 def quarantine_artifact(path):
-    """Move an invalid output aside so it cannot be mistaken for a successful build."""
+    """Move an invalid output to a sibling .invalid path and return that path.
+
+    Try .invalid.1, .invalid.2, and so on when a destination already exists.
+    Return None if the source is absent or the rename raises OSError; a failed
+    rename may leave the original output in place.
+    """
     if not path.exists():
         return None
     quarantine = path.with_name(path.name + ".invalid")
@@ -84,7 +93,13 @@ def jar_version(path):
 
 
 def morphe_data_dirs(home):
-    """Return explicit and Homebrew Morphe data directories, in priority order."""
+    """Return explicit and Homebrew Morphe data directories, in priority order.
+
+    Use MORPHE_DATA_DIR first, then HOMEBREW_PREFIX/var/morphe, falling back to
+    ``brew --prefix`` for the prefix. Deduplicate paths without checking whether
+    they exist. Ignore brew launch, exit, and timeout failures. The home argument
+    is unused.
+    """
     dirs = []
     configured = os.environ.get("MORPHE_DATA_DIR")
     if configured:
@@ -150,7 +165,20 @@ def download(url, destination=None):
 
 
 def main():
-    """Patch the requested APK or APKM and sign the resulting APK."""
+    """Patch the requested APK or APKM and sign the resulting APK.
+
+    Read command-line arguments and environment overrides, using a local bundle
+    or downloading the latest release when none is selected or found. The
+    expected package comes from --expected-package, EXPECTED_PACKAGE_NAME, or
+    PACKAGE_NAME, in that order; it filters patch options and guards the output.
+    REQUIRED_PATCHES and requested package-renaming patches must be reported
+    as applied. Failed output checks attempt to quarantine the APK.
+
+    Raise SystemExit for argument/configuration errors, download failures,
+    failed output checks, or Morphe failures, preserving nonzero CLI exit codes.
+    Other filesystem errors, options-create launch errors, and malformed options
+    data errors propagate. Temporary files are cleaned up on exit.
+    """
     p = argparse.ArgumentParser()
     p.add_argument("--jar")
     p.add_argument("--expected-package")
