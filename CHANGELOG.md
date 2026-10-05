@@ -6,6 +6,7 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ### 🔧 Improvements
 * **Threads - Change app name:** Makes launcher-name customization opt-in; without it, the app keeps its original name.
+* **Zalo - Enable Google Drive photo backup:** Bypasses Zalo's local Drive-account eligibility check and forces its media-backup feature flag on, exposing the existing option to accounts that would otherwise not see it.
 
 ## [1.7.1](https://github.com/zeldrisho/morphe-patches/compare/v1.7.0...v1.7.1) (2026-10-03)
 
