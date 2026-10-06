@@ -20,9 +20,13 @@ Two patches have separate roles:
   [Morphe MicroG page](https://morphe.software/microg).
 
 Initial OAuth and photo-restore flow, plus a complete backup/restore cycle, were
-device-validated for the pinned Zalo version. That evidence does not guarantee
-current provider releases, other Android versions, renamed packages, or every
-media type. Follow [validation](validation.md) for release qualification.
+device-validated for the pinned Zalo version under the original package identity.
+The renamed `com.zing.zalo.morphe` clone has now also been device-validated through
+both Drive token calls. The clone keeps its real package identity across IPC;
+MicroG receives the original Zalo package and certificate identities through
+manifest metadata. This does not guarantee compatibility with other provider
+releases, Android versions, or every media type. Follow
+[validation](validation.md) for release qualification.
 
 ## Installation and troubleshooting
 
@@ -44,7 +48,8 @@ media type. Follow [validation](validation.md) for release qualification.
 | Google Drive backup option is missing | Zalo may show it only for eligible accounts; select **Enable Google Drive photo backup** to force its feature flag on and bypass the local eligibility check. This does not grant Google authorization. |
 | Install prompt although provider is installed | Exact package name, enabled state, and manifest package visibility. |
 | Picker has no account | MicroG account registration and `app.revanced` account type; this does not prove Drive authorization. |
-| Account selected but request rejected | OAuth/provider backend; treat attestation rejection as **BLOCKED**, not a client patch failure. |
+| Account appears, then Drive sign-in says “No connection” | Check that the clone package and MicroG identity metadata are intact; the pinned clone flow has been device-validated, but provider/OAuth changes may still cause failures. |
+| Account selected but request rejected for another reason | OAuth/provider backend; treat attestation rejection as **BLOCKED**, not a client patch failure. |
 | Photos/media missing after restore | Separate account, server retention/indexing, download, and message association; this patch cannot recover absent remote data. |
 
 Avoid paid-state spoofing and HTTP mutation. Keep tokens, account contents, APKs,

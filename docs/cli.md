@@ -27,10 +27,10 @@ The Homebrew launcher defaults runtime data (patches cache, logs, scratch,
 default keystore) to `$(brew --prefix)/var/morphe`, outside the versioned Cellar.
 Set `MORPHE_DATA_DIR` to use a different writable location. The startup log prints
 `Morphe data root: ...`. An unwritable override is ignored by Morphe with a
-warning; check the log before relying on the selected directory. This describes
-Morphe's own data-root resolution; `scripts/repatch.py` does not resolve
-`MORPHE_DATA_DIR` or Homebrew's `var/morphe` when discovering a keystore. See
-[signing](#signing) for the helper's separate lookup behavior.
+warning; check the log before relying on the selected directory.
+`scripts/repatch.py` uses the selected `MORPHE_DATA_DIR`, or discovers
+Homebrew's `var/morphe` path, when looking for the default keystore. See
+[signing](#signing) for key discovery and custom-key details.
 Layout: `patches/ logs/ tmp/ libs/ morphe.keystore config.json`.
 `--temporary-files-path` defaults to `tmp/`; `--keystore` defaults to
 `morphe.keystore` there.
@@ -82,14 +82,15 @@ For release QA, follow [full verification](development.md#verify) and
 What `repatch.py` does: picks newest local `.mpp` (or latest GitHub release
 via `GITHUB_REPO`), runs `options-create`, applies `APP_NAME` /
 `PACKAGE_NAME` into the options JSON (rename patches only), then `patch -p`
-with `--options-file`, `-o`, `-t`, and `--keystore*`. Optional overrides:
-`APP_NAME PACKAGE_NAME MPP KEYSTORE KEYSTORE_ALIAS KEYSTORE_PASSWORD
-KEYSTORE_ENTRY_PASSWORD VERIFY_SDK BYTECODE_MODE GITHUB_REPO` — unset means
-automatic discovery (newest local `.mpp`, `morphe` on PATH, and the repository's
-persistent `Morphe.keystore`; then legacy keystore candidates under
-`~/.local/share/morphe/morphe-data/` and `~/morphe/`). Those candidates are not
-Morphe's general data-root resolution; `MORPHE_DATA_DIR` and Homebrew's
-`var/morphe` are not searched. Set `KEYSTORE` for any other location.
+with `--options-file`, `-o`, and `-t`. When the active default key is found,
+the helper lets Morphe select it without passing keystore flags. Optional
+credential overrides are `KEYSTORE KEYSTORE_ALIAS KEYSTORE_PASSWORD
+KEYSTORE_ENTRY_PASSWORD`; unset, key discovery prefers Morphe's active data
+directory (`MORPHE_DATA_DIR`, otherwise `$(brew --prefix)/var/morphe`), then the
+repo's ignored `Morphe.keystore` and legacy locations. `APP_NAME PACKAGE_NAME
+MPP VERIFY_SDK BYTECODE_MODE GITHUB_REPO` are also supported. Normally, let
+Morphe use its default keystore; no `--keystore` flag is needed for direct CLI
+patching. Set `KEYSTORE` only to select a non-default key.
 When downloading a release, `GITHUB_REPO` must be an `owner/repository`
 value. The helper accepts only HTTPS URLs hosted by GitHub or its release
 asset CDN and validates every redirect.
@@ -139,14 +140,18 @@ compatibility constants, not this document.
 
 ## Signing
 
-Keystore flags need `=`; space-separated forms are rejected.
+Morphe's default keystore is `morphe.keystore` in its active data directory:
+`$(brew --prefix)/var/morphe` with Homebrew, or the directory selected by
+`MORPHE_DATA_DIR`. For normal patching, let Morphe choose that key automatically:
 
 ```bash
-morphe patch -p "$MPP" \
-  --keystore="/path/to/morphe.keystore" \
-  --keystore-entry-alias=Morphe \
-  -o /tmp/out.apk /path/to/app.apkm
-# Custom store (space-separated form FAILS — use =):
+morphe patch -p "$MPP" -o /tmp/out.apk /path/to/app.apkm
+```
+
+Use `--keystore=...` only for a non-default key; keystore flags require `=` and
+space-separated forms are rejected. For example:
+
+```bash
 morphe patch -p "$MPP" \
   --keystore=/path/to/mine.bks --keystore-entry-alias=morphe \
   --keystore-password=... --keystore-entry-password=... \
@@ -158,26 +163,19 @@ apksigner verify --print-certs /tmp/out.apk
 
 Aliases are case-sensitive: `morphe` and `Morphe` select different key
 entries. Verify the exact alias and matching key password before patching.
-Defaults for the shared BKS `morphe.keystore`: alias `Morphe`, key-entry
-password `Morphe`, and empty keystore password. With Homebrew, the shared key
-is under `$(brew --prefix)/var/morphe` by default, or the selected
-`MORPHE_DATA_DIR`.
-For phone-to-local updates, export the keystore from Morphe Manager on the
-phone and place it at the repository root as `Morphe.keystore` (gitignored).
-Keep the original export backed up privately and use its actual alias/passwords.
-`scripts/repatch.py` prefers the repository's persistent `Morphe.keystore`,
-then falls back to shared data-dir keys. It uses the same empty-store / `Morphe`
-entry-password defaults for the repository key. For a key at another path, its
-defaults differ: store password `Morphe`, empty key-entry password. Do not
-assume a Manager-exported key uses those external-path defaults. To update an
-app installed from Morphe Manager on a phone, use the keystore exported from
+The shared BKS `morphe.keystore` defaults to alias `Morphe`, key-entry password
+`Morphe`, and empty keystore password. With Homebrew it lives at
+`$(brew --prefix)/var/morphe/morphe.keystore`; `MORPHE_DATA_DIR` selects another
+active data directory. Morphe uses this default automatically, so normal CLI
+commands need no `--keystore` flag. Keep a backup of signing keys privately.
+
+To update an app installed from Morphe Manager, use the keystore exported from
 that Manager installation so the patched APK has the same signing identity.
-If you trust the exported key and want the normal repository-key defaults,
-copy it to the ignored local `Morphe.keystore` file (never commit or share it), or explicitly
-set `KEYSTORE_PASSWORD` and `KEYSTORE_ENTRY_PASSWORD` to the credentials used
-when that key was created/exported. The documented Morphe defaults are not a
-guarantee for a particular exported file; an integrity-check failure means the
-store password/key format is wrong, not that the alias is necessarily wrong.
+Match its actual alias and passwords; exported/custom keys may not use the shared
+default credentials. `scripts/repatch.py` searches the active Morphe data
+location first and supports `KEYSTORE` and credential variables for custom keys.
+Never commit or share keystores. An integrity-check failure indicates the store
+password or key format is wrong; it does not necessarily mean the alias is wrong.
 The Manager alias/key must refer to the same signing identity as the installed
 app for Android to accept an update. An `INSTALL_FAILED_UPDATE_INCOMPATIBLE`
 error only proves the output and installed app certificates differ; it does

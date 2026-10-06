@@ -45,7 +45,6 @@ android sdk list
 android sdk install platform-tools
 # Optional: select a stable package ID from `android sdk list --all 'ndk/*'`:
 android sdk install "ndk;29.0.14206865"
-android sdk list
 # Add these directories to PATH using your shell's normal mechanism:
 #   $HOME/.local/bin
 #   $HOME/Android/Sdk/platform-tools
@@ -185,15 +184,14 @@ The startup log reports the selected data root.
 
 APKMirror downloads may live in any local directory.
 Keep APK investigation artifacts in the gitignored [analysis workspace](reverse-engineering.md#analysis-workspace).
-To update an app installed by Morphe Manager on a phone, export the keystore
-from that phone's Manager installation and copy it to `Morphe.keystore` at the
-repository root. This local file is gitignored; never commit or share it.
-The helper prefers that persistent key. Match the exported key's alias and
-passwords; see [signing](cli.md#signing). `scripts/repatch.py` does not resolve
-Morphe's active data root for its fallback search: it checks legacy candidates
-under `~/.local/share/morphe/morphe-data/` and `~/morphe/`, then the `~/morphe/`
-root. Use `KEYSTORE` for keys elsewhere, including Morphe's selected
-`MORPHE_DATA_DIR` or Homebrew `var/morphe` location.
+To update an app installed by Morphe Manager on a phone, export its keystore
+and install it as Morphe's default signing key at
+`$(brew --prefix)/var/morphe/morphe.keystore` (or under the active
+`MORPHE_DATA_DIR`). Keep a separate backup privately; never commit or share the
+key. Morphe and `scripts/repatch.py` use the active data directory by default,
+so routine patch commands need no `--keystore` flag. Match exported-key
+credentials when they differ from the shared defaults; see [signing](cli.md#signing).
+Use `KEYSTORE` only when deliberately selecting a non-default key.
 
 ## 7. Original APK source
 
@@ -217,7 +215,6 @@ contract checks the resulting extension DEX descriptors and flags.
 python3 --version
 java -version
 ./gradlew --version
-android sdk list
 adb version
 aapt version
 # Optional Smali tools:

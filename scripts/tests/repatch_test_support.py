@@ -34,12 +34,22 @@ if command == "options-create":
     pathlib.Path(args[args.index("-o") + 1]).write_text(json.dumps([{"patches": patches}]))
 elif command == "patch":
     assert "--purge" not in args, args
-    assert any(a.startswith("--keystore=") for a in args), args
     options = pathlib.Path(args[args.index("--options-file") + 1]).read_text()
     pathlib.Path(os.environ["OPTIONS_CAPTURE"]).write_text(options)
     if os.environ.get("FAIL_PATCH"):
         print("signing diagnostic", file=sys.stderr)
         sys.exit(24)
+    if os.environ.get("FAKE_PATCH_OUTPUT"):
+        print(os.environ["FAKE_PATCH_OUTPUT"])
+    patches = json.loads(options)[0]["patches"]
+    omitted = set(os.environ.get("FAKE_OMIT_APPLIED", "").split(","))
+    skipped = set()
+    for line in os.environ.get("FAKE_PATCH_OUTPUT", "").splitlines():
+        if "Skipping disabled:" in line:
+            skipped.add(line.split("Skipping disabled:", 1)[1].strip())
+    for name, patch in patches.items():
+        if patch.get("enabled") and name not in omitted and name not in skipped:
+            print("INFO: Applied: " + name)
     pathlib.Path(args[args.index("-o") + 1]).touch()
 else:
     raise AssertionError(command)
@@ -68,6 +78,14 @@ class RepatchTestSupport(unittest.TestCase):
         java = bin_dir / "java"
         java.write_text(FAKE_JAVA)
         java.chmod(0o755)
+        aapt = bin_dir / "aapt"
+        aapt.write_text(
+            """#!/usr/bin/env python3
+import os
+print("package: name='" + os.environ.get("FAKE_BADGING_PACKAGE", "com.example.app") + "' versionCode=1")
+"""
+        )
+        aapt.chmod(0o755)
         self.env = {
             k: v
             for k, v in os.environ.items()
@@ -75,16 +93,24 @@ class RepatchTestSupport(unittest.TestCase):
             not in {
                 "APP_NAME",
                 "PACKAGE_NAME",
+                "EXPECTED_PACKAGE_NAME",
+                "SOURCE_PACKAGE_NAME",
+                "REQUIRED_PATCHES",
                 "MPP",
                 "KEYSTORE",
                 "KEYSTORE_ALIAS",
                 "KEYSTORE_PASSWORD",
                 "KEYSTORE_ENTRY_PASSWORD",
+                "MORPHE_DATA_DIR",
+                "HOMEBREW_PREFIX",
                 "GITHUB_REPO",
                 "VERIFY_SDK",
                 "BYTECODE_MODE",
                 "FAIL_OPTIONS",
                 "FAIL_PATCH",
+                "FAKE_PATCH_OUTPUT",
+                "FAKE_BADGING_PACKAGE",
+                "FAKE_OMIT_APPLIED",
             }
         }
         self.env.update(
