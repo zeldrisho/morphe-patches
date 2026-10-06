@@ -14,6 +14,15 @@ public final class OpenLinksExternally {
   public static boolean open(Context context, String rawUrl) {
     if (context == null || rawUrl == null) return false;
     try {
+      java.net.URI validated = new java.net.URI(rawUrl.trim());
+      String validatedScheme = validated.getScheme();
+      if (validatedScheme == null
+          || !(validatedScheme.equalsIgnoreCase("http")
+              || validatedScheme.equalsIgnoreCase("https"))
+          || validated.getHost() == null
+          || validated.getHost().isEmpty()) {
+        return false;
+      }
       Uri uri = Uri.parse(rawUrl.trim());
       String scheme = uri.getScheme();
       if (scheme == null
@@ -31,6 +40,8 @@ public final class OpenLinksExternally {
       }
       context.startActivity(intent);
       return true;
+    } catch (java.net.URISyntaxException ignored) {
+      return false;
     } catch (ActivityNotFoundException | SecurityException ignored) {
       return false;
     } catch (RuntimeException ignored) {

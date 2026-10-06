@@ -53,6 +53,29 @@ public class OpenLinksExternallyTest {
     assertEquals(Intent.ACTION_VIEW, attempted.getAction());
   }
 
+  /** Verifies generated unsupported schemes and malformed authority forms are rejected. */
+  @Test
+  public void generatedInvalidUrlsAreRejected() {
+    Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
+    String[] invalidUrls = {
+      "javascript:alert(1)",
+      "file:///etc/passwd",
+      "content://example.com/item",
+      "https://",
+      "http://",
+      "https:///path",
+      "https://?query=value",
+      "https://#fragment",
+      "https://exa mple.com",
+      "  javascript:alert(1)  "
+    };
+
+    for (String url : invalidUrls) {
+      assertFalse("Expected rejection for: " + url, OpenLinksExternally.open(activity, url));
+    }
+    assertNull(Shadows.shadowOf(activity).getNextStartedActivity());
+  }
+
   /** Verifies that URLs resolving to the host package retain Threads link handling. */
   @Test
   public void doesNotRecaptureUrlsResolvedToThreadsItself() {
