@@ -33,8 +33,9 @@ def die(msg):
 def read_apk_package(apk):
     """Return the APK's manifest package as reported by aapt.
 
-    Return None if aapt is missing, cannot be started, exits unsuccessfully, or
-    produces no recognizable package name. Output decoding errors propagate.
+    Return None if aapt is missing, cannot be started, times out, exits
+    unsuccessfully, or produces no recognizable package name. Output decoding
+    errors propagate.
     """
     aapt = shutil.which("aapt")
     if not aapt:
@@ -45,8 +46,9 @@ def read_apk_package(apk):
             capture_output=True,
             text=True,
             check=False,
+            timeout=10,
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         return None
     if result.returncode:
         return None

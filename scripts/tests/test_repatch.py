@@ -5,6 +5,7 @@ import json
 import os
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.tests.repatch_test_support import RepatchTestSupport
 
@@ -16,6 +17,19 @@ SPEC.loader.exec_module(REPATCH)
 
 class RepatchTest(RepatchTestSupport):
     """Regression assertions for bundle discovery, signing options, and errors."""
+
+    def test_aapt_timeout_is_treated_as_unreadable_package(self):
+        with (
+            patch.object(REPATCH.shutil, "which", return_value="/usr/bin/aapt"),
+            patch.object(
+                REPATCH.subprocess,
+                "run",
+                side_effect=REPATCH.subprocess.TimeoutExpired("aapt", 10),
+            ) as run,
+        ):
+            self.assertIsNone(REPATCH.read_apk_package(Path("input.apk")))
+
+        self.assertEqual(run.call_args.kwargs["timeout"], 10)
 
     def test_download_url_validation(self):
         """Reject non-HTTPS and non-GitHub destinations."""
