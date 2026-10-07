@@ -8,6 +8,8 @@ import com.android.tools.smali.dexlib2.immutable.reference.ImmutableMethodRefere
 import com.zeldrisho.patches.testing.syntheticMutableMethod
 import com.zeldrisho.patches.zalo.chat.suppressBusinessBoxInsertion
 import com.zeldrisho.patches.zalo.chat.suppressBusinessBoxPeriodicBranch
+import com.zeldrisho.patches.zalo.chat.suppressMediaBoxInsertion
+import com.zeldrisho.patches.zalo.chat.suppressZinstantAdInsertion
 import com.zeldrisho.patches.zalo.privacy.suppressSeenStatus
 import com.zeldrisho.patches.zalo.privacy.suppressTypingStatus
 import com.zeldrisho.patches.zalo.telemetry.disableNativeCrashHandler
@@ -67,6 +69,18 @@ class CorePatchTransformationTest {
         val periodic = method()
         suppressBusinessBoxPeriodicBranch(periodic, 0)
         assertEquals(Opcode.RETURN_VOID, periodic.implementation!!.instructions[0].opcode)
+    }
+
+    /** Verifies that the Media Box and Zinstant ad list insertions are skipped in place. */
+    @Test
+    fun mediaBoxAndZinstantAdInsertionsBecomeNops() {
+        val mediaBox = method()
+        suppressMediaBoxInsertion(mediaBox, 0)
+        assertEquals(listOf(Opcode.NOP, Opcode.RETURN_VOID), mediaBox.implementation!!.instructions.map { it.opcode })
+
+        val ad = method()
+        suppressZinstantAdInsertion(ad, 0)
+        assertEquals(listOf(Opcode.NOP, Opcode.RETURN_VOID), ad.implementation!!.instructions.map { it.opcode })
     }
 
     /** Verifies that disabling crash registration preserves the following return instruction. */
