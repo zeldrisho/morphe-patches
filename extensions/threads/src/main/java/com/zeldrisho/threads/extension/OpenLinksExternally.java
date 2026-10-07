@@ -10,6 +10,34 @@ public final class OpenLinksExternally {
   /** Prevents instantiation of this static link handler. */
   private OpenLinksExternally() {}
 
+  /** Accepts URI hosts or validates Unicode reg-names with IDN rules. */
+  private static boolean hasValidHost(java.net.URI uri) {
+    String host = uri.getHost();
+    if (host != null) return !host.isEmpty();
+
+    String authority = uri.getRawAuthority();
+    if (authority == null || authority.isEmpty() || authority.indexOf('@') >= 0) return false;
+    String idnHost = authority;
+    int colon = authority.lastIndexOf(':');
+    if (colon >= 0) {
+      if (authority.indexOf(':') != colon) return false;
+      String port = authority.substring(colon + 1);
+      if (port.isEmpty()) return false;
+      try {
+        int portNumber = Integer.parseInt(port);
+        if (portNumber < 0 || portNumber > 65535) return false;
+      } catch (NumberFormatException ignored) {
+        return false;
+      }
+      idnHost = authority.substring(0, colon);
+    }
+    try {
+      return !java.net.IDN.toASCII(idnHost, java.net.IDN.USE_STD3_ASCII_RULES).isEmpty();
+    } catch (IllegalArgumentException ignored) {
+      return false;
+    }
+  }
+
   /** Returns true only when an external activity was successfully launched. */
   public static boolean open(Context context, String rawUrl) {
     if (context == null || rawUrl == null) return false;
@@ -19,8 +47,7 @@ public final class OpenLinksExternally {
       if (validatedScheme == null
           || !(validatedScheme.equalsIgnoreCase("http")
               || validatedScheme.equalsIgnoreCase("https"))
-          || validated.getHost() == null
-          || validated.getHost().isEmpty()) {
+          || !hasValidHost(validated)) {
         return false;
       }
       Uri uri = Uri.parse(rawUrl.trim());

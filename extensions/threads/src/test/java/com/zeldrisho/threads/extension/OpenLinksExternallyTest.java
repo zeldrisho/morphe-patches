@@ -36,6 +36,21 @@ public class OpenLinksExternallyTest {
     assertEquals(Uri.parse("https://example.com/path"), started.getData());
   }
 
+  /** Verifies Unicode domain names pass IDN-aware validation and launch externally. */
+  @Test
+  public void internationalizedDomainLaunchesExternally() {
+    Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
+    Uri uri = Uri.parse("https://bücher.de/");
+    Shadows.shadowOf(activity.getPackageManager())
+        .addResolveInfoForIntent(new Intent(Intent.ACTION_VIEW, uri), browser());
+
+    assertTrue(OpenLinksExternally.open(activity, "https://bücher.de/"));
+    Intent started = Shadows.shadowOf(activity).getNextStartedActivity();
+    assertNotNull(started);
+    assertEquals(Intent.ACTION_VIEW, started.getAction());
+    assertEquals(uri, started.getData());
+  }
+
   /**
    * Verifies invalid inputs are rejected and unresolved URLs are still passed to Android to launch.
    */
