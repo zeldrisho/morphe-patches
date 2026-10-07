@@ -26,6 +26,13 @@ val hideZaloChatListAdsPatch = bytecodePatch(
     }
 }
 
+/**
+ * Replaces the first `ArrayList.add(int, Object): void` call after [constructorIndex] in [method]
+ * with a NOP, leaving the Zinstant ad-card construction intact.
+ *
+ * @param constructorIndex instruction index of the matched Zinstant ad-card constructor call.
+ * @throws IllegalStateException if the method has no implementation or no matching insertion follows.
+ */
 internal fun suppressZinstantAdInsertionAfterConstructor(
     method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
     constructorIndex: Int,
@@ -45,6 +52,10 @@ internal fun suppressZinstantAdInsertionAfterConstructor(
     method.replaceInstruction(add, "nop")
 }
 
+/**
+ * Replaces the instruction at [index] in [method] with a NOP, preserving instruction positions.
+ * The caller must ensure [index] identifies the Zinstant ad list insertion.
+ */
 internal fun suppressZinstantAdInsertion(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod, index: Int) {
     method.replaceInstruction(index, "nop")
 }

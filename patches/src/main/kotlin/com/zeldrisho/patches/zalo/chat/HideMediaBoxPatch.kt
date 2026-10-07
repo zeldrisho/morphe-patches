@@ -28,6 +28,13 @@ val hideZaloMediaBoxPatch = bytecodePatch(
     }
 }
 
+/**
+ * Replaces the first `ArrayList.add(Object): boolean` call after [constructorIndex] in [method]
+ * with a NOP, leaving the Media Box row construction intact.
+ *
+ * @param constructorIndex instruction index of the matched Media Box row constructor call.
+ * @throws IllegalStateException if the method has no implementation or no matching insertion follows.
+ */
 internal fun suppressMediaBoxInsertionAfterConstructor(
     method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
     constructorIndex: Int,
@@ -47,6 +54,10 @@ internal fun suppressMediaBoxInsertionAfterConstructor(
     method.replaceInstruction(add, "nop")
 }
 
+/**
+ * Replaces the instruction at [index] in [method] with a NOP, preserving instruction positions.
+ * The caller must ensure [index] identifies the Media Box list insertion.
+ */
 internal fun suppressMediaBoxInsertion(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod, index: Int) {
     method.replaceInstruction(index, "nop")
 }
