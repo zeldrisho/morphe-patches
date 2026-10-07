@@ -12,6 +12,9 @@ public final class OpenLinksExternally {
 
   /** Accepts URI hosts or validates Unicode reg-names with IDN rules. */
   private static boolean hasValidHost(java.net.URI uri) {
+    int uriPort = uri.getPort();
+    if (uriPort < -1 || uriPort > 65535) return false;
+
     String host = uri.getHost();
     if (host != null) return !host.isEmpty();
 

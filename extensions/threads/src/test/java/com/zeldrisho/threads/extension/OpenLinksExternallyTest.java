@@ -82,6 +82,7 @@ public class OpenLinksExternallyTest {
       "https://?query=value",
       "https://#fragment",
       "https://exa mple.com",
+      "https://example.com:65536/",
       "  javascript:alert(1)  "
     };
 
