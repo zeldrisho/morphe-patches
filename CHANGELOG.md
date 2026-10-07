@@ -4,6 +4,8 @@ Release and changelog policy: [docs/release.md](docs/release.md#changelog-policy
 
 ## Unreleased
 
+## [1.9.0](https://github.com/zeldrisho/morphe-patches/compare/v1.8.0...v1.9.0) (2026-10-07)
+
 ### ✨ New Features
 * **Zalo - Hide chat list ads:** Removes dedicated Zinstant ad cards from the message list; server-inserted promotions or other ad surfaces may remain.
 * **Zalo - Hide Media Box:** Hides the Media Box row without deleting its content.
