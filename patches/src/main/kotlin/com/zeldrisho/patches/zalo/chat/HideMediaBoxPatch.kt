@@ -24,20 +24,27 @@ val hideZaloMediaBoxPatch = bytecodePatch(
     execute {
         val match = MediaBoxListInsertion.matchAll(1..1).single()
         val insertion = match.instructionMatches.single { it.instruction.opcode == Opcode.INVOKE_DIRECT }
-        val instructions = match.method.implementation?.instructions?.toList()
-            ?: error("MediaBoxListInsertion: matched method has no implementation")
-        val add = instructions.indices.firstOrNull { index ->
-            index > insertion.index && instructions[index].let {
-                it.opcode == Opcode.INVOKE_VIRTUAL &&
-                    (it as? ReferenceInstruction)?.reference.let { ref ->
-                        ref is MethodReference &&
-                            ref.definingClass == "Ljava/util/ArrayList;" && ref.name == "add" &&
-                            ref.parameterTypes == listOf("Ljava/lang/Object;") && ref.returnType == "Z"
-                    }
-            }
-        } ?: error("MediaBoxListInsertion: list insertion not found after Media Box constructor")
-        suppressMediaBoxInsertion(match.method, add)
+        suppressMediaBoxInsertionAfterConstructor(match.method, insertion.index)
     }
+}
+
+internal fun suppressMediaBoxInsertionAfterConstructor(
+    method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
+    constructorIndex: Int,
+) {
+    val instructions = method.implementation?.instructions?.toList()
+        ?: error("MediaBoxListInsertion: matched method has no implementation")
+    val add = instructions.indices.firstOrNull { index ->
+        index > constructorIndex && instructions[index].let {
+            it.opcode == Opcode.INVOKE_VIRTUAL &&
+                (it as? ReferenceInstruction)?.reference.let { ref ->
+                    ref is MethodReference &&
+                        ref.definingClass == "Ljava/util/ArrayList;" && ref.name == "add" &&
+                        ref.parameterTypes == listOf("Ljava/lang/Object;") && ref.returnType == "Z"
+                }
+        }
+    } ?: error("MediaBoxListInsertion: list insertion not found after Media Box constructor")
+    method.replaceInstruction(add, "nop")
 }
 
 internal fun suppressMediaBoxInsertion(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod, index: Int) {

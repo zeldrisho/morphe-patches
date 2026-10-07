@@ -22,20 +22,27 @@ val hideZaloChatListAdsPatch = bytecodePatch(
     execute {
         val match = ZinstantAdListInsertion.matchAll(1..1).single()
         val insertion = match.instructionMatches.single { it.instruction.opcode == Opcode.INVOKE_DIRECT }
-        val instructions = match.method.implementation?.instructions?.toList()
-            ?: error("ZinstantAdListInsertion: matched method has no implementation")
-        val add = instructions.indices.firstOrNull { index ->
-            index > insertion.index && instructions[index].let {
-                it.opcode == Opcode.INVOKE_VIRTUAL &&
-                    (it as? ReferenceInstruction)?.reference.let { ref ->
-                        ref is MethodReference &&
-                            ref.definingClass == "Ljava/util/ArrayList;" && ref.name == "add" &&
-                            ref.parameterTypes == listOf("I", "Ljava/lang/Object;") && ref.returnType == "V"
-                    }
-            }
-        } ?: error("ZinstantAdListInsertion: list insertion not found after ad card constructor")
-        suppressZinstantAdInsertion(match.method, add)
+        suppressZinstantAdInsertionAfterConstructor(match.method, insertion.index)
     }
+}
+
+internal fun suppressZinstantAdInsertionAfterConstructor(
+    method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod,
+    constructorIndex: Int,
+) {
+    val instructions = method.implementation?.instructions?.toList()
+        ?: error("ZinstantAdListInsertion: matched method has no implementation")
+    val add = instructions.indices.firstOrNull { index ->
+        index > constructorIndex && instructions[index].let {
+            it.opcode == Opcode.INVOKE_VIRTUAL &&
+                (it as? ReferenceInstruction)?.reference.let { ref ->
+                    ref is MethodReference &&
+                        ref.definingClass == "Ljava/util/ArrayList;" && ref.name == "add" &&
+                        ref.parameterTypes == listOf("I", "Ljava/lang/Object;") && ref.returnType == "V"
+                }
+        }
+    } ?: error("ZinstantAdListInsertion: list insertion not found after ad card constructor")
+    method.replaceInstruction(add, "nop")
 }
 
 internal fun suppressZinstantAdInsertion(method: app.morphe.patcher.util.proxy.mutableTypes.MutableMethod, index: Int) {
