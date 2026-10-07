@@ -83,6 +83,7 @@ public class OpenLinksExternallyTest {
       "https://#fragment",
       "https://exa mple.com",
       "https://example.com:65536/",
+      "https://bücher.de:+80/",
       "  javascript:alert(1)  "
     };
 

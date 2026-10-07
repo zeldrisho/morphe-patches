@@ -26,6 +26,10 @@ public final class OpenLinksExternally {
       if (authority.indexOf(':') != colon) return false;
       String port = authority.substring(colon + 1);
       if (port.isEmpty()) return false;
+      for (int index = 0; index < port.length(); index++) {
+        char digit = port.charAt(index);
+        if (digit < '0' || digit > '9') return false;
+      }
       try {
         int portNumber = Integer.parseInt(port);
         if (portNumber < 0 || portNumber > 65535) return false;
