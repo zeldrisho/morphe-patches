@@ -19,12 +19,38 @@ RECON → DECOMPILE → HUNT → WRITE → TEST
 
 ## Analysis workspace
 
-Analysis lives in the gitignored `analysis/<app>/<version>/` workspace. Keep APKs
-in `apk/`, canonical baksmali output in `smali/`, recovered names in `mapping/`,
-evidence in `notes/`, and disposable experiments in `runs/<run-name>/`.
-Keep split inputs together. Record version code, ABI, source URL, and SHA-256 in
+Original APKMs and analysis outputs live in the gitignored
+`analysis/<app>/<version>/` workspace. The default input location is
+`analysis/<app>/<version>/apk/`. Look there first:
+
+```bash
+fd --hidden --no-ignore -t f -e apkm . analysis/<app>/<version>/apk
+```
+
+If the directory or required APKM is missing, stop and ask the user for its source
+path. Once provided, create `apk/` if needed and move the original APKM there,
+preserving its filename; do not search assumed download locations or continue
+with a different input. Do not overwrite an existing input.
+
+Workspace layout:
+
+| Directory | Contents |
+| --------- | -------- |
+| `apk/` | Original APKM inputs and extracted original `base.apk`/split APKs when needed; keep splits together |
+| `smali/` | Canonical baksmali disassembly |
+| `mapping/` | Recovered names, when needed |
+| `notes/` | Recon, verified target evidence, and validation records |
+| `runs/<run-name>/` | Disposable outputs: decoded resources, alternate disassembly, repatching files, and diagnostics |
+
+Create directories only when needed. Use `runs/<run-name>/decoded/` rather than
+top-level `decoded/`, and keep focused disassembly and temporary repatching
+artifacts under their corresponding run rather than top-level
+`smali-sdk-classes17/` or `tmp-repatch/`.
+
+Record the original input path, version code, ABI, source URL, and SHA-256 in
 `notes/recon.md`; never commit analysis inputs or outputs or put secrets, account
-data, or tokens in notes or logs. `<analysis>` below refers to this workspace.
+data, or tokens in notes or logs. `<analysis>` below refers to this workspace,
+and `<input.apkm>` refers to the original APKM's path under `<analysis>/apk/`.
 
 To preview deletion of the entire workspace:
 
@@ -58,7 +84,7 @@ Record the download page URL and input SHA-256 alongside versionCode and ABI.
 Run `scripts/apk_recon.py`:
 
 ```bash
-python3 scripts/apk_recon.py <analysis>/apk/<app>_<version>.apkm
+python3 scripts/apk_recon.py <input.apkm>
 ```
 
 Manual equivalent:
@@ -78,17 +104,19 @@ Manual equivalent:
    Hilt/Koin, RevenueCat/Adapty/Play Billing) — they pick the hunt patterns in
    [Hunt targets](#hunt-targets).
 
-Save as `<analysis>/notes/recon.md` (rename the APK to `<app>_<version>.<ext>`).
+Save the findings as `<analysis>/notes/recon.md`; leave the original input's
+filename unchanged.
 
 ## Decompile
 
 ```bash
-python3 scripts/extract_smali.py <analysis>/apk/<app>_<version>.apkm
+python3 scripts/extract_smali.py <input.apkm> <analysis>/smali
 ```
 
 The extractor disassembles every DEX in the APK or split bundle using baksmali
-and writes canonical output under `analysis/<app>/<version>/smali/`. Pass an
-explicit output directory to override the inferred destination.
+and writes canonical output under `analysis/<app>/<version>/smali/`. The explicit
+output path above makes the destination unambiguous. If omitted, the extractor
+infers it from the original APKMirror filename, regardless of the input directory.
 
 ## Hunt targets
 

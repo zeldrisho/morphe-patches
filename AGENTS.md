@@ -17,7 +17,7 @@
 | Check Morphe patch flags | `morphe patch --help` |
 | Patch with Morphe's default signing key | `morphe patch -p "$MPP" -o /tmp/out.apk <app.apkm>` (default: `$(brew --prefix)/var/morphe/morphe.keystore`; details: `docs/cli.md#signing`) |
 | Full verification | Follow `docs/development.md#verify` |
-| Locate downloaded APKM | `fd -t f -e apkm . /mnt/c/Users/zeldrisho/Downloads` |
+| Locate input APKM | `fd --hidden --no-ignore -t f -e apkm . analysis/<app>/<version>/apk` |
 | Re-patch and sign | `python3 scripts/repatch.py <app.apkm> [out.apk]` (options: `docs/cli.md`) |
 | Extract APK/APKM smali | `python3 scripts/extract_smali.py <apk-or-bundle> [output]` |
 
@@ -34,6 +34,7 @@
 - Follow `docs/release.md#rules` for generated-file ownership; do not hand-edit release metadata or the generated README patch list.
 - Follow `docs/release.md#changelog-policy` for `CHANGELOG.md`; add only user-visible app changes under `## Unreleased`. For audits or cleanup, follow `docs/release.md#changelog-audits-and-edits`.
 - Follow `docs/development.md#testing-guidance` for synthetic DEX tests, Robolectric tests, and opt-in private APK qualification.
+- Find input APKMs in `analysis/<app>/<version>/apk/`; if missing, stop and ask the user for a source path to move there. Follow `docs/reverse-engineering.md#analysis-workspace`.
 - Before extracting, check the gitignored `analysis/<app>/<version>/` workspace and notes and reuse verified evidence. Follow `docs/reverse-engineering.md#analysis-workspace`.
 - Build and unit-test success does not establish real-APK compatibility or device behavior; use `docs/validation.md`.
 - Keep credentials, signing keys, APK analysis, logs, and screenshots out of Git.
