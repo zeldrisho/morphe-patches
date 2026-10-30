@@ -1,3 +1,21 @@
+## [1.10.0](https://github.com/zeldrisho/morphe-patches/compare/v1.9.0...v1.10.0) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* address release and bundle review findings ([9e91db1](https://github.com/zeldrisho/morphe-patches/commit/9e91db1d2b632540ac7692bbacbd29f43c741a46))
+* **deps:** pin handlebars to 4.7.10 ([6cb203c](https://github.com/zeldrisho/morphe-patches/commit/6cb203cce9da410288aea39c6d12fdce19f2d4e7))
+* **zalo:** remove all matching native crash handler calls ([37bbb6a](https://github.com/zeldrisho/morphe-patches/commit/37bbb6ace5dc0a3847a543a35909e478d2743554))
+
+### ✨ New Features
+
+* refresh patch descriptions ([50cf3bc](https://github.com/zeldrisho/morphe-patches/commit/50cf3bcb876498360d073d108174677123619ab6))
+* **zalo:** allow stranger box notifications ([90301d1](https://github.com/zeldrisho/morphe-patches/commit/90301d176e5b2c770a6fce7faa287da2d52cea6b))
+
+### 🚀 Updated App Support
+
+* **threads:** add 453.0.0.56.79 support ([afd1f77](https://github.com/zeldrisho/morphe-patches/commit/afd1f77265091bb1e6d49172d4ea2c7be3361659))
+* **zalo:** add 26.10.02 support ([07250d5](https://github.com/zeldrisho/morphe-patches/commit/07250d5ce9e08b9918bfd880aaf92ae2b7ba440b))
+
 ## [1.10.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0-dev.3...v1.10.0-dev.4) (2026-10-30)
 
 ### 🐛 Bug Fixes
