@@ -10,11 +10,6 @@ import zipfile
 from pathlib import Path
 
 
-APP_NAMES = {
-    "com.instagram.barcelona": "threads",
-    "com.zing.zalo": "zalo",
-}
-
 MAX_ARCHIVE_ENTRIES = 20_000
 MAX_MEMBER_SIZE = 4 * 1024**3
 MAX_TOTAL_SIZE = 8 * 1024**3
@@ -68,18 +63,17 @@ def extract_apks(archive_path: Path, destination: Path) -> list[Path]:
 def default_output(apk: Path) -> Path:
     """Infer analysis/<app>/<version>/smali from an APKMirror bundle filename."""
     match = re.match(
-        r"(?P<package>com(?:\.[A-Za-z0-9_]+)+)_(?P<version>\d+(?:\.\d+)+)-", apk.name
+        r"(?P<package>[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+)_(?P<version>\d+(?:\.\d+)+)-", apk.name
     )
     if not match:
         raise ValueError(
             f"Cannot infer app/version from {apk.name}; pass an output path"
         )
     package = match.group("package")
-    app = APP_NAMES.get(package, package.rsplit(".", 1)[-1])
     return (
         Path(__file__).resolve().parents[1]
         / "analysis"
-        / app
+        / package
         / match.group("version")
         / "smali"
     )
@@ -151,9 +145,7 @@ def main():
             if not count:
                 raise SystemExit(f"❌ No DEX files found in {apk}")
 
-        backup = out.with_name(f".{out.name}.previous")
-        if backup.exists():
-            shutil.rmtree(backup)
+        backup = Path(staging) / "previous"
         if out.exists():
             out.rename(backup)
         try:
