@@ -1,3 +1,9 @@
+## [1.10.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0-dev.3...v1.10.0-dev.4) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* address release and bundle review findings ([9e91db1](https://github.com/zeldrisho/morphe-patches/commit/9e91db1d2b632540ac7692bbacbd29f43c741a46))
+
 ## [1.10.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0-dev.2...v1.10.0-dev.3) (2026-10-30)
 
 ### 🐛 Bug Fixes
