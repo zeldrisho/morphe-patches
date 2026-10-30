@@ -1,3 +1,14 @@
+## [1.10.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.9.0...v1.10.0-dev.1) (2026-10-30)
+
+### ✨ New Features
+
+* refresh patch descriptions ([50cf3bc](https://github.com/zeldrisho/morphe-patches/commit/50cf3bcb876498360d073d108174677123619ab6))
+
+### 🚀 Updated App Support
+
+* **threads:** add 453.0.0.56.79 support ([afd1f77](https://github.com/zeldrisho/morphe-patches/commit/afd1f77265091bb1e6d49172d4ea2c7be3361659))
+* **zalo:** add 26.10.02 support ([07250d5](https://github.com/zeldrisho/morphe-patches/commit/07250d5ce9e08b9918bfd880aaf92ae2b7ba440b))
+
 ## [1.9.0](https://github.com/zeldrisho/morphe-patches/compare/v1.8.0...v1.9.0) (2026-10-07)
 
 ### 🐛 Bug Fixes
