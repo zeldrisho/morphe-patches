@@ -14,6 +14,7 @@
 | Find local APKM inputs | `fd --hidden --no-ignore -t f -e apkm . analysis/` |
 | Inspect an APK or APKM | `python3 scripts/apk_recon.py <input> <report>` |
 | Disassemble an APK or APKM | `python3 scripts/extract_smali.py <input> <output>` |
+| List bundle patches and targets | `morphe list-patches --patches patches/build/libs/patches-<version>.mpp --with-packages --with-versions` |
 
 ## Rules
 
@@ -30,9 +31,10 @@
 - Do not hand-edit the generated patch-list section between `PATCHES_START` and `PATCHES_END` in `README.md`.
 - Make development changes on `dev`; use the commit and merge conventions in `docs/releasing.md`.
 - Use `.github/workflows/release.yml` and `.releaserc` for releases; do not create replacement release scripts or manually upload releases.
+- Keep CI to `release.yml` and `codeql.yml`; do not add test, lint, coverage or other CI gates.
 - Do not force-push semantic-release commits.
 
-# References
+## References
 
 | Need | File |
 | --- | --- |
@@ -42,5 +44,6 @@
 | Dependency versions and plugin setup | `gradle/libs.versions.toml`, `settings.gradle.kts` |
 | Zalo microG Drive support | `docs/microg.md` |
 | Patcher API and examples | https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md |
-| Validation and version updates | `docs/testing.md` |
+| Validation and version updates | `docs/testing.md`, `docs/template.md` |
+| Injection and bytecode rules | `docs/bytecode.md` |
 | APK inspection and evidence | `docs/recon.md` |
