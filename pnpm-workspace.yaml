@@ -3,6 +3,7 @@ catalog:
   vite-plus: 1.4.0
 overrides:
   vite@*: "catalog:"
+  handlebars: 4.7.10
 peerDependencyRules:
   allowAny:
     - vite
