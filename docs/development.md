@@ -22,5 +22,5 @@ Develop on `dev` using semantic commits. See [releases](releasing.md) for branch
 ## References
 
 - [Morphe development setup](https://github.com/MorpheApp/morphe-documentation/blob/main/docs/morphe-development/README.md)
-- [Patcher introduction](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md)
+- [Patcher documentation](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/README.md)
 - [Morphe Desktop CLI](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md)

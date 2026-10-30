@@ -43,7 +43,7 @@
 | Release process and automation | `docs/releasing.md`, `.github/workflows/release.yml`, `.releaserc` |
 | Dependency versions and plugin setup | `gradle/libs.versions.toml`, `settings.gradle.kts` |
 | Zalo microG Drive support | `docs/microg.md` |
-| Patcher API and examples | https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md |
+| Patcher API and examples | https://github.com/MorpheApp/morphe-patcher/blob/main/docs/README.md |
 | Validation and version updates | `docs/testing.md`, `docs/template.md` |
 | Injection and bytecode rules | `docs/bytecode.md` |
 | APK inspection and evidence | `docs/recon.md` |
