@@ -63,6 +63,10 @@ object Constants {
      * version; re-verify smali per update. See analysis/zalo/26.08.01/notes/. */
     const val TESTED_ZALO_VERSION_CODE = 260801903
 
+    /** Tested 26.10.02 build: versionCode 261002903 (APKMirror arm64-v8a).
+     * 26.10.02 targets are pinned separately (for example SeenReceiptSend261002);
+     * see analysis/com.zing.zalo/26.10.02/notes/. */
+    const val TESTED_ZALO_VERSION_CODE_261002 = 261002903
 
     val COMPATIBILITY_ZALO = Compatibility(
         name = "Zalo",
@@ -73,6 +77,11 @@ object Constants {
             AppTarget(
                 version = "26.08.01",
                 versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE),
+                minSdk = 24,
+            ),
+            AppTarget(
+                version = "26.10.02",
+                versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE_261002),
                 minSdk = 24,
             ),
         ),
