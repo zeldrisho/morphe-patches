@@ -1984,12 +1984,12 @@ packages:
     engines: {node: '>=0.8.0'}
     hasBin: true
 
-  undici@6.29.0:
-    resolution: {integrity: sha512-R+RODBqp6i2pPflGdq+xIOUkl+RNfGgHwoinecKu/JCuf2uO06cOKoDbI2P7Dn6KcswdKwrczbU6IYJ6K8X+wg==}
+  undici@6.29.1:
+    resolution: {integrity: sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA==}
     engines: {node: '>=18.17'}
 
-  undici@7.30.0:
-    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
+  undici@7.30.1:
+    resolution: {integrity: sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==}
     engines: {node: '>=20.18.1'}
 
   unicode-emoji-modifier-base@1.0.0:
@@ -2183,7 +2183,7 @@ snapshots:
   '@actions/http-client@4.0.1':
     dependencies:
       tunnel: 0.0.6
-      undici: 6.29.0
+      undici: 6.29.1
 
   '@actions/io@3.0.2': {}
 
@@ -2502,7 +2502,7 @@ snapshots:
       p-filter: 4.1.0
       semantic-release: 25.0.9(supports-color@7.2.0)
       tinyglobby: 0.2.17
-      undici: 7.30.0
+      undici: 7.30.1
       url-join: 5.0.0
     transitivePeerDependencies:
       - kerberos
@@ -2575,42 +2575,22 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
-  '@vitest/browser-preview@5.0.5(vitest@5.0.5)':
+  '@vitest/browser-preview@5.0.5(@voidzero-dev/vite-plus-core@1.4.0)(vitest@5.0.5)':
     dependencies:
       '@testing-library/dom': 10.4.2
       '@testing-library/user-event': 14.6.8(@testing-library/dom@10.4.2)
-      '@vitest/browser': 5.0.5(vitest@5.0.5)
+      '@vitest/browser': 5.0.5(@voidzero-dev/vite-plus-core@1.4.0)(vitest@5.0.5)
       vitest: 5.0.5(@vitest/browser-preview@5.0.5)(@vitest/ui@5.0.5)(@voidzero-dev/vite-plus-core@1.4.0)
     transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@types/node'
-      - '@typescript/native-preview'
-      - '@vitejs/devtools'
-      - '@volar/typescript'
-      - '@vue/language-core'
       - bufferutil
-      - esbuild
-      - jiti
-      - less
       - msw
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - unrun
       - utf-8-validate
-      - vue-tsc
-      - yaml
+      - vite
 
-  '@vitest/browser@5.0.5(vitest@5.0.5)':
+  '@vitest/browser@5.0.5(@voidzero-dev/vite-plus-core@1.4.0)(vitest@5.0.5)':
     dependencies:
       '@blazediff/core': 1.10.0
-      '@vitest/mocker': 5.0.5
+      '@vitest/mocker': 5.0.5(@voidzero-dev/vite-plus-core@1.4.0)
       '@vitest/ui': 5.0.5(vitest@5.0.5)
       '@vitest/utils': 5.0.5
       magic-string: 1.4.5
@@ -2620,60 +2600,19 @@ snapshots:
       vitest: 5.0.5(@vitest/browser-preview@5.0.5)(@vitest/ui@5.0.5)(@voidzero-dev/vite-plus-core@1.4.0)
       ws: 8.22.0
     transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@types/node'
-      - '@typescript/native-preview'
-      - '@vitejs/devtools'
-      - '@volar/typescript'
-      - '@vue/language-core'
       - bufferutil
-      - esbuild
-      - jiti
-      - less
       - msw
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - unrun
       - utf-8-validate
-      - vue-tsc
-      - yaml
+      - vite
 
-  '@vitest/mocker@5.0.5':
+  '@vitest/mocker@5.0.5(@voidzero-dev/vite-plus-core@1.4.0)':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.5
       estree-walker: 3.0.3
       magic-string: 1.4.5
+    optionalDependencies:
       vite: '@voidzero-dev/vite-plus-core@1.4.0'
-    transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@types/node'
-      - '@typescript/native-preview'
-      - '@vitejs/devtools'
-      - '@volar/typescript'
-      - '@vue/language-core'
-      - esbuild
-      - jiti
-      - less
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - unrun
-      - vue-tsc
-      - yaml
 
   '@vitest/pretty-format@5.0.5':
     dependencies:
@@ -3875,9 +3814,9 @@ snapshots:
   uglify-js@3.19.3:
     optional: true
 
-  undici@6.29.0: {}
+  undici@6.29.1: {}
 
-  undici@7.30.0: {}
+  undici@7.30.1: {}
 
   unicode-emoji-modifier-base@1.0.0: {}
 
@@ -3909,9 +3848,9 @@ snapshots:
       '@oxc-project/runtime': 0.155.0
       '@oxc-project/types': 0.155.0
       '@oxlint/plugins': 1.89.0
-      '@vitest/browser': 5.0.5(vitest@5.0.5)
-      '@vitest/browser-preview': 5.0.5(vitest@5.0.5)
-      '@vitest/mocker': 5.0.5
+      '@vitest/browser': 5.0.5(@voidzero-dev/vite-plus-core@1.4.0)(vitest@5.0.5)
+      '@vitest/browser-preview': 5.0.5(@voidzero-dev/vite-plus-core@1.4.0)(vitest@5.0.5)
+      '@vitest/mocker': 5.0.5(@voidzero-dev/vite-plus-core@1.4.0)
       '@vitest/pretty-format': 5.0.5
       '@vitest/snapshot': 5.0.5
       '@vitest/spy': 5.0.5
@@ -3968,7 +3907,7 @@ snapshots:
   vitest@5.0.5(@vitest/browser-preview@5.0.5)(@vitest/ui@5.0.5)(@voidzero-dev/vite-plus-core@1.4.0):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.5
+      '@vitest/mocker': 5.0.5(@voidzero-dev/vite-plus-core@1.4.0)
       chai: 6.3.0
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -3982,30 +3921,10 @@ snapshots:
       vite: '@voidzero-dev/vite-plus-core@1.4.0'
       why-is-node-running: 3.2.1
     optionalDependencies:
-      '@vitest/browser-preview': 5.0.5(vitest@5.0.5)
+      '@vitest/browser-preview': 5.0.5(@voidzero-dev/vite-plus-core@1.4.0)(vitest@5.0.5)
       '@vitest/ui': 5.0.5(vitest@5.0.5)
     transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@typescript/native-preview'
-      - '@vitejs/devtools'
-      - '@volar/typescript'
-      - '@vue/language-core'
-      - esbuild
-      - jiti
-      - less
       - msw
-      - publint
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - unrun
-      - vue-tsc
-      - yaml
 
   web-worker@1.5.0: {}
 
