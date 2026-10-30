@@ -18,3 +18,9 @@ The bundle is written to `patches/build/libs/`. Follow [testing and qualificatio
 ## Branches and releases
 
 Develop on `dev` using semantic commits. See [releases](releasing.md) for branch conventions, generated files and publication.
+
+## References
+
+- [Morphe development setup](https://github.com/MorpheApp/morphe-documentation/blob/main/docs/morphe-development/README.md)
+- [Patcher introduction](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md)
+- [Morphe Desktop CLI](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md)

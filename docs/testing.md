@@ -17,7 +17,7 @@ morphe patch --help
 morphe list-patches --patches patches/build/libs/patches-<version>.mpp --with-packages --with-versions
 ```
 
-Use the original split APKM with Morphe Desktop. Ask the owner to choose an original or clone output package ID before patching. Normal validation uses the default-enabled patches; exclusive single-patch runs are diagnostic only. For unsupported versions `--force` skips compatibility checks; it does not establish support. Use `--validate` to check fingerprint uniqueness and `--verify-with-sdk` for optional SDK verification. Consult the installed CLI help for current options.
+Use the original split APKM with Morphe Desktop. Ask the owner to choose an original or clone output package ID before patching. Normal validation uses the default-enabled patches; exclusive single-patch runs are diagnostic only. For unsupported versions `--force` skips compatibility checks; it does not establish support. Use `--validate` to check fingerprint uniqueness and `--verify-with-sdk` for optional SDK verification. Consult the installed CLI help and the [Morphe Desktop CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md) for current options.
 
 ## Device and regression checks
 
