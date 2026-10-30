@@ -69,6 +69,16 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 <!-- PATCHES_END -->
 
+## 🧑‍💻 Development
+
+- [Setup, build and release](docs/development.md)
+- [Architecture](docs/architecture.md)
+- [APK inspection](docs/recon.md)
+- [Testing and app compatibility](docs/testing.md)
+- [microG Drive support](docs/microg.md)
+
+See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation) for more information.
+
 ## 📜 License
 
 Zeldris Patches are licensed under the [GNU General Public License v3.0](LICENSE).

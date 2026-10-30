@@ -1,8 +1,7 @@
 # Bytecode reference
 
 Smali reading/writing aid, obfuscation survival rules, and fingerprint debugging.
-Companion docs: [fingerprint reference](patch-development.md#fingerprints) (writing fingerprints),
-[reverse engineering workflow](reverse-engineering.md) (finding targets).
+For fingerprint APIs, see the [official Morphe documentation](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/2_2_1_fingerprinting.md).
 
 The [Android bytecode specification](https://source.android.com/docs/core/runtime/dalvik-bytecode)
 is authoritative for opcode semantics, instruction formats, and register limits.
@@ -84,7 +83,7 @@ instruction-preserving injection therefore have different safety contracts.
 
 R8/ProGuard rename app classes, methods, and fields nearly every release — prefer
 stable anchors over those names (see the
-[fingerprint rules](patch-development.md#rules)):
+[official fingerprinting guide](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/2_2_1_fingerprinting.md)):
 
 | Survives | Why | Fingerprint field |
 | -------- | --- | ----------------- |
@@ -107,11 +106,9 @@ Fallbacks for heavy obfuscation: `"L"` as a parameter type (matches any object),
 `classFingerprint` via a stable anchor (`toString` with readable content, e.g. Kotlin
 data-class output), SDK-call-only filters without strings.
 
-Recover real Kotlin names to *find* targets (never to *match* on, except under the
-version-pinned exception in the [fingerprint rules](patch-development.md#rules)):
+Recover real Kotlin names to *find* targets, not as fingerprint evidence:
 builds that retain `@DebugMetadata(c="com.foo.Bar$…")` / `@Metadata(d2={…Lcom/foo/Bar;…})`
-strings can be mapped with `scripts/recover_kotlin_names.py` (see
-[recover Kotlin names](reverse-engineering.md#recover-kotlin-names-for-obfuscated-kotlin-apps)).
+strings may expose useful names.
 Coverage is best-effort and lower when metadata is stripped or encrypted.
 Synthetic deobfuscation only invents names; metadata recovery restores the
 developer-written ones when the metadata survived.
@@ -139,9 +136,8 @@ When a fingerprint stops matching, work through this order:
 Incremental technique: start from `returnType` alone, add access flags, then params,
 then filters one by one until the match is unique — you'll find the lying field fast.
 
-Evidence bar: runtime gates SHOULD have two independent confirmations — a static
-smali quote plus one dynamic observation (see
-[dynamic confirmation](reverse-engineering.md#dynamic-confirmation-for-runtime-gates)).
+Evidence bar: runtime gates should have two independent confirmations — a static
+smali quote plus one dynamic observation (see [testing](testing.md)).
 Pure static gates may ship on smali evidence alone; anything else static-only is
 draft status, not a release patch.
 
