@@ -42,9 +42,7 @@ val hideAdsPatch = bytecodePatch(
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_THREADS)
-    // Coupling note: this resource path must match extensionMpeResourcePath in
-    // patches/build.gradle.kts (Kotlin patch code and the Gradle build script
-    // cannot share a constant across that boundary — change both together).
+    // Keep this path aligned with extensions/extension/build.gradle.kts.
     extendWith("extensions/extension.mpe")
 
     execute {

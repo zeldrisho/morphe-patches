@@ -145,17 +145,23 @@ def main():
             if not count:
                 raise SystemExit(f"❌ No DEX files found in {apk}")
 
-        backup = Path(staging) / "previous"
-        if out.exists():
-            out.rename(backup)
+        # Keep the backup outside staging so even an interrupted cleanup cannot
+        # delete the only copy of the previous output.
+        backup_dir = Path(tempfile.mkdtemp(dir=out.parent, prefix=".extract-smali-backup-"))
+        backup = backup_dir / "previous"
         try:
+            if out.exists():
+                out.rename(backup)
             stage.rename(out)
-        except Exception:
+        except BaseException:
             if backup.exists() and not out.exists():
                 backup.rename(out)
             raise
+        finally:
+            if not backup.exists():
+                backup_dir.rmdir()
         if backup.exists():
-            shutil.rmtree(backup)
+            shutil.rmtree(backup_dir)
     print(
         f"✅ Disassembled {count} DEX file(s) to {out}/ (baksmali; replaced existing output)"
     )

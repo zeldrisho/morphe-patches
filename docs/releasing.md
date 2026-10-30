@@ -6,7 +6,7 @@ In GitHub repository settings, enable **Actions → General → Workflow permiss
 
 ## Branches
 
-- Develop on `dev` using semantic commits. `feat:` and `fix:` create prereleases; `chore:` does not. The configured release rules also cover `bump:` and `perf:`.
+- Develop on `dev` using semantic commits. `feat:` and `fix:` create prereleases; `chore:` does not. The configured patch-release rules also cover `bump:`, `perf:`, and `build(Needs bump):`.
 - Users can select `dev` prereleases by enabling prereleases in their Morphe Manager patch source.
 - When ready for a stable release, merge `dev` into `main` without squashing. Semantic-release publishes from `main` and backmerges to `dev`.
 - Push `dev` to the remote before relying on prereleases, automated pull requests, or the stable-release backmerge.

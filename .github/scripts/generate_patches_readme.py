@@ -13,7 +13,6 @@ python3 generate_patches_readme.py <owner/repo> <branch> [patches-list.json] [RE
 import json
 import re
 import sys
-import os
 from pathlib import Path
 
 
@@ -87,11 +86,6 @@ for patch in data["patches"]:
             by_pkg[key]["patches"][patch["name"]] = patch
 
 
-def anchor(name):
-    """Convert a patch name to a GitHub-compatible anchor slug."""
-    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", name.lower())).strip("-")
-
-
 def patches_table(patches):
     """Render a sorted markdown table of patches with name, description, and options."""
     rows = [
@@ -99,7 +93,6 @@ def patches_table(patches):
         "|----------|----------------|-----------|",
     ]
     for p in sorted(patches, key=lambda x: x["name"]):
-        a = anchor(p["name"])
         options = p.get("options") or []
         if options:
             # Show only option titles as a bullet list
@@ -108,7 +101,7 @@ def patches_table(patches):
         else:
             opts_cell = ""
         desc = (p.get("description") or "").replace("\n", "<br>")
-        rows.append(f"| [{p['name']}](#{a}) | {desc} | {opts_cell} |")
+        rows.append(f"| {p['name']} | {desc} | {opts_cell} |")
     return "\n".join(rows)
 
 
@@ -121,12 +114,14 @@ def versions_table(targets):
         return ""
 
     cells = []
+    descs = []
     for t in targets:
         ver   = t["version"]
         if ver is None:
             continue
         label = f"🧪&nbsp;{ver}" if t.get("isExperimental") else ver
         cells.append(label)
+        descs.append((t.get("description") or "").replace("\n", "<br>"))
 
     if not cells:
         return ""
@@ -136,7 +131,6 @@ def versions_table(targets):
     rows = [header, sep]
 
     # Optional description row — only rendered if at least one target has one
-    descs = [(t.get("description") or "").replace("\n", "<br>") for t in targets]
     if any(descs):
         rows.append("| " + " | ".join(descs) + " |")
 
