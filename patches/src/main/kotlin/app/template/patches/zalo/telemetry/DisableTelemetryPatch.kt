@@ -6,6 +6,7 @@ import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.methodCall
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
+import app.morphe.patcher.util.matchAllMethodIndicesForEach
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.AccessFlags
 import app.template.patches.shared.bytecode.clearBody
@@ -184,9 +185,8 @@ val disableZaloTelemetryPatch = bytecodePatch(
         forceReturnVoid(screen)
         forceReturnVoid(view)
         forceReturnInt(events)
-        val crashHandlerCalls = NativeCrashHandlerInitCall.matchAll(0..Int.MAX_VALUE)
-        crashHandlerCalls.forEach { match ->
-            removeTelemetryCalls(match.method, match.instructionMatches.map { it.index })
+        NativeCrashHandlerInitCall.matchAllMethodIndicesForEach(requireMatches = false) { index ->
+            replaceInstruction(index, "nop")
         }
 
         neutralizeSinks(
