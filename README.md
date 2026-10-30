@@ -10,6 +10,9 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 ## 🩹 Patches list
 
+<details>
+<summary>Show available patches and supported versions</summary>
+
 <!-- PATCHES_START -->
 > **[v1.10.0-dev.2](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.10.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;27 patches total
 <details>
@@ -69,15 +72,13 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 <!-- PATCHES_END -->
 
-## 🧑‍💻 Development
+</details>
 
-- [Setup, build and release](docs/development.md)
-- [Architecture](docs/architecture.md)
-- [APK inspection](docs/recon.md)
-- [Testing and app compatibility](docs/testing.md)
-- [microG Drive support](docs/microg.md)
+## Help
 
-See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation) for more information.
+- [Zalo Google Drive and microG-RE](docs/microg.md)
+- [Morphe documentation](https://github.com/MorpheApp/morphe-documentation)
+- [Report a bug or request a feature](https://github.com/zeldrisho/morphe-patches/issues/new/choose)
 
 ## 📜 License
 

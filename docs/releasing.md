@@ -1,10 +1,13 @@
 # Releases
 
-Releases are managed by [semantic-release](../.releaserc) in the existing [release workflow](../.github/workflows/release.yml). Do not publish assets by hand, create replacement release scripts, move tags, or force-push release commits.
+Releases follow the [Morphe patches template](https://github.com/MorpheApp/morphe-patches-template/blob/main/README.md) and are managed by [semantic-release](../.releaserc) in the existing [release workflow](../.github/workflows/release.yml). Do not publish assets by hand, create replacement release scripts, move tags, or force-push release commits.
+
+In GitHub repository settings, enable **Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests** for the automated release PR.
 
 ## Branches
 
 - Develop on `dev` using semantic commits. `feat:` and `fix:` create prereleases; `chore:` does not. The configured release rules also cover `bump:` and `perf:`.
+- Users can select `dev` prereleases by enabling prereleases in their Morphe Manager patch source.
 - When ready for a stable release, merge `dev` into `main` without squashing. Semantic-release publishes from `main` and backmerges to `dev`.
 - Push `dev` to the remote before relying on prereleases, automated pull requests, or the stable-release backmerge.
 
