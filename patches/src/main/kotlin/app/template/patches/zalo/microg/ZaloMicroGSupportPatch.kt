@@ -174,10 +174,8 @@ internal fun validateMicroGReplacementCounts(
 @Suppress("unused")
 val zaloMicroGSupportPatch = bytecodePatch(
     name = "microG Drive support",
-    description = "Adds Zalo launch/provider checks and redirects Google Drive account " +
-        "selection and token binding to microG-RE (app.revanced / " +
-        "app.revanced.android.gms). Preserves the clone's actual caller identity; " +
-        "MicroG manifest metadata supplies the upstream Zalo identity.",
+    description = "Uses microG-RE for Google Drive account selection and sign-in. " +
+        "Requires app.revanced.android.gms and the app.revanced account type.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

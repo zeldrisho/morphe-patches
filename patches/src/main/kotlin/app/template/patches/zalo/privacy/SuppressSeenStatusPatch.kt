@@ -18,7 +18,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val suppressZaloSeenStatusPatch = bytecodePatch(
     name = "Suppress outbound seen status",
-    description = "Prevents others from seeing when you read their messages while keeping incoming seen-status display enabled; delivery acknowledgements and message transport are unchanged.",
+    description = "Stops sending read receipts. Incoming read status and message delivery are unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

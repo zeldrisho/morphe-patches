@@ -17,9 +17,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val removeZaloAdIdPatch = resourcePatch(
     name = "Remove AD_ID permission",
-    description = "Removes the advertising-id (AD_ID) permissions from Zalo so the device " +
-        "advertising id cannot be read for ad tracking. In-app readers fall back " +
-        "to \"unknown\"; core messaging is unaffected.",
+    description = "Removes Zalo's advertising ID permissions. Messaging is unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

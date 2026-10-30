@@ -7,8 +7,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_THREADS
 @Suppress("unused")
 val changeAppNamePatch = resourcePatch(
     name = "Change app name",
-    description = "Opt-in customization: changes the app name shown under the launcher icon. " +
-        "Set the desired name in the patch options.",
+    description = "Changes the app name shown in the launcher.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_THREADS)

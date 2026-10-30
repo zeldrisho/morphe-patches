@@ -18,7 +18,8 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val enableZaloAvatarSavingPatch = bytecodePatch(
     name = "Enable avatar saving",
-    description = "Restores the “Save photo” action for avatars opened from a profile and allows screenshots. Other Zalo screenshot protections are unchanged.",
+    description = "Restores Save photo for avatars opened from a profile and allows screenshots. " +
+        "Other screenshot protections are unchanged.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

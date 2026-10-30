@@ -17,7 +17,8 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val enableZaloProfileCoverSavingPatch = bytecodePatch(
     name = "Enable profile cover saving",
-    description = "Restores the “Save photo” action and allows screenshots for profile cover photos. Other viewer entry points are unchanged.",
+    description = "Restores Save photo for profile cover photos and allows screenshots. " +
+        "Other viewers are unchanged.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

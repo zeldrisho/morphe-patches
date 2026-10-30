@@ -187,8 +187,7 @@ internal fun bypassDriveContactsPermissionGate(classType: String, method: Mutabl
 @Suppress("unused")
 val zaloDriveContactsPermissionBypassPatch = bytecodePatch(
     name = "Bypass Zalo Drive Contacts permission gate",
-    description = "Uses Android's account picker for Drive photo restore without requesting Contacts/account-list " +
-        "permission. Contacts remain protected by Android and are not read by this bypass.",
+    description = "Allows Drive photo restore account selection without Contacts permission.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

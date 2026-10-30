@@ -74,9 +74,8 @@ private val packageNameOption = stringOption(
 
 private val changeZaloPackageNameResourcesPatch = resourcePatch(
     name = "Change Zalo package name resources",
-    description = "Changes Zalo's package name so a clone can be installed beside stock Zalo. " +
-        "Google Drive sign-in with the microG Drive support patch works for the renamed clone; " +
-        "other package- and certificate-bound login, push, sharing, and deep links may be affected.",
+    description = "Allows a renamed clone alongside Zalo. Login, push, sharing and deep links " +
+        "may be affected.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)
@@ -93,10 +92,8 @@ private val changeZaloPackageNameResourcesPatch = resourcePatch(
 @Suppress("unused")
 val changeZaloPackageNamePatch = bytecodePatch(
     name = "Change Zalo package name",
-    description = "Changes Zalo's package name so a clone can be installed beside stock Zalo, " +
-        "including package-owned provider references used after login. Google Drive sign-in " +
-        "with the microG Drive support patch works for the renamed clone; other package- and " +
-        "certificate-bound login, push, sharing, and deep links may be affected.",
+    description = "Allows a renamed clone alongside Zalo. Login, push, sharing and deep links " +
+        "may be affected.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

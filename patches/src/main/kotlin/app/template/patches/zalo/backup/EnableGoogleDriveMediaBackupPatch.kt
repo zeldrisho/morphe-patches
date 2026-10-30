@@ -101,9 +101,8 @@ internal fun forceMediaBackupEligible(method: app.morphe.patcher.util.proxy.muta
 @Suppress("unused")
 val enableZaloGoogleDriveMediaBackupPatch = bytecodePatch(
     name = "Enable Google Drive photo backup",
-    description = "Forces Zalo's media-backup feature flag on and bypasses its local Drive-account " +
-        "eligibility check to expose the existing photo-backup option. This optional patch does not " +
-        "bypass Google authorization, server retention, encryption, or media exclusions.",
+    description = "Makes Zalo's Google Drive photo backup available to more accounts. " +
+        "Google authorization and Drive retention still apply.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

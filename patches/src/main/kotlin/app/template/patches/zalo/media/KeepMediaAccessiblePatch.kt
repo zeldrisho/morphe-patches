@@ -22,9 +22,8 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val keepZaloMediaAccessiblePatch = bytecodePatch(
     name = "Keep expired media accessible",
-    description = "Keeps locally stored large chat media usable after Zalo's " +
-        "client-side expiry window by bypassing the expired/subscription state. " +
-        "It does not restore missing files or bypass server download authorization.",
+    description = "Keeps locally stored large chat media accessible after expiry. " +
+        "Missing files and server restrictions are unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

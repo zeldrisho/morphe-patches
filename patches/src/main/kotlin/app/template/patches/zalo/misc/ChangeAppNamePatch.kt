@@ -7,8 +7,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val changeZaloAppNamePatch = resourcePatch(
     name = "Change Zalo app name",
-    description = "Changes the name shown for Zalo under the launcher icon. Set the desired " +
-        "name in the patch options.",
+    description = "Changes the app name shown in the launcher.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

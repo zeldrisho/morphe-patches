@@ -30,10 +30,8 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val filterZaloPromoNotificationsPatch = bytecodePatch(
     name = "Filter promo notifications",
-    description = "Skips Zalo Timeline/Stories and Zalo Video push notifications " +
-        "(like/comment digests, new feeds/stories, video reminders) in the push dispatcher. " +
-        "Message, call, friend-request and birthday notifications are untouched; " +
-        "reaction/activity pushes on other channels may remain.",
+    description = "Filters Timeline, Stories and Zalo Video notifications. Message, call, " +
+        "friend-request and birthday notifications are unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

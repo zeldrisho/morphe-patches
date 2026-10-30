@@ -17,7 +17,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val suppressZaloTypingStatusPatch = bytecodePatch(
     name = "Suppress outbound typing status",
-    description = "Stops Zalo from sending typing indicators. Incoming status rendering and messages remain unchanged.",
+    description = "Stops sending typing indicators. Incoming typing status is unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

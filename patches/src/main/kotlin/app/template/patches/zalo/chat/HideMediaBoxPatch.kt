@@ -16,7 +16,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val hideZaloMediaBoxPatch = bytecodePatch(
     name = "Hide Media Box",
-    description = "Hides Zalo's Media Box row from the conversation list; Media Box content and data are not deleted.",
+    description = "Hides Media Box from the chat list without deleting its content.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

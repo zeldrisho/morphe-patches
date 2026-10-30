@@ -16,8 +16,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_THREADS
 @Suppress("unused")
 val removeAdIdPatch = resourcePatch(
     name = "Remove AD_ID permission",
-    description = "Removes the advertising-id (AD_ID) permissions so the device advertising id " +
-        "cannot be read for ad tracking. Does not disable Meta's core analytics.",
+    description = "Removes advertising ID permissions. Meta's own analytics are unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_THREADS)

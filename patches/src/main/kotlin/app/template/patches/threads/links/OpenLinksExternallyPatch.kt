@@ -7,7 +7,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_THREADS
 @Suppress("unused")
 val openLinksExternallyPatch = bytecodePatch(
     name = "Open links externally",
-    description = "Opens HTTP(S) links in an external app when one can handle them; otherwise keeps Threads' normal link handling.",
+    description = "Opens web links externally when possible; otherwise Threads handles them normally.",
 ) {
     compatibleWith(COMPATIBILITY_THREADS)
     extendWith("extensions/extension.mpe")

@@ -207,8 +207,8 @@ private fun invokeRegisterAt(instruction: com.android.tools.smali.dexlib2.iface.
 @Suppress("unused")
 val configurableZaloBackupIntervalPatch = bytecodePatch(
     name = "Configurable native backup interval",
-    description = "Overrides only Zalo's native auto-backup interval (1, 3, 6, or 12 hours). " +
-        "Native opt-in, account, network, and backup guards remain in place.",
+    description = "Sets Zalo's automatic backup interval to 1, 3, 6 or 12 hours. " +
+        "Existing backup requirements still apply.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

@@ -28,8 +28,7 @@ private const val HEX_RADIX = 16
 @Suppress("unused")
 val bypassZaloNativeStartupTamperPatch = rawResourcePatch(
     name = "Bypass native startup tamper check",
-    description = "Preserves native key initialization and NOPs only the JNI System.exit " +
-        "dispatch in the pinned arm64 26.08.01 build.",
+    description = "Allows the re-signed app to start on the supported arm64 Zalo build.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

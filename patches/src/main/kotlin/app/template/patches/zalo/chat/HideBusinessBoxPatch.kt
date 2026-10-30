@@ -23,8 +23,8 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val hideZaloBusinessBoxPatch = bytecodePatch(
     name = "Hide Business Box",
-    description = "Removes Zalo's Business Box service entry from the main chat list " +
-        "without filtering ordinary conversations or user-initiated Official Account chats.",
+    description = "Hides Business Box from the chat list without hiding ordinary or " +
+        "user-initiated Official Account chats.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

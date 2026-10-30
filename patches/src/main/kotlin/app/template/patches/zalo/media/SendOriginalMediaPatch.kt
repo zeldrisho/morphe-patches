@@ -84,8 +84,7 @@ internal fun forcePickerQualityArgument(method: app.morphe.patcher.util.proxy.mu
 @Suppress("unused")
 val sendZaloOriginalMediaPatch = bytecodePatch(
     name = "Prefer original photo quality",
-    description = "Enables Zalo's existing original-quality photo path by default. " +
-        "It does not change server upload limits, account restrictions, or video handling.",
+    description = "Enables original photo quality by default. Upload limits and video are unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

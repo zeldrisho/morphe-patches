@@ -29,9 +29,8 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val disableZaloAdsPatch = bytecodePatch(
     name = "Disable ads",
-    description = "Disables Zalo offline/Google ad networks (forces the Adtima offline gates " +
-        "closed, always drops admob/dfp/ima, and reports limit-ad-tracking opted-out). " +
-        "Sponsored Story/community placements need the companion patch.",
+    description = "Blocks selected offline and Google-served ads. Story and community " +
+        "sponsored placements require a separate patch.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)
@@ -66,8 +65,8 @@ val disableZaloAdsPatch = bytecodePatch(
 @Suppress("unused")
 val disableZaloSponsoredPatch = bytecodePatch(
     name = "Disable sponsored placements",
-    description = "Forces Zalo Story/community ad-enable flags to off at their config " +
-        "reads (normal content path kept). Server-stitched or OA-message promos may remain.",
+    description = "Disables Story and community sponsored placements. Server-delivered and " +
+        "Official Account promotions may remain.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

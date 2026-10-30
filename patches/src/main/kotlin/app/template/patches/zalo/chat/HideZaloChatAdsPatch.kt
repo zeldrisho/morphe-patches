@@ -14,7 +14,7 @@ import app.template.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val hideZaloChatListAdsPatch = bytecodePatch(
     name = "Hide chat list ads",
-    description = "Removes dedicated Zinstant ad cards from the message list. Server-inserted promotions or other ad surfaces may remain.",
+    description = "Removes ad cards from the chat list. Server-delivered promotions and other ads may remain.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

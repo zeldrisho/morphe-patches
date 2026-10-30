@@ -8,9 +8,7 @@ import org.w3c.dom.Element
 @Suppress("unused")
 val changePackageNamePatch = resourcePatch(
     name = "Change package name",
-    description = "Changes the app package name so the patched app installs alongside the " +
-        "original. Set the desired name in the patch options. WARNING: hardcoded component/provider " +
-        "references can break login, content providers, or push. Disable this patch if needed.",
+    description = "Allows a renamed clone alongside Threads. Login, content providers or push may break.",
     // Off by default: renaming breaks package+cert-bound flows (web-OAuth/App-Links/Google
     // sign-in, providers, push). Opt in only if you need side-by-side install; see
     // docs/testing.md for package and signing checks.

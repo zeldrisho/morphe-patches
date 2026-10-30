@@ -38,8 +38,8 @@ internal fun clearAgeResult(method: MutableMethod) {
 @Suppress("unused")
 val removeZaloMediaBackupAgeLimitPatch = bytecodePatch(
     name = "Remove media backup age limit",
-    description = "Includes media of any age in Zalo's existing Google Drive " +
-        "backup/restore pipeline. It does not bypass Drive retention or media exclusions.",
+    description = "Includes media of any age in Zalo's Google Drive backup. Drive retention " +
+        "and excluded media still apply.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

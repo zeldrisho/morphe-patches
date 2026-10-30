@@ -161,9 +161,7 @@ private val disableCrashlyticsManifestPatch = resourcePatch {
 @Suppress("unused")
 val disableZaloTelemetryPatch = bytecodePatch(
     name = "Disable telemetry and crash reporting",
-    description = "Stops Zalo's first-party analytics records and diagnostic crash data by " +
-        "suppressing its Room analytics writes, Firebase Crashlytics logs/keys, and native " +
-        "crash-handler registration. Messaging, sockets, and database initialization remain intact.",
+    description = "Stops selected Zalo analytics and crash reporting. Messaging is unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)

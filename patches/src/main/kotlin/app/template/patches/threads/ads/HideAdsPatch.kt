@@ -38,9 +38,7 @@ private const val FEED_FILTER_SCRATCH_REGISTER_COUNT = 6
 @Suppress("unused")
 val hideAdsPatch = bytecodePatch(
     name = "Hide ads",
-    description = "Removes sponsored posts from the Threads feed by filtering ad feed units " +
-        "(detected via Media.DED/DGK) out of the list merged into the feed cache, before they can " +
-        "render. Feed-scoped; other surfaces (clips/reels) are not affected.",
+    description = "Removes sponsored posts from the Threads feed. Other surfaces are unaffected.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_THREADS)
