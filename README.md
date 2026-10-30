@@ -10,14 +10,9 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 
 ## 🩹 Patches list
 
-<details>
-<summary>Show available patches and supported versions</summary>
-
 <!-- PATCHES_START -->
-> **[v1.10.0](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.10.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;28 patches total
-<details>
-<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;23 patches</summary>
-<br>
+> **[v1.10.0](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.10.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;28 patches total
+### 📦 Zalo • 23 patches
 
 **🎯 Supported versions:**
 
@@ -50,11 +45,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 | Suppress outbound typing status | Stops sending typing indicators. Incoming typing status is unaffected. |  |
 | microG Drive support | Uses microG-RE for Google Drive account selection and sign-in. Requires app.revanced.android.gms and the app.revanced account type. |  |
 
-</details>
-
-<details>
-<summary>📦 Threads&nbsp;&nbsp;•&nbsp;&nbsp;5 patches</summary>
-<br>
+### 📦 Threads • 5 patches
 
 **🎯 Supported versions:**
 
@@ -69,11 +60,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 | Open links externally | Opens web links externally when possible; otherwise Threads handles them normally. |  |
 | Remove AD_ID permission | Removes advertising ID permissions. Meta's own analytics are unaffected. |  |
 
-</details>
-
 <!-- PATCHES_END -->
-
-</details>
 
 ## Help
 

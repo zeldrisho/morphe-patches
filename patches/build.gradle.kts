@@ -2,7 +2,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.ZipFile
 
-group = "com.zeldrisho.patches"
+group = "app.zeldrisho.patches"
 
 // DEX class_defs refer to type_ids, which refer to string_ids. Checking only
 // string presence would also accept a missing class referenced by another class.
@@ -75,9 +75,9 @@ tasks {
                 }
                 val classes = definedDexClasses(zip.getInputStream(entry).use { it.readBytes() })
                 val required = setOf(
-                    "Lcom/zeldrisho/threads/extension/FeedAdFilter;",
-                    "Lcom/zeldrisho/threads/extension/OpenLinksExternally;",
-                    "Lcom/zeldrisho/zalo/extension/ZaloMicroGSupport;",
+                    "Lapp/zeldrisho/threads/extension/FeedAdFilter;",
+                    "Lapp/zeldrisho/threads/extension/OpenLinksExternally;",
+                    "Lapp/zeldrisho/zalo/extension/ZaloMicroGSupport;",
                 )
                 val missing = required - classes
                 check(missing.isEmpty()) { "Patch bundle extension is missing classes: $missing" }
