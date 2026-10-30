@@ -1,3 +1,9 @@
+## [1.10.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0-dev.1...v1.10.0-dev.2) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* **deps:** pin handlebars to 4.7.10 ([6cb203c](https://github.com/zeldrisho/morphe-patches/commit/6cb203cce9da410288aea39c6d12fdce19f2d4e7))
+
 ## [1.10.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.9.0...v1.10.0-dev.1) (2026-10-30)
 
 ### ✨ New Features
