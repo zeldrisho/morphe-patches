@@ -1,3 +1,13 @@
+## [1.10.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0-dev.2...v1.10.0-dev.3) (2026-10-30)
+
+### 🐛 Bug Fixes
+
+* **zalo:** remove all matching native crash handler calls ([37bbb6a](https://github.com/zeldrisho/morphe-patches/commit/37bbb6ace5dc0a3847a543a35909e478d2743554))
+
+### ✨ New Features
+
+* **zalo:** allow stranger box notifications ([90301d1](https://github.com/zeldrisho/morphe-patches/commit/90301d176e5b2c770a6fce7faa287da2d52cea6b))
+
 ## [1.10.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0-dev.1...v1.10.0-dev.2) (2026-10-30)
 
 ### 🐛 Bug Fixes

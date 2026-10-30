@@ -14,9 +14,9 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 <summary>Show available patches and supported versions</summary>
 
 <!-- PATCHES_START -->
-> **[v1.10.0-dev.2](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.10.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;27 patches total
+> **[v1.10.0-dev.3](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.10.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;28 patches total
 <details>
-<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;22 patches</summary>
+<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;23 patches</summary>
 <br>
 
 **🎯 Supported versions:**
@@ -37,6 +37,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 | [Enable Google Drive photo backup](#enable-google-drive-photo-backup) | Makes Zalo's Google Drive photo backup available to more accounts. Google authorization and Drive retention still apply. |  |
 | [Enable avatar saving](#enable-avatar-saving) | Restores Save photo for avatars opened from a profile and allows screenshots. Other screenshot protections are unchanged. |  |
 | [Enable profile cover saving](#enable-profile-cover-saving) | Restores Save photo for profile cover photos and allows screenshots. Other viewers are unchanged. |  |
+| [Enable stranger notifications](#enable-stranger-notifications) | Allows notifications for Stranger Box messages. Other notification settings, message delivery and server restrictions still apply. |  |
 | [Filter promo notifications](#filter-promo-notifications) | Filters Timeline, Stories and Zalo Video notifications. Message, call, friend-request and birthday notifications are unaffected. |  |
 | [Hide Business Box](#hide-business-box) | Hides Business Box from the chat list without hiding ordinary or user-initiated Official Account chats. |  |
 | [Hide Media Box](#hide-media-box) | Hides Media Box from the chat list without deleting its content. |  |
