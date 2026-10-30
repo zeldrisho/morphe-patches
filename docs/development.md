@@ -1,22 +1,13 @@
 # Development
 
-## Setup
+## Prerequisites
 
-Use JDK 21, an Android SDK with accepted licenses, and the checked-in Gradle wrapper. Set `ANDROID_HOME` to the SDK; Gradle can install missing SDK packages. See the [official Morphe setup guide](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/2_1_setup.md).
-
-GitHub Packages requires a classic personal access token with `read:packages`. Put unquoted `gpr.user` and `gpr.key` values in `~/.gradle/gradle.properties`, or set `GITHUB_ACTOR` and `GITHUB_TOKEN`. Never put credentials in this repository.
-
-Install [Vite+](https://viteplus.dev/) and the release dependencies:
-
-```bash
-vp install --frozen-lockfile
-```
-
-Vite+ selects pnpm from `pnpm-lock.yaml`; Gradle builds the patch bundle.
+JDK 21, an Android SDK with accepted licenses, the checked-in Gradle wrapper, and Vite+ with `vp` on `PATH`. The Morphe plugin resolves from GitHub Packages with the credentials already configured in `~/.gradle/gradle.properties` as unquoted `gpr.user` and `gpr.key`; never commit them.
 
 ## Build and validate
 
 ```bash
+vp install --frozen-lockfile
 ./gradlew :patches:buildAndroid --no-daemon
 morphe --help
 morphe list-patches --patches patches/build/libs/patches-<version>.mpp --with-packages --with-versions

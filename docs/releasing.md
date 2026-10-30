@@ -6,9 +6,9 @@ Releases are managed by [semantic-release](../.releaserc) in the existing [relea
 
 - Develop on `dev` using semantic commits. `feat:` and `fix:` create prereleases; `chore:` does not. The configured release rules also cover `bump:` and `perf:`.
 - When ready for a stable release, merge `dev` into `main` without squashing. Semantic-release publishes from `main` and backmerges to `dev`.
-- Push `dev` to the remote before relying on prereleases, automated pull requests, or the stable-release backmerge. Enable “Allow GitHub Actions to create and approve pull requests” in repository Actions settings for the [automated PR workflow](../.github/workflows/open_pull_request.yml).
+- Push `dev` to the remote before relying on prereleases, automated pull requests, or the stable-release backmerge.
 
-Before a release, build and apply the bundle to the intended app versions as described in [testing](testing.md). A successful CI build alone is not compatibility validation. The release workflow and first release after migration still require validation on GitHub. Migration commits marked only `chore:` do not trigger publication; use an appropriate release-triggering semantic commit when the migration is ready.
+Before a release, build and apply the bundle to the intended app versions as described in [testing](testing.md). A successful CI build alone is not compatibility validation.
 
 ## Changelog policy
 
