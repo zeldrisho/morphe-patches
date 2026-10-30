@@ -68,6 +68,20 @@ object Constants {
      * see analysis/com.zing.zalo/26.10.02/notes/. */
     const val TESTED_ZALO_VERSION_CODE_261002 = 261002903
 
+    val COMPATIBILITY_ZALO_261002 = Compatibility(
+        name = "Zalo",
+        packageName = "com.zing.zalo",
+        apkFileType = ApkFileType.APKM,
+        appIconColor = 0x0068FF,
+        targets = listOf(
+            AppTarget(
+                version = "26.10.02",
+                versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE_261002),
+                minSdk = 24,
+            ),
+        ),
+    )
+
     val COMPATIBILITY_ZALO = Compatibility(
         name = "Zalo",
         packageName = "com.zing.zalo",
