@@ -21,6 +21,11 @@ object Constants {
     /** Third tested build: 449.0.0.54.82 / versionCode 511908382 (APKMirror). */
     const val TESTED_VERSION_CODE_449 = 511908382
 
+    /** Fourth tested build: 453.0.0.56.79 / versionCode 512308696 (APKMirror).
+     * Feed reflection members moved to Media.DVT, ThreadIntf.D0S and
+     * ThreadItemIntf.CSU; see FeedReflectionContract. */
+    const val TESTED_VERSION_CODE_453 = 512308696
+
     // Threads (Meta codename "Barcelona") is built from the Instagram codebase and is heavily
     // R8-obfuscated. Obfuscated class/method names shift on nearly every Meta release, so a
     // null ("any") version is NOT realistic here (and the Morphe Manager cannot parse a null
@@ -47,12 +52,17 @@ object Constants {
                 version = "449.0.0.54.82",
                 minSdk = 28,
             ),
+            AppTarget(
+                version = "453.0.0.56.79",
+                minSdk = 28,
+            ),
         ),
     )
     /** Zalo 26.08.01 (versionCode 260801903, APKMirror arm64-v8a) fingerprint target.
      * Obfuscated members (Lvx/s2, Ljt classes, synthetic A6) are pinned to this exact
      * version; re-verify smali per update. See analysis/zalo/26.08.01/notes/. */
     const val TESTED_ZALO_VERSION_CODE = 260801903
+
 
     val COMPATIBILITY_ZALO = Compatibility(
         name = "Zalo",
