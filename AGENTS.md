@@ -18,7 +18,7 @@
 
 ## Rules
 
-- Before implementing patches, check the [Morphe Patcher documentation index](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/README.md) and [Morphe development guide](https://github.com/MorpheApp/morphe-documentation/blob/main/docs/morphe-development/README.md); read the relevant linked sections for the task.
+- Before implementing patches, check the [Morphe Patcher documentation index](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/README.md); read the relevant linked sections for the task.
 - Verify patch targets against the exact input's smali before implementation; follow `docs/template.md`.
 - Validate patch changes with Morphe Desktop against the intended app version; record fingerprint, application, installation and behavior separately, marking unavailable checks BLOCKED. See `docs/testing.md`.
 - Keep APK inputs, smali, notes, and diagnostic outputs under ignored `analysis/<package>/<version>/`; preserve existing evidence and never commit private artifacts.
