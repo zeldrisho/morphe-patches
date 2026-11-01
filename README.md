@@ -11,7 +11,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.11.0-dev.3](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;31 patches total
+> **[v1.11.0-dev.4](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.4)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;31 patches total
 ### 📦 Zalo • 25 patches
 
 **🎯 Supported versions:**

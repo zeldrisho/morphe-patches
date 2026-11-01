@@ -1,3 +1,9 @@
+## [1.11.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.3...v1.11.0-dev.4) (2026-11-01)
+
+### 🐛 Bug Fixes
+
+* **zalo:** resolve the version-specific Drive account refresh method ([d23cd9b](https://github.com/zeldrisho/morphe-patches/commit/d23cd9bae5252b732da7528051a5b69c110dde9f))
+
 ## [1.11.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.2...v1.11.0-dev.3) (2026-11-01)
 
 ### 🐛 Bug Fixes
