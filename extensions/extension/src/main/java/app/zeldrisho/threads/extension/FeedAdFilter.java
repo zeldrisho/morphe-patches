@@ -15,7 +15,7 @@ import java.util.List;
  * names are embedded in this extension. The previous "Hide ads" patch forced the predicate false,
  * which stripped sponsored labels while leaving the ad post in the feed.
  *
- * <p>{@link #filterAds(List)} is called from the "Hide ads" bytecode patch at the top of the
+ * <p>{@code filterAds} is called from the "Hide ads" bytecode patch at the top of the
  * BarcelonaFeedCache merge method; it returns the input list without ad units, and the patch
  * replaces the feed-list reference with the result, so sponsored posts never reach the visible feed
  * (gap-free, cache stays clean).
@@ -49,8 +49,9 @@ public final class FeedAdFilter {
    * Returns {@code items} without units whose resolved predicate identifies sponsored media. A null
    * input stays null, and the original list instance is returned when no ad is removed or scanning
    * throws, so immutable inputs are safe.
+   *
+   * <p>All host-obfuscated accessors are resolved from the matched APK at patch time.
    */
-  /** All host-obfuscated accessors are resolved from the matched APK at patch time. */
   public static List<?> filterAds(
       List<?> items,
       String mediaPredicateName,
