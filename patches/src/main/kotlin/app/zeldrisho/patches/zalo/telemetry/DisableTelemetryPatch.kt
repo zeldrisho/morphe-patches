@@ -208,19 +208,9 @@ val disableZaloTelemetryPatch = bytecodePatch(
     }
 }
 
-/** Replaces the selected telemetry instructions with NOPs, preserving their list positions. */
-internal fun removeTelemetryCalls(method: MutableMethod, instructionIndexes: List<Int>) {
-    instructionIndexes.forEach { method.replaceInstruction(it, "nop") }
-}
-
 /** Replaces every supplied void telemetry sink body with an immediate return. */
 internal fun neutralizeSinks(methods: Iterable<MutableMethod>) {
     methods.forEach(::forceReturnVoid)
-}
-
-/** Replaces the selected native crash-handler registration instruction with a NOP. */
-internal fun disableNativeCrashHandler(method: MutableMethod, instructionIndex: Int) {
-    removeTelemetryCalls(method, listOf(instructionIndex))
 }
 
 /** Clears the method body and try blocks, then emits a single void return. */
