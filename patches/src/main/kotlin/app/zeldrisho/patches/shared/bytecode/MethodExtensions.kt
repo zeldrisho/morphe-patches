@@ -8,6 +8,22 @@ import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
 
 /**
+ * Marks helpers that discard or resize an entire method body.
+ *
+ * Such helpers invalidate every existing instruction, label and try range, so they are only valid
+ * for full-body replacement. Opting in is an explicit acknowledgement that the caller is not
+ * preserving the original instructions.
+ */
+@RequiresOptIn(
+    message = "Whole-body replacement discards existing instructions and try blocks; " +
+        "use only when replacing the complete method body.",
+    level = RequiresOptIn.Level.ERROR,
+)
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FUNCTION)
+annotation class WholeBodyReplacement
+
+/**
  * Wipe the method body in place: drops every instruction AND every try/catch
  * range. Required before replacing a method body via addInstructions() when the
  * original method has try-blocks — leaving the try table pointing at removed
@@ -30,6 +46,7 @@ import java.lang.reflect.ParameterizedType
  * The cleanup is implemented locally against Morphe's mutable-method API so patches can
  * safely no-op methods with try-blocks. Re-check its reflective dexlib2 layout when changing it.
  */
+@WholeBodyReplacement
 fun MutableMethod.clearBody() {
     val impl = implementation ?: return
     val field = tryBlocksField
@@ -76,6 +93,7 @@ private val tryBlocksField: Field? = run {
  * Implemented via reflection on the private field — survives dexlib2/morphe
  * internal renames as long as the field type remains `int`.
  */
+@WholeBodyReplacement
 fun MutableMethod.ensureRegisters(needed: Int) {
     val impl = implementation ?: return
     if (impl.registerCount >= needed) return

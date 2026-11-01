@@ -1,3 +1,5 @@
+@file:OptIn(app.zeldrisho.patches.shared.bytecode.WholeBodyReplacement::class)
+
 package app.zeldrisho.patches.zalo.ads
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
