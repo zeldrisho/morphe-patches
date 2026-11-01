@@ -22,8 +22,9 @@ private const val HEX_RADIX = 16
  * suppressing the JNI CallStaticVoidMethodV that dispatches
  * java/lang/System.exit(I)V.
  *
- * This is intentionally pinned to Zalo 26.08.01 and the arm64 native library.
- * Both instruction sites are checked so a changed native binary fails closed.
+ * The byte signatures are pinned to the arm64 native library shipped by the advertised targets
+ * (26.08.01 and 26.10.02). Every instruction site is checked before mutation, so a changed native
+ * binary fails closed; re-verify a new target before adding it to the compatibility list.
  */
 @Suppress("unused")
 val bypassZaloNativeStartupTamperPatch = rawResourcePatch(
