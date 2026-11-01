@@ -58,6 +58,19 @@ object Constants {
             ),
         ),
     )
+    /** Exact APKM used to inspect the 453 suggested-user cache path. */
+    val COMPATIBILITY_THREADS_453_APKM = Compatibility(
+        name = "Threads",
+        packageName = "com.instagram.barcelona",
+        apkFileType = ApkFileType.APKM,
+        appIconColor = 0x000000,
+        targets = listOf(AppTarget(
+            version = "453.0.0.56.79",
+            versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_VERSION_CODE_453),
+            minSdk = 28,
+        )),
+    )
+
     /** Zalo 26.08.01 (versionCode 260801903, APKMirror arm64-v8a) fingerprint target.
      * Obfuscated members (Lvx/s2, Ljt classes, synthetic A6) are pinned to this exact
      * version; re-verify smali per update. See analysis/zalo/26.08.01/notes/. */
