@@ -23,14 +23,12 @@ val enableZaloAvatarSavingPatch = bytecodePatch(
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)
-
     execute {
         val matches = AvatarScreenshotPolicy.matchAll(0..1) + AvatarScreenshotPolicy261002.matchAll(0..1)
         check(matches.size == 1) { "Expected exactly one avatar screenshot policy" }
         val match = matches.single()
         val instruction = match.instructionMatches.single { it.instruction.opcode == Opcode.XOR_INT_2ADDR }
-        val register = (instruction.instruction as TwoRegisterInstruction).registerA
-        allowAvatarScreenshots(match.method, instruction.index, register)
+        allowAvatarScreenshots(match.method, instruction.index, (instruction.instruction as TwoRegisterInstruction).registerA)
     }
 }
 

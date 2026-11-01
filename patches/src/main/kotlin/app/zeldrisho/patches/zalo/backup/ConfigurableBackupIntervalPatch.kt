@@ -11,7 +11,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.RegisterRangeInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
-import app.zeldrisho.patches.shared.Constants.COMPATIBILITY_ZALO
+import app.zeldrisho.patches.shared.Constants.COMPATIBILITY_ZALO_260801
 
 private const val INTERVAL_KEY = "SERVER_CONFIG_SYNC_MESSAGE_INTERVAL_"
 private const val INTERVAL_GETTER = "Lu40/p0;->Y(JZLjava/lang/String;)J"
@@ -32,6 +32,13 @@ private val intervalHours = setOf("1", "3", "6", "12")
  */
 internal fun overrideBackupInterval(method: MutableMethod, hours: String, version261002: Boolean = false) {
     require(hours in intervalHours) { "Backup interval must be one of 1, 3, 6, or 12 hours" }
+    val (resultIndex, register) = locateBackupInterval(method, version261002)
+    val millis = hours.toLong() * 3_600_000L
+    method.replaceInstruction(resultIndex, "const-wide/32 v$register, $millis")
+}
+
+/** Validates the exact account-specific getter and returns its wide result index and register. */
+internal fun locateBackupInterval(method: MutableMethod, version261002: Boolean): Pair<Int, Int> {
     val instructions = method.implementation?.instructions?.toList()
         ?: error("Zalo backup interval: scheduler has no implementation")
     val getter = if (version261002) "Lp60/p0;->m(JZLjava/lang/String;)J" else INTERVAL_GETTER
@@ -47,8 +54,7 @@ internal fun overrideBackupInterval(method: MutableMethod, hours: String, versio
     }
     val register = (instructions[resultIndex] as? OneRegisterInstruction)?.registerA
         ?: error("Zalo backup interval: result register not found")
-    val millis = hours.toLong() * 3_600_000L
-    method.replaceInstruction(resultIndex, "const-wide/32 v$register, $millis")
+    return resultIndex to register
 }
 
 /**
@@ -207,11 +213,11 @@ private fun invokeRegisterAt(instruction: com.android.tools.smali.dexlib2.iface.
 @Suppress("unused")
 val configurableZaloBackupIntervalPatch = bytecodePatch(
     name = "Configurable native backup interval",
-    description = "Sets Zalo's automatic backup interval to 1, 3, 6 or 12 hours. " +
-        "Existing backup requirements still apply.",
+    description = "Sets Zalo 26.08.01's automatic backup interval to 1, 3, 6 or 12 hours. " +
+        "Existing backup requirements still apply. For 26.10.02 use the in-app interval settings.",
     default = false,
 ) {
-    compatibleWith(COMPATIBILITY_ZALO)
+    compatibleWith(COMPATIBILITY_ZALO_260801)
 
     val hours by stringOption(
         key = "hours",
@@ -222,8 +228,7 @@ val configurableZaloBackupIntervalPatch = bytecodePatch(
     )
 
     execute {
-        val current = packageMetadata.versionName == "26.10.02"
-        val scheduler = (if (current) BackupScheduler261002 else BackupScheduler).matchAll(1..1).single().method
-        overrideBackupInterval(scheduler, hours!!, current)
+        val scheduler = BackupScheduler.matchAll(1..1).single().method
+        overrideBackupInterval(scheduler, hours!!)
     }
 }

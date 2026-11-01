@@ -18,11 +18,10 @@ import app.zeldrisho.patches.shared.Constants.COMPATIBILITY_ZALO
 @Suppress("unused")
 val suppressZaloSeenStatusPatch = bytecodePatch(
     name = "Suppress outbound seen status",
-    description = "Stops sending read receipts. Incoming read status and message delivery are unaffected.",
+    description = "Stops sending read receipts while preserving delivery acknowledgements.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)
-
     execute {
         val old = SeenReceiptSend.matchAll(0..1)
         val current = SeenReceiptSend261002.matchAll(0..1)

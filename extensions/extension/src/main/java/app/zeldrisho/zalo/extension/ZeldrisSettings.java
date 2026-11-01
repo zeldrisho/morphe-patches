@@ -28,23 +28,46 @@ public final class ZeldrisSettings {
     }
   }
 
-  private static boolean visible(boolean original, String key) {
+  private static boolean visible(boolean original, String key, boolean defaultHidden) {
     Context context = appContext();
-    boolean hidden = context != null && context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        .getBoolean(key, true);
-    return original && !hidden;
+    if (context == null) return original;
+    try {
+      return original && !context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+          .getBoolean(key, defaultHidden);
+    } catch (RuntimeException ignored) {
+      return original;
+    }
+  }
+
+  public static boolean strangerNotificationsEnabled() {
+    Context context = appContext();
+    return context != null && context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        .getBoolean("stranger_notifications", true);
+  }
+
+  /** Leaves the account-specific native interval untouched unless the user chose an override. */
+  public static long backupIntervalMillis(long nativeInterval) {
+    Context context = appContext();
+    if (context == null) return nativeInterval;
+    try {
+      int hours = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt("backup_interval_hours", 0);
+      return BackupIntervalPolicy.select(nativeInterval, hours);
+    } catch (RuntimeException ignored) {
+      // Malformed preferences must not interfere with Zalo's scheduler.
+    }
+    return nativeInterval;
   }
 
   public static boolean showDiscovery(boolean original) {
-    return visible(original, DISCOVERY);
+    return visible(original, DISCOVERY, true);
   }
 
   public static boolean showTimeline(boolean original) {
-    return visible(original, TIMELINE);
+    return visible(original, TIMELINE, true);
   }
 
   /** Adds the entry immediately after the profile section in the Zinstant Me layout. */
-  public static void attachAfterProfile(View profile) {
+  public static void attachAfterProfile(Object host, View profile) {
     if (profile == null || !(profile.getParent() instanceof LinearLayout)) return;
     LinearLayout parent = (LinearLayout) profile.getParent();
     for (int i = 0; i < parent.getChildCount(); i++) {
@@ -56,11 +79,15 @@ public final class ZeldrisSettings {
       View entry = (View) itemClass.getConstructor(Context.class).newInstance(context);
       itemClass.getMethod("setTitle", CharSequence.class).invoke(entry, "Zeldris Patches");
       itemClass.getMethod("setShowChevronRight", boolean.class).invoke(entry, true);
+      itemClass.getMethod("x", boolean.class).invoke(entry, false);
       addLeadingIcon(entry);
       entry.setTag(ENTRY);
       entry.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
       entry.setOnClickListener(view -> show(context));
-      parent.addView(entry, parent.indexOfChild(profile) + 1);
+      // The host's d() creates and appends its own themed section separator.
+      Object separator = host.getClass().getMethod("d").invoke(host);
+      if (!(separator instanceof View) || ((View) separator).getParent() != parent) return;
+      parent.addView(entry, parent.indexOfChild((View) separator) + 1);
     } catch (ReflectiveOperationException | RuntimeException ignored) {
       // Do not disrupt the host if the version-specific native component changes.
     }
@@ -91,7 +118,12 @@ public final class ZeldrisSettings {
       Object item = itemClass.getConstructor(idClass, int.class, String.class, int.class, int.class)
           .newInstance(id, icon, "Zeldris Patches", 5, 0);
       itemClass.getField("p").set(item, TRACKING_MARKER);
-      ((ArrayList) items).add(profileIndex + 1, item);
+      int insertion = profileIndex + 1;
+      Class<?> separatorClass = Class.forName("nj1.a");
+      if (insertion >= items.size() || !separatorClass.isInstance(items.get(insertion))) {
+        ((ArrayList) items).add(insertion, separatorClass.getConstructor().newInstance());
+      }
+      ((ArrayList) items).add(insertion + 1, item);
     } catch (ReflectiveOperationException | RuntimeException ignored) {
       // Keep the original list unchanged when host structures drift.
     }
@@ -104,6 +136,7 @@ public final class ZeldrisSettings {
       Class<?> itemClass = Class.forName("nj1.e");
       if (itemClass.isInstance(item) && TRACKING_MARKER.equals(itemClass.getField("p").get(item))) {
         view.setOnClickListener(clicked -> show(clicked.getContext()));
+        view.getClass().getMethod("x", boolean.class).invoke(view, false);
       }
     } catch (ReflectiveOperationException | RuntimeException ignored) {
       // Leave the host's native row behavior untouched.
@@ -126,13 +159,21 @@ public final class ZeldrisSettings {
     mainView = new WeakReference<>(view);
   }
 
+  public static void openBackupSettings() {
+    openScreen("app.zeldrisho.zalo.extension.ZeldrisBackupSettingsView");
+  }
+
   private static void show(Context context) {
+    openScreen("app.zeldrisho.zalo.extension.ZeldrisSettingsView");
+  }
+
+  private static void openScreen(String className) {
     try {
       Object host = mainView.get();
       if (host == null) return;
       Object navigator = host.getClass().getMethod("T4").invoke(host);
       if (navigator == null) return;
-      Class<?> screen = Class.forName("app.zeldrisho.zalo.extension.ZeldrisSettingsView");
+      Class<?> screen = Class.forName(className);
       navigator.getClass().getMethod("R0", Class.class, Bundle.class, int.class, String.class, int.class, boolean.class)
           .invoke(navigator, screen, null, 0, null, 1, true);
     } catch (ReflectiveOperationException | RuntimeException ignored) {

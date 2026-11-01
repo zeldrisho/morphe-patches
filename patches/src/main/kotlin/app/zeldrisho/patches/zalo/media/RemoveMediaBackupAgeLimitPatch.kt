@@ -18,6 +18,11 @@ import app.zeldrisho.patches.shared.Constants.COMPATIBILITY_ZALO
  * Drive, bypass server retention, or include media explicitly excluded by Zalo.
  */
 internal fun clearAgeResult(method: MutableMethod) {
+    val (index, register) = locateAgeResult(method)
+    method.replaceInstruction(index, "const/4 v$register, 0x0")
+}
+
+private fun locateAgeResult(method: MutableMethod): Pair<Int, Int> {
     val implementation = method.implementation
         ?: error("Zalo media age limit: method has no implementation")
     val instructions = implementation.instructions.toList()
@@ -32,23 +37,40 @@ internal fun clearAgeResult(method: MutableMethod) {
     }
     check(resultIndex >= 0) { "Zalo media age limit: config result not found" }
     val result = instructions[resultIndex] as OneRegisterInstruction
-    method.replaceInstruction(resultIndex, "const/4 v${result.registerA}, 0x0")
+    return resultIndex to result.registerA
 }
 
 @Suppress("unused")
 val removeZaloMediaBackupAgeLimitPatch = bytecodePatch(
     name = "Remove media backup age limit",
-    description = "Includes media of any age in Zalo's Google Drive backup. Drive retention " +
-        "and excluded media still apply.",
+    description = "Includes media of any age in Drive backup and restore. " +
+        "Drive retention and excluded media still apply.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO)
-
     execute {
-        val backup = MediaBackupAgeFilter.matchAll(0..1) + MediaBackupAgeFilter261002.matchAll(0..1)
-        val restore = MediaRestoreAgeCutoff.matchAll(0..1) + MediaRestoreAgeCutoff261002.matchAll(0..1)
-        check(backup.size == 1 && restore.size == 1) { "Expected one backup and one restore age cutoff" }
-        clearAgeResult(backup.single().method)
-        clearAgeResult(restore.single().method)
+        val oldBackup = MediaBackupAgeFilter.matchAll(0..1)
+        val oldRestore = MediaRestoreAgeCutoff.matchAll(0..1)
+        val currentBackup = MediaBackupAgeFilter261002.matchAll(0..1)
+        val currentRestore = MediaRestoreAgeCutoff261002.matchAll(0..1)
+        check(oldBackup.size + currentBackup.size == 1 && oldRestore.size + currentRestore.size == 1) {
+            "Expected one backup and one restore age cutoff"
+        }
+        if (oldBackup.isNotEmpty() && oldRestore.isNotEmpty()) {
+            clearAgeResult(oldBackup.single().method)
+            clearAgeResult(oldRestore.single().method)
+            return@execute
+        }
+        check(currentBackup.size == 1 && currentRestore.size == 1) { "Mixed media age cutoff versions" }
+        val targets = listOf(currentBackup.single().method, currentRestore.single().method).map { method ->
+            val (index, register) = locateAgeResult(method)
+            val instructions = method.implementation!!.instructions.toList()
+            val getter = (instructions.getOrNull(index - 1) as? ReferenceInstruction)?.reference?.toString()
+            check(register == 0 && getter == "Lp60/p0;->l(ILjava/lang/String;Z)I" &&
+                instructions.getOrNull(index + 1)?.opcode == Opcode.IF_LEZ
+            ) { "Zalo media age limit: unexpected native getter or result consumer" }
+            method to index
+        }
+        targets.forEach { (method, index) -> method.replaceInstruction(index, "const/4 v0, 0x0") }
     }
 }
