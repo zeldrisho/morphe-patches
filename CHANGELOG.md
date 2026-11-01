@@ -1,3 +1,9 @@
+## [1.11.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.2...v1.11.0-dev.3) (2026-11-01)
+
+### 🐛 Bug Fixes
+
+* **zalo:** validate package rename counts per version ([abe1706](https://github.com/zeldrisho/morphe-patches/commit/abe17064712d31c86f63c6d56822e25f8c95e167)), closes [#51](https://github.com/zeldrisho/morphe-patches/issues/51)
+
 ## [1.11.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.1...v1.11.0-dev.2) (2026-11-01)
 
 ### ✨ New Features
