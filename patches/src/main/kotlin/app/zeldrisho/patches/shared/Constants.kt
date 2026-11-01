@@ -81,16 +81,26 @@ object Constants {
      * see analysis/com.zing.zalo/26.10.02/notes/. */
     const val TESTED_ZALO_VERSION_CODE_261002 = 261002903
 
+    /** Zalo 26.08.01 target, shared by the version-pinned and aggregate compatibility entries. */
+    private val ZALO_260801_TARGET = AppTarget(
+        version = "26.08.01",
+        versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE),
+        minSdk = 24,
+    )
+
+    /** Zalo 26.10.02 target, shared by the version-pinned and aggregate compatibility entries. */
+    private val ZALO_261002_TARGET = AppTarget(
+        version = "26.10.02",
+        versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE_261002),
+        minSdk = 24,
+    )
+
     val COMPATIBILITY_ZALO_260801 = Compatibility(
         name = "Zalo",
         packageName = "com.zing.zalo",
         apkFileType = ApkFileType.APKM,
         appIconColor = 0x0068FF,
-        targets = listOf(AppTarget(
-            version = "26.08.01",
-            versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE),
-            minSdk = 24,
-        )),
+        targets = listOf(ZALO_260801_TARGET),
     )
 
     val COMPATIBILITY_ZALO_261002 = Compatibility(
@@ -98,13 +108,7 @@ object Constants {
         packageName = "com.zing.zalo",
         apkFileType = ApkFileType.APKM,
         appIconColor = 0x0068FF,
-        targets = listOf(
-            AppTarget(
-                version = "26.10.02",
-                versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE_261002),
-                minSdk = 24,
-            ),
-        ),
+        targets = listOf(ZALO_261002_TARGET),
     )
 
     val COMPATIBILITY_ZALO = Compatibility(
@@ -112,17 +116,6 @@ object Constants {
         packageName = "com.zing.zalo",
         apkFileType = ApkFileType.APKM,
         appIconColor = 0x0068FF,
-        targets = listOf(
-            AppTarget(
-                version = "26.08.01",
-                versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE),
-                minSdk = 24,
-            ),
-            AppTarget(
-                version = "26.10.02",
-                versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE_261002),
-                minSdk = 24,
-            ),
-        ),
+        targets = listOf(ZALO_260801_TARGET, ZALO_261002_TARGET),
     )
 }
