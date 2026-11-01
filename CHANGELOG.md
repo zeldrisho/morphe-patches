@@ -1,3 +1,28 @@
+## [1.11.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.3...v1.11.0-dev.4) (2026-11-01)
+
+### 🐛 Bug Fixes
+
+* **zalo:** resolve the version-specific Drive account refresh method ([d23cd9b](https://github.com/zeldrisho/morphe-patches/commit/d23cd9bae5252b732da7528051a5b69c110dde9f))
+
+## [1.11.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.2...v1.11.0-dev.3) (2026-11-01)
+
+### 🐛 Bug Fixes
+
+* **zalo:** validate package rename counts per version ([abe1706](https://github.com/zeldrisho/morphe-patches/commit/abe17064712d31c86f63c6d56822e25f8c95e167)), closes [#51](https://github.com/zeldrisho/morphe-patches/issues/51)
+
+## [1.11.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.1...v1.11.0-dev.2) (2026-11-01)
+
+### ✨ New Features
+
+* **threads:** hide suggested account carousel ([0661c2a](https://github.com/zeldrisho/morphe-patches/commit/0661c2a63cb33a806e37d8e967c7722dfaa16677))
+* **zalo:** add backup and notification settings ([61b1889](https://github.com/zeldrisho/morphe-patches/commit/61b18891b91631c9c44ac2479d54ff2087f4fccd))
+
+## [1.11.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0...v1.11.0-dev.1) (2026-10-31)
+
+### ✨ New Features
+
+* **zalo:** add native navigation tab settings ([871f868](https://github.com/zeldrisho/morphe-patches/commit/871f8686eebe1acfd125ac37fd8c7011ea1f97d0))
+
 ## [1.10.0](https://github.com/zeldrisho/morphe-patches/compare/v1.9.0...v1.10.0) (2026-10-30)
 
 ### 🐛 Bug Fixes
