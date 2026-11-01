@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -21,6 +23,14 @@ public final class ZaloMicroGSupport {
   private static volatile Handler mainHandler;
   private static final Object REFRESH_LOCK = new Object();
   private static final Map<Object, RefreshRequest> PENDING_REFRESHES = new WeakHashMap<>();
+  /**
+   * Account-refresh method names by target version: {@code A6} on 26.08.01, {@code P6} on
+   * 26.10.02. Keep in sync with {@code MicroGContracts.isAccountRefreshCall} in the patch module.
+   */
+  private static final String[] REFRESH_METHOD_NAMES = {"A6", "P6"};
+
+  /** Resolved refresh methods by view class; guarded by {@link #REFRESH_LOCK}. */
+  private static final Map<Class<?>, Method> REFRESH_METHODS = new WeakHashMap<>();
 
   interface ProviderResolver {
     android.content.pm.PackageInfo resolve() throws PackageManager.NameNotFoundException;
@@ -117,6 +127,30 @@ public final class ZaloMicroGSupport {
     return result;
   }
 
+  /**
+   * Resolves the version-specific account-refresh method for {@code viewClass}. Both supported
+   * versions declare a public instance {@code (String)V}; only the obfuscated name differs, so a
+   * miss is not cached and the next refresh retries the remaining names.
+   *
+   * <p>Callers must hold {@link #REFRESH_LOCK}.
+   */
+  private static Method refreshMethod(Class<?> viewClass) {
+    Method cached = REFRESH_METHODS.get(viewClass);
+    if (cached != null) return cached;
+    for (String name : REFRESH_METHOD_NAMES) {
+      try {
+        Method candidate = viewClass.getMethod(name, String.class);
+        if (candidate.getReturnType() == Void.TYPE && !Modifier.isStatic(candidate.getModifiers())) {
+          REFRESH_METHODS.put(viewClass, candidate);
+          return candidate;
+        }
+      } catch (NoSuchMethodException ignored) {
+        // Try the next known Zalo version name.
+      }
+    }
+    return null;
+  }
+
   private static final class HandlerScheduler implements RefreshScheduler {
     private final Handler handler;
 
@@ -152,8 +186,8 @@ public final class ZaloMicroGSupport {
         if (target != null) {
           synchronized (REFRESH_LOCK) {
             if (PENDING_REFRESHES.get(target) != this) return;
-            java.lang.reflect.Method refresh = target.getClass().getMethod("A6", String.class);
-            refresh.invoke(target, accountName);
+            Method refresh = refreshMethod(target.getClass());
+            if (refresh != null) refresh.invoke(target, accountName);
           }
         }
       } catch (ReflectiveOperationException | RuntimeException ignored) {

@@ -25,7 +25,11 @@ internal fun requireProviderCheckScratch(registerCount: Int) {
     }
 }
 
-/** Returns whether [methodReference] names Zalo's account-refresh call in the Drive result handler. */
+/**
+ * Returns whether [methodReference] names Zalo's account-refresh call in the Drive result handler.
+ * The runtime extension resolves both names; keep its {@code REFRESH_METHOD_NAMES} list
+ * (26.08.01 {@code A6}, 26.10.02 {@code P6}) in sync with this mapping.
+ */
 internal fun isAccountRefreshCall(
     classType: String,
     methodName: String,
@@ -56,7 +60,7 @@ internal fun accountRefreshInvocation(instruction: Any): String = when (instruct
             "$MICROG_EXTENSION_CLASS->scheduleAccountRefresh(Ljava/lang/Object;Ljava/lang/String;)V"
     }
 
-    else -> error("Zalo microG support: unsupported A6 invoke format")
+    else -> error("Zalo microG support: unsupported account-refresh invoke format")
 }
 
 internal const val STOCK_VNG_CERT_HEX =
