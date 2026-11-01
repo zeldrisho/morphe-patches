@@ -17,9 +17,9 @@ import app.zeldrisho.patches.shared.Constants.COMPATIBILITY_ZALO
  * @throws IllegalStateException if any expected literal is missing, has a different count,
  * or an unexpected literal is present.
  */
-internal fun validateProviderUriReplacementCounts(replacementCounts: Map<String, Int>) {
-    check(replacementCounts == EXPECTED_CLONE_STRING_COUNTS) {
-        "Zalo package rename: expected clone identity string counts $EXPECTED_CLONE_STRING_COUNTS, found $replacementCounts"
+internal fun validateProviderUriReplacementCounts(replacementCounts: Map<String, Int>, expected: Map<String, Int>) {
+    check(replacementCounts == expected) {
+        "Zalo package rename: expected clone identity string counts $expected, found $replacementCounts"
     }
 }
 
@@ -48,14 +48,14 @@ internal fun rewriteMainProcessPackageName(method: MutableMethod, packageName: S
  *
  * Returns a count for every expected literal, including zeros for absent references or a missing body.
  */
-internal fun rewriteProviderUriStrings(method: MutableMethod, packageName: String): Map<String, Int> {
-    val replacements = EXPECTED_CLONE_STRING_COUNTS.keys.associateWith { 0 }.toMutableMap()
+internal fun rewriteProviderUriStrings(method: MutableMethod, packageName: String, expected: Map<String, Int>): Map<String, Int> {
+    val replacements = expected.keys.associateWith { 0 }.toMutableMap()
     val instructions = method.implementation?.instructions?.toList().orEmpty()
     instructions.forEachIndexed { index, instruction ->
         if (instruction.opcode != Opcode.CONST_STRING) return@forEachIndexed
         val reference = (instruction as? ReferenceInstruction)?.reference as? StringReference
             ?: return@forEachIndexed
-        if (reference.string !in EXPECTED_CLONE_STRING_COUNTS) return@forEachIndexed
+        if (reference.string !in expected) return@forEachIndexed
         val register = (instruction as OneRegisterInstruction).registerA
         val replacement = rewriteZaloProviderUri(reference.string, packageName)
         method.replaceInstruction(index, "const-string v$register, \"$replacement\"")
@@ -102,9 +102,28 @@ val changeZaloPackageNamePatch = bytecodePatch(
     val packageName by packageNameOption()
 
     execute {
-        val replacementCounts = EXPECTED_CLONE_STRING_COUNTS.keys.associateWith { 0 }.toMutableMap()
-
+        val expected = expectedCloneStringCounts(packageMetadata.versionName)
+        val replacementCounts = expected.keys.associateWith { 0 }.toMutableMap()
         var mainProcessNameReplacements = 0
+        classDefForEach { classDef ->
+            classDef.methods.forEach { method ->
+                val instructions = method.implementation?.instructions ?: return@forEach
+                instructions.forEach instructionLoop@ { instruction ->
+                    if (instruction.opcode != Opcode.CONST_STRING) return@instructionLoop
+                    val value = ((instruction as? ReferenceInstruction)?.reference as? StringReference)?.string
+                        ?: return@instructionLoop
+                    if (value in expected) replacementCounts[value] = replacementCounts.getValue(value) + 1
+                    if (classDef.type == "Lcom/zing/zalo/MainApplication;" && method.name == "onCreate" &&
+                        method.parameterTypes.isEmpty() && method.returnType == "V" && value == ORIGINAL_ZALO_PACKAGE
+                    ) mainProcessNameReplacements++
+                }
+            }
+        }
+        validateProviderUriReplacementCounts(replacementCounts, expected)
+        check(mainProcessNameReplacements == 1) {
+            "Zalo package rename: expected one MainApplication process-name guard, found $mainProcessNameReplacements"
+        }
+
         classDefForEach { classDef ->
             val mutableClass = mutableClassDefBy(classDef)
             if (classDef.type == "Lcom/zing/zalo/MainApplication;") {
@@ -114,24 +133,18 @@ val changeZaloPackageNamePatch = bytecodePatch(
                 val mutableOnCreate = mutableClass.methods.first {
                     it.name == onCreate.name && it.parameterTypes == onCreate.parameterTypes && it.returnType == onCreate.returnType
                 }
-                mainProcessNameReplacements = rewriteMainProcessPackageName(mutableOnCreate, packageName!!)
+                rewriteMainProcessPackageName(mutableOnCreate, packageName!!)
             }
             classDef.methods.forEach { method ->
-                val implementation = method.implementation ?: return@forEach
+                if (method.implementation == null) return@forEach
                 val mutableMethod = mutableClass.methods.first { candidate ->
                     candidate.name == method.name &&
                         candidate.parameterTypes == method.parameterTypes &&
                         candidate.returnType == method.returnType
                 }
-                rewriteProviderUriStrings(mutableMethod, packageName!!).forEach { (uri, count) ->
-                    replacementCounts[uri] = replacementCounts.getValue(uri) + count
-                }
+                rewriteProviderUriStrings(mutableMethod, packageName!!, expected)
             }
         }
 
-        validateProviderUriReplacementCounts(replacementCounts)
-        check(mainProcessNameReplacements == 1) {
-            "Zalo package rename: expected one MainApplication process-name guard, found $mainProcessNameReplacements"
-        }
     }
 }

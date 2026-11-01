@@ -21,7 +21,7 @@ private val CLONE_PACKAGE_STRINGS = mapOf(
 fun rewriteZaloProviderUri(uri: String, newPackage: String): String = CLONE_PACKAGE_STRINGS[uri]?.format(newPackage) ?: uri
 
 /** Expected exact literal occurrence counts in the pinned Zalo 26.08.01 DEX. */
-internal val EXPECTED_CLONE_STRING_COUNTS = mapOf(
+private val CLONE_STRING_COUNTS_260801 = mapOf(
     "content://$ORIGINAL_ZALO_PACKAGE.db.preferencesprovider" to 1,
     "$ORIGINAL_ZALO_PACKAGE.db.preferencesprovider" to 1,
     "content://$ORIGINAL_ZALO_PACKAGE.provider.InternalProvider" to 1,
@@ -29,6 +29,12 @@ internal val EXPECTED_CLONE_STRING_COUNTS = mapOf(
     "$ORIGINAL_ZALO_PACKAGE.provider" to 6,
     "android.resource://$ORIGINAL_ZALO_PACKAGE/" to 1,
 )
+
+internal fun expectedCloneStringCounts(version: String?): Map<String, Int> = when (version) {
+    "26.08.01" -> CLONE_STRING_COUNTS_260801
+    "26.10.02" -> CLONE_STRING_COUNTS_260801 + ("$ORIGINAL_ZALO_PACKAGE.provider" to 7)
+    else -> error("Zalo package rename: unsupported version $version")
+}
 
 fun isValidZaloPackageName(name: String?): Boolean = name != null && PACKAGE_NAME_REGEX.matches(name)
 
