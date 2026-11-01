@@ -1,3 +1,9 @@
+## [1.11.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0...v1.11.0-dev.1) (2026-10-31)
+
+### ✨ New Features
+
+* **zalo:** add native navigation tab settings ([871f868](https://github.com/zeldrisho/morphe-patches/commit/871f8686eebe1acfd125ac37fd8c7011ea1f97d0))
+
 ## [1.10.0](https://github.com/zeldrisho/morphe-patches/compare/v1.9.0...v1.10.0) (2026-10-30)
 
 ### 🐛 Bug Fixes

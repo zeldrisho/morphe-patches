@@ -11,8 +11,8 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.10.0](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.10.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;28 patches total
-### 📦 Zalo • 23 patches
+> **[v1.11.0-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;29 patches total
+### 📦 Zalo • 24 patches
 
 **🎯 Supported versions:**
 
@@ -37,6 +37,7 @@ Click here to add these patches to Morphe: https://morphe.software/add-source?gi
 | Hide Business Box | Hides Business Box from the chat list without hiding ordinary or user-initiated Official Account chats. |  |
 | Hide Media Box | Hides Media Box from the chat list without deleting its content. |  |
 | Hide chat list ads | Removes ad cards from the chat list. Server-delivered promotions and other ads may remain. |  |
+| Hide navigation tabs | Adds Zeldris patches settings to control the Discovery and Timeline tabs. |  |
 | Keep expired media accessible | Keeps locally stored large chat media accessible after expiry. Missing files and server restrictions are unaffected. |  |
 | Prefer original photo quality | Enables original photo quality by default. Upload limits and video are unaffected. |  |
 | Remove AD_ID permission | Removes Zalo's advertising ID permissions. Messaging is unaffected. |  |
