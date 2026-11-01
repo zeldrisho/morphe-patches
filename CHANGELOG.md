@@ -1,3 +1,10 @@
+## [1.11.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.1...v1.11.0-dev.2) (2026-11-01)
+
+### ✨ New Features
+
+* **threads:** hide suggested account carousel ([0661c2a](https://github.com/zeldrisho/morphe-patches/commit/0661c2a63cb33a806e37d8e967c7722dfaa16677))
+* **zalo:** add backup and notification settings ([61b1889](https://github.com/zeldrisho/morphe-patches/commit/61b18891b91631c9c44ac2479d54ff2087f4fccd))
+
 ## [1.11.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0...v1.11.0-dev.1) (2026-10-31)
 
 ### ✨ New Features
