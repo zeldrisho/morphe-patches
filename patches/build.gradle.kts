@@ -83,6 +83,7 @@ tasks {
                     "Lapp/zeldrisho/zalo/extension/RecallMarker;",
                     "Lapp/zeldrisho/zalo/extension/NewsfeedPromotions;",
                     "Lapp/zeldrisho/zalo/extension/NativeConfirmationDialog;",
+                    "Lapp/zeldrisho/zalo/extension/AmoledTheme;",
                 )
                 val missing = required - classes
                 check(missing.isEmpty()) { "Patch bundle extension is missing classes: $missing" }
