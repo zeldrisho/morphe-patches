@@ -63,6 +63,8 @@ val patchListGeneratorClasspath = configurations.create("patchListGeneratorClass
 dependencies {
     compileOnly(libs.gson)
     patchListGeneratorClasspath(libs.gson)
+    testImplementation(kotlin("test"))
+    testImplementation(libs.morphe.patcher)
 }
 
 tasks {
@@ -78,6 +80,9 @@ tasks {
                     "Lapp/zeldrisho/threads/extension/FeedAdFilter;",
                     "Lapp/zeldrisho/threads/extension/OpenLinksExternally;",
                     "Lapp/zeldrisho/zalo/extension/ZaloMicroGSupport;",
+                    "Lapp/zeldrisho/zalo/extension/RecallMarker;",
+                    "Lapp/zeldrisho/zalo/extension/NewsfeedPromotions;",
+                    "Lapp/zeldrisho/zalo/extension/NativeConfirmationDialog;",
                 )
                 val missing = required - classes
                 check(missing.isEmpty()) { "Patch bundle extension is missing classes: $missing" }

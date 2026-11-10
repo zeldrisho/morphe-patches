@@ -20,8 +20,8 @@ import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 @Suppress("unused")
 val hideZaloNavigationTabsPatch = bytecodePatch(
     name = "Hide navigation tabs",
-    description = "Adds settings to control the Discovery and Timeline tabs.",
-    default = false,
+    description = "Adds settings to hide Discovery, Contacts and Timeline individually. Tabs stay visible until hidden in Zeldris Patches; restart to apply.",
+    default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO_261002)
     dependsOn(zeldrisSettingsPatch)
@@ -55,6 +55,14 @@ val hideZaloNavigationTabsPatch = bytecodePatch(
             (instructions[timelineStore] as? TwoRegisterInstruction)?.registerB == 10
         ) { "Zalo navigation tabs: unexpected Timeline state flow" }
 
+        val contactsLoad = find(Opcode.SGET_OBJECT, "Lkj1/t;->PHONEBOOK:Lkj1/t;")
+        val contactsAdd = instructions.getOrNull(contactsLoad + 1) as? FiveRegisterInstruction
+        check(instructions[contactsLoad + 1].opcode == Opcode.INVOKE_VIRTUAL &&
+            (instructions[contactsLoad + 1] as? ReferenceInstruction)?.reference?.toString() ==
+                "Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z" &&
+            contactsAdd?.registerCount == 2 && contactsAdd.registerC == 0 && contactsAdd.registerD == 4
+        ) { "Zalo navigation tabs: Contacts insertion changed" }
+
         val mainView = ZaloMainViewCreate261002.matchAll(1..1).single().method
         val mainInstructions = mainView.implementation?.instructions?.toList()
             ?: error("Zeldris settings: main view has no implementation")
@@ -73,6 +81,11 @@ val hideZaloNavigationTabsPatch = bytecodePatch(
         val capability = mutableClassDefBy("Lapp/zeldrisho/zalo/extension/ZeldrisSettingsContent;")
             .methods.single { it.name == "hasNavigationSettings" && it.parameterTypes.isEmpty() && it.returnType == "Z" }
         capability.returnEarly(true)
+        // Filtering at insertion leaves native indexOf(), tab count, icon arrays
+        // and pager models consistent. PHONEBOOK's index becomes -1, as for the
+        // host's other omitted tabs; MainTabView.t6() already guards that value.
+        method.replaceInstruction(contactsLoad + 1,
+            "invoke-static {v0, v4}, Lapp/zeldrisho/zalo/extension/ZeldrisSettings;->addContactsTab(Ljava/util/ArrayList;Ljava/lang/Object;)V")
         method.replaceInstruction(timelineStore, "invoke-static {v1}, Lapp/zeldrisho/zalo/extension/ZeldrisSettings;->showTimeline(Z)Z")
         method.addInstructions(timelineStore + 1, """
             move-result v1

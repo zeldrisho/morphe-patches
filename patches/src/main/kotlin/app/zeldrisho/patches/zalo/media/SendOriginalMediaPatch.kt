@@ -117,6 +117,20 @@ val sendZaloOriginalMediaPatch = bytecodePatch(
             ) { "Outgoing original-quality flag register or store changed" }
         }
 
+        if (current) {
+            val inApp = InAppPhotoOriginalFlag261002.matchAll(1..1).single()
+            val read = inApp.instructionMatches.first()
+            val store = inApp.instructionMatches.last()
+            val readRegisters = read.instruction as? com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
+            val storeRegisters = store.instruction as? com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
+            check(store.index == read.index + 1 && readRegisters?.registerA == 11 &&
+                readRegisters.registerB == 0 && storeRegisters?.registerA == 11 && storeRegisters.registerB == 8
+            ) { "In-app picker original-quality copy changed" }
+            // Replace the read, not the store: all branches targeting the copy still
+            // execute the override, without modifying the video conversion arm.
+            inApp.method.replaceInstruction(read.index, "const/4 v11, 0x1")
+        }
+
         forceQualityResult(selectedQuality.method, 2)
 
         // The quality sheet receives the current selection in a Bundle. Force

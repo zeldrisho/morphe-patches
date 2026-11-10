@@ -16,6 +16,7 @@ public final class ZeldrisSettings {
   private static final String ENTRY = "zeldris_patch_settings_entry";
   private static final String TRACKING_MARKER = "zeldris_patches_settings";
   private static WeakReference<Object> mainView = new WeakReference<>(null);
+  private static volatile Boolean recallRetention;
 
   private ZeldrisSettings() {}
 
@@ -39,6 +40,28 @@ public final class ZeldrisSettings {
     }
   }
 
+  private static boolean enabled(String key) {
+    Context context = appContext();
+    if (context == null) return false;
+    try {
+      return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(key, false);
+    } catch (RuntimeException ignored) {
+      return false;
+    }
+  }
+
+  /** Stable for this process so toggling cannot split an in-flight recall across opposite policies. */
+  public static boolean keepRecalledMessages() {
+    Boolean value = recallRetention;
+    if (value == null) {
+      synchronized (ZeldrisSettings.class) {
+        value = recallRetention;
+        if (value == null) recallRetention = value = enabled("keep_recalled_messages");
+      }
+    }
+    return value;
+  }
+
   public static boolean strangerNotificationsEnabled() {
     Context context = appContext();
     return context != null && context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -59,11 +82,16 @@ public final class ZeldrisSettings {
   }
 
   public static boolean showDiscovery(boolean original) {
-    return visible(original, DISCOVERY, true);
+    return visible(original, DISCOVERY, false);
+  }
+
+  /** Called only at the native PHONEBOOK list insertion, before indices are derived. */
+  public static void addContactsTab(ArrayList<Object> tabs, Object contacts) {
+    if (visible(true, "hide_contacts", false)) tabs.add(contacts);
   }
 
   public static boolean showTimeline(boolean original) {
-    return visible(original, TIMELINE, true);
+    return visible(original, TIMELINE, false);
   }
 
   /** Adds the entry immediately after the profile section in the Zinstant Me layout. */

@@ -280,6 +280,20 @@ internal object SelectedPhotoOriginalFlag261002 : Fingerprint(
     ),
 )
 
+/** In-app picker photo conversion; separate from the share-sheet worker. */
+internal object InAppPhotoOriginalFlag261002 : Fingerprint(
+    definingClass = "Lcom/zing/zalo/ui/picker/s;",
+    name = "run",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    returnType = "V",
+    parameters = emptyList(),
+    filters = listOf(
+        fieldAccess(opcode = Opcode.IGET_BOOLEAN,
+            definingClass = "Lcom/zing/zalo/data/mediapicker/model/MediaItem;", name = "q", type = "Z"),
+        fieldAccess(opcode = Opcode.IPUT_BOOLEAN, definingClass = "Lj20/k0;", name = "l1", type = "Z"),
+    ),
+)
+
 internal val mediaFingerprints = listOf(
     MediaExpiryStatus,
     MediaBackupAgeFilter,

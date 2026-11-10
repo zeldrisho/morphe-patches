@@ -21,6 +21,7 @@ public final class ZeldrisSettingsContent {
   public static boolean hasNavigationSettings() { return false; }
   public static boolean hasStrangerNotificationSettings() { return false; }
   public static boolean hasBackupIntervalSettings() { return false; }
+  public static boolean hasRecallSettings() { return false; }
 
   public static View build(LinearLayout parent) {
     Context context = parent.getContext();
@@ -39,13 +40,21 @@ public final class ZeldrisSettingsContent {
         View timeline = temporary.findViewById(messages);
         if (discovery == null || timeline == null) return parent;
         configure(discovery, vi ? "Ẩn Khám phá" : "Hide Discovery", "hide_discovery",
-            "zds_ic_more_grid_line_24", true, preferences, vi);
+            "zds_ic_more_grid_line_24", false, preferences, vi);
         configure(timeline, vi ? "Ẩn Nhật ký" : "Hide Timeline", "hide_timeline",
-            "zds_ic_new_feed_line_24", true, preferences, vi);
+            "zds_ic_new_feed_line_24", false, preferences, vi);
         ((ViewGroup) discovery.getParent()).removeView(discovery);
         ((ViewGroup) timeline.getParent()).removeView(timeline);
         parent.addView(discovery);
         parent.addView(timeline);
+        int contactsId = context.getResources().getIdentifier("itemContact", "id", context.getPackageName());
+        View contacts = temporary.findViewById(contactsId);
+        if (contacts != null) {
+          configure(contacts, vi ? "Ẩn Danh bạ" : "Hide Contacts", "hide_contacts",
+              "zds_ic_contact_list_line_24", false, preferences, vi);
+          ((ViewGroup) contacts.getParent()).removeView(contacts);
+          parent.addView(contacts);
+        }
       }
       if (hasStrangerNotificationSettings()) {
         View stranger = temporary.findViewById(notifications);
@@ -67,10 +76,29 @@ public final class ZeldrisSettingsContent {
         ((ViewGroup) backup.getParent()).removeView(backup);
         parent.addView(backup);
       }
+      if (hasRecallSettings()) {
+        addToggle(parent, layout, privacy, vi ? "Giữ tin nhắn đã thu hồi" : "Keep recalled messages",
+            "keep_recalled_messages", "zds_ic_backup_message_line_24", preferences, vi);
+      }
     } catch (ReflectiveOperationException | RuntimeException ignored) {
       // A host ABI mismatch must not crash the app.
     }
     return parent;
+  }
+
+  /** Inflate independent template rows so feature selections never steal each other's widgets. */
+  private static void addToggle(LinearLayout parent, int layout, int rowId, String title, String key,
+      String iconName, SharedPreferences preferences, boolean vi) throws ReflectiveOperationException {
+    LinearLayout temporary = new LinearLayout(parent.getContext());
+    LayoutInflater.from(parent.getContext()).inflate(layout, temporary, true);
+    View row = temporary.findViewById(rowId);
+    if (row == null) return;
+    configure(row, title, key, iconName, false, preferences, vi);
+    // Reusing a template also reuses its ID; these rows are addressed by their preference key instead.
+    row.setId(View.NO_ID);
+    row.setTag(key);
+    ((ViewGroup) row.getParent()).removeView(row);
+    parent.addView(row);
   }
 
   private static void configure(View item, String title, String key, String iconName, boolean defaultValue,
@@ -81,12 +109,41 @@ public final class ZeldrisSettingsContent {
     configureIcon(item, iconName);
     cls.getMethod("setShowChevronRight", boolean.class).invoke(item, false);
     cls.getMethod("setSwitch", boolean.class).invoke(item, preferences.getBoolean(key, defaultValue));
+    boolean[] updating = {false};
     CompoundButton.OnCheckedChangeListener listener = (button, checked) -> {
+      if (updating[0]) return;
+      if (checked && "keep_recalled_messages".equals(key)) {
+        // Do not save or display an enabled switch until the warning is accepted.
+        updating[0] = true;
+        button.setChecked(false);
+        updating[0] = false;
+        try {
+          NativeConfirmationDialog.show(item.getContext(),
+              vi ? "Giữ tin nhắn đã thu hồi" : "Keep recalled messages",
+              vi
+                  ? "Chỉ giữ nội dung nhận được sau khi bật. Không khôi phục nội dung đã mất. Tắt không xóa nội dung đã giữ. Khởi động lại Zalo để áp dụng."
+                  : "Only future recalls are affected. Missing content cannot be recovered. Turning this off does not delete retained content or labels. Restart Zalo to apply.",
+              vi ? "Bật" : "Enable", vi ? "Hủy" : "Cancel", () -> {
+                preferences.edit().putBoolean(key, true).apply();
+                updating[0] = true;
+                button.setChecked(true);
+                updating[0] = false;
+                restartNotice(item, vi);
+              });
+        } catch (RuntimeException ignored) {
+          // A missing activity/dialog window must leave recall retention disabled.
+        }
+        return;
+      }
       preferences.edit().putBoolean(key, checked).apply();
-      Toast.makeText(item.getContext(), vi ? "Khởi động lại Zalo để áp dụng" : "Restart Zalo to apply",
-          Toast.LENGTH_SHORT).show();
+      restartNotice(item, vi);
     };
     cls.getMethod("setCheckedChangeListener", CompoundButton.OnCheckedChangeListener.class).invoke(item, listener);
+  }
+
+  private static void restartNotice(View item, boolean vi) {
+    Toast.makeText(item.getContext(), vi ? "Khởi động lại Zalo để áp dụng" : "Restart Zalo to apply",
+        Toast.LENGTH_SHORT).show();
   }
 
   private static void configureIcon(View item, String iconName) throws ReflectiveOperationException {
