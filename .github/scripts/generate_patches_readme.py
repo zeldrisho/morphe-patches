@@ -75,18 +75,21 @@ for patch in data["patches"]:
                 "name":    pkg_label(name, form_factor),
                 "emoji":   pkg_emoji(form_factor),
                 "patches": {},
-                "targets": pkg_entry.get("targets", []),
+                "targets": [],
             }
+        for target in pkg_entry.get("targets") or []:
+            if target not in by_pkg[key]["targets"]:
+                by_pkg[key]["targets"].append(target)
         # Deduplicate patches that appear across multiple packages
         if patch["name"] not in by_pkg[key]["patches"]:
             by_pkg[key]["patches"][patch["name"]] = patch
 
 
-def patches_table(patches):
-    """Render a sorted markdown table of patches with name, description, and options."""
+def patches_table(patches, package_key=None):
+    """Render patches with their own compatible versions and preferred file types."""
     rows = [
-        "| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |",
-        "|----------|----------------|-----------|",
+        "| 💊&nbsp;Patch | 📜&nbsp;Description | 🎯&nbsp;Versions / file type | ⚙️&nbsp;Options |",
+        "|----------|----------------|----------------|-----------|",
     ]
     for p in sorted(patches, key=lambda x: x["name"]):
         options = p.get("options") or []
@@ -97,7 +100,14 @@ def patches_table(patches):
         else:
             opts_cell = ""
         desc = (p.get("description") or "").replace("\n", "<br>")
-        rows.append(f"| {p['name']} | {desc} | {opts_cell} |")
+        compatibility = []
+        for pkg in p.get("compatiblePackages") or []:
+            if (pkg.get("packageName"), pkg.get("formFactor")) != package_key:
+                continue
+            versions = ", ".join(t["version"] for t in pkg.get("targets") or [] if t.get("version")) or "Any version"
+            file_type = pkg.get("apkFileType")
+            compatibility.append(f"{versions} ({file_type})" if file_type else versions)
+        rows.append(f"| {p['name']} | {desc} | {'<br>'.join(compatibility)} | {opts_cell} |")
     return "\n".join(rows)
 
 
@@ -150,10 +160,10 @@ def build_content():
     ]
 
     # One section per app, in the order they appear in the JSON
-    for entry in by_pkg.values():
+    for key, entry in by_pkg.items():
         patches = list(entry["patches"].values())
         label   = f"{entry['emoji']} {entry['name']}"
-        lines.append(app_section(label, len(patches), entry["targets"], patches_table(patches)))
+        lines.append(app_section(label, len(patches), entry["targets"], patches_table(patches, key)))
         lines.append("")
 
     # Universal patches (no specific app)
