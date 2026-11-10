@@ -15,7 +15,7 @@ Click the button below, or manually add this repository to Morphe: https://githu
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.11.0-dev.14](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.14)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
+> **[v1.11.0-dev.15](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.15)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
 ### 📦 Zalo • 29 patches
 
 **🎯 Supported versions:**
@@ -26,7 +26,7 @@ Click the button below, or manually add this repository to Morphe: https://githu
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | 🎯&nbsp;Versions / file type | ⚙️&nbsp;Options |
 |----------|----------------|----------------|-----------|
-| AMOLED dark theme | Adds an initially off AMOLED switch in Zeldris Patches. Enable Zalo's dark theme separately; restart to apply. | 26.10.02 (APKM) |  |
+| AMOLED dark theme | Forces pure black surfaces across Zalo's dark theme, including the Me tab root. Light mode is untouched. | 26.10.02 (APKM) |  |
 | Bypass Zalo Drive Contacts permission gate | Allows Drive photo restore account selection without Contacts permission. | 26.08.01, 26.10.02 (APKM) |  |
 | Bypass native startup tamper check | Allows the re-signed app to start on the supported arm64 Zalo build. | 26.08.01, 26.10.02 (APKM) |  |
 | Change Zalo app icon | Adds a user-supplied PNG icon and an in-app switch between the original and custom launcher icons. | 26.10.02 (APKM) | • PNG icon path |

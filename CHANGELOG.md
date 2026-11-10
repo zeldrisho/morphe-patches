@@ -1,3 +1,9 @@
+## [1.11.0-dev.15](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.14...v1.11.0-dev.15) (2026-11-10)
+
+### ✨ New Features
+
+* **zalo:** make AMOLED dark theme optional and cover the Me tab ([16f3ada](https://github.com/zeldrisho/morphe-patches/commit/16f3adae19b7c52324d076a60db8b9a89d6fc171))
+
 ## [1.11.0-dev.14](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.13...v1.11.0-dev.14) (2026-11-10)
 
 ### 🐛 Bug Fixes
