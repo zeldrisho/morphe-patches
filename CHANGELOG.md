@@ -1,3 +1,9 @@
+## [1.11.0-dev.10](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.9...v1.11.0-dev.10) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **zalo:** avoid unnecessary stranger notification restart prompt ([9b5b88b](https://github.com/zeldrisho/morphe-patches/commit/9b5b88b5731b26506cf9087894ff869350f82adc))
+
 ## [1.11.0-dev.9](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.8...v1.11.0-dev.9) (2026-11-10)
 
 ### 🐛 Bug Fixes
