@@ -16,7 +16,7 @@ public final class AmoledTheme {
       "HeaderStartColor", "HeaderEndColor", "ProfileBackgroundColor", "ProfileUserInfoBackgroundColor",
       "ProfileSectionPhotoPrimaryBackgroundColor", "StoryPrimaryBackgroundColor", "SearchBackgroundColor",
       "GalleryPickerViewBackgroundColor", "ChatFooterBackgroundNormal",
-      "social_timeline_background_color_content_centric"));
+      "social_timeline_background_color_content_centric", "header_blue_container", "header_white_container"));
   private static volatile Method darkMode;
 
   private AmoledTheme() {}
