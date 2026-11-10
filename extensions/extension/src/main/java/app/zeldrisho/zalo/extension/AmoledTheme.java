@@ -17,6 +17,19 @@ public final class AmoledTheme {
 
   private AmoledTheme() {}
 
+  /** Applied after Zalo installs its dark theme, so XML inflation sees the same black surfaces. */
+  public static void applyDarkOverlay(Context context) {
+    if (context == null) return;
+    try {
+      if (!context.getSharedPreferences("zeldris_patch_settings", Context.MODE_PRIVATE)
+          .getBoolean("amoled_theme", false)) return;
+      int style = context.getResources().getIdentifier("ZeldrisAmoledOverlay", "style", context.getPackageName());
+      if (style != 0) context.getTheme().applyStyle(style, true);
+    } catch (RuntimeException ignored) {
+      // Preserve Zalo's native theme if the optional overlay is unavailable.
+    }
+  }
+
   public static boolean blackSurface(Context context, int attribute) {
     if (context == null) return false;
     try {
