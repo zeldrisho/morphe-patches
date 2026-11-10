@@ -1,3 +1,9 @@
+## [1.11.0-dev.13](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.12...v1.11.0-dev.13) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **zalo:** match native theme setting icon ([488e453](https://github.com/zeldrisho/morphe-patches/commit/488e4539178d81ca3aeceb88a0b7f306186e3271))
+
 ## [1.11.0-dev.12](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.11...v1.11.0-dev.12) (2026-11-10)
 
 ### 🐛 Bug Fixes
