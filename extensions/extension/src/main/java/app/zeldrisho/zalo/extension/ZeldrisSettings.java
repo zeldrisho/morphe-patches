@@ -40,13 +40,15 @@ public final class ZeldrisSettings {
     }
   }
 
-  private static boolean enabled(String key) {
+  /** Null means preferences were unavailable; do not cache a failed read as a user choice. */
+  private static Boolean readRecallPreference() {
     Context context = appContext();
-    if (context == null) return false;
+    if (context == null) return null;
     try {
-      return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(key, false);
+      return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+          .getBoolean("keep_recalled_messages", false);
     } catch (RuntimeException ignored) {
-      return false;
+      return null;
     }
   }
 
@@ -56,10 +58,13 @@ public final class ZeldrisSettings {
     if (value == null) {
       synchronized (ZeldrisSettings.class) {
         value = recallRetention;
-        if (value == null) recallRetention = value = enabled("keep_recalled_messages");
+        if (value == null) {
+          value = readRecallPreference();
+          if (value != null) recallRetention = value;
+        }
       }
     }
-    return value;
+    return Boolean.TRUE.equals(value);
   }
 
   /**
