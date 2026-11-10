@@ -10,6 +10,12 @@ import java.util.Map;
 public final class SuggestedUsersFilter {
   private SuggestedUsersFilter() {}
 
+  /**
+   * Removes recognized suggested-user units without modifying the input list.
+   * Returns the original list for null or empty input, when nothing matches, or when reflection
+   * or scanning inside the filter throws a reflective or runtime exception. Otherwise returns a
+   * new list of retained items. Errors from checking whether the input is empty propagate.
+   */
   public static List<?> filter(List<?> items) {
     if (items == null || items.isEmpty()) return items;
     try {

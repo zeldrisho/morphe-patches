@@ -86,7 +86,11 @@ for patch in data["patches"]:
 
 
 def patches_table(patches, package_key=None):
-    """Render patches with their own compatible versions and preferred file types."""
+    """Render a sorted patch table for a (package name, form factor) key.
+
+    Compatibility cells are empty when no entry matches package_key, including
+    universal patches; matching entries without versions are labeled Any version.
+    """
     rows = [
         "| 💊&nbsp;Patch | 📜&nbsp;Description | 🎯&nbsp;Versions / file type | ⚙️&nbsp;Options |",
         "|----------|----------------|----------------|-----------|",

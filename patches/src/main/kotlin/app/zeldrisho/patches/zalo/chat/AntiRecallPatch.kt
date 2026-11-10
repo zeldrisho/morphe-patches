@@ -40,7 +40,12 @@ internal const val RECALL_DISPATCH_GUARD = """
     nop
 """
 
-/** Insert before each return; replaceInstruction(String) accepts only one instruction. */
+/**
+ * Inserts recall-label decoration before both timestamp returns, preserving their control-flow labels.
+ *
+ * @throws IllegalStateException if the method does not have two object returns from register 0.
+ * @throws NullPointerException if the method has no implementation.
+ */
 internal fun decorateRecallTimestamp(method: MutableMethod) {
     val returns = method.implementation!!.instructions.toList().withIndex().filter {
         it.value.opcode == Opcode.RETURN_OBJECT

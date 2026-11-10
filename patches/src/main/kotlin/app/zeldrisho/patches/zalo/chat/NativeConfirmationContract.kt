@@ -3,7 +3,12 @@ package app.zeldrisho.patches.zalo.chat
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.iface.Method
 
-/** Reflection ABI used by NativeConfirmationDialog on the exact 26.10.02 target. */
+/**
+ * Validates the reflection ABI used by NativeConfirmationDialog on Zalo 26.10.02.
+ * [methodsFor] supplies methods for a DEX class descriptor.
+ *
+ * @throws IllegalStateException if any required public instance signature is missing or duplicated.
+ */
 internal fun validateNativeConfirmationContract(methodsFor: (String) -> Iterable<Method>) {
     data class Signature(val owner: String, val name: String, val parameters: List<String>, val result: String)
     val builder = "Lw70/e0;"

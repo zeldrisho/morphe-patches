@@ -21,7 +21,12 @@ public final class NewsfeedPromotions {
     }
   }
 
-  /** Runs on the RecyclerView binding thread. Does not change feed data or pagination cursors. */
+  /**
+   * Hides a promotional holder's view and returns true so its native bind can be skipped.
+   * For a non-promotional holder, restores any previously saved height and visibility and returns
+   * false. Missing views, layouts, or reflection/runtime failures also return false.
+   * Runs on the RecyclerView binding thread without changing feed data or pagination cursors.
+   */
   public static boolean hide(Object holder) {
     if (holder == null) return false;
     try {

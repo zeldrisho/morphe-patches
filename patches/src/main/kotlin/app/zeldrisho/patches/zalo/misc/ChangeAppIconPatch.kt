@@ -10,7 +10,12 @@ import org.w3c.dom.Element
 
 private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
 
-/** Check the PNG header without depending on desktop-only image APIs in Android patchers. */
+/**
+ * Checks the PNG signature and IHDR dimensions without decoding the image.
+ *
+ * @throws IllegalArgumentException if the input is outside 33 bytes to 8 MiB inclusive, lacks
+ * the expected header, or is not square with each dimension between 48 and 2048 pixels inclusive.
+ */
 internal fun validateLauncherPng(bytes: ByteArray) {
     require(bytes.size in 33..8 * 1024 * 1024) { "Icon must be a PNG smaller than 8 MiB" }
     require(bytes.copyOfRange(0, 8).contentEquals(byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10)) &&

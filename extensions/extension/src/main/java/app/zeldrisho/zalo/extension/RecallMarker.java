@@ -58,7 +58,10 @@ public final class RecallMarker {
     }
   }
 
-  /** False preserves the complete native recall path; true records metadata and retains content. */
+  /**
+   * Returns whether to retain recalled content. When enabled, attempts to record recall metadata;
+   * metadata failures do not change the true result. False preserves the native recall path.
+   */
   public static boolean retain(Object id) {
     if (!ZeldrisSettings.keepRecalledMessages()) return false;
     record(id);
@@ -100,7 +103,11 @@ public final class RecallMarker {
     }
   }
 
-  /** Decorates only the rendered timestamp, not the stored text or media metadata. */
+  /**
+   * Adds a recalled label to the rendered timestamp when a matching marker exists. Returns the
+   * original value if no marker is found or reflection or preference access fails; stored text
+   * and media metadata are not changed.
+   */
   public static String timeLabel(Object row, String original) {
     try {
       Object message = row.getClass().getField("i").get(row);

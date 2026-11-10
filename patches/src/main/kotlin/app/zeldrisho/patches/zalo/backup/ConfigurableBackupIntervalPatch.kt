@@ -37,7 +37,12 @@ internal fun overrideBackupInterval(method: MutableMethod, hours: String, versio
     method.replaceInstruction(resultIndex, "const-wide/32 v$register, $millis")
 }
 
-/** Validates the exact account-specific getter and returns its wide result index and register. */
+/**
+ * Returns the zero-based instruction index and first register of the account-specific wide result.
+ * [version261002] selects the getter used by Zalo 26.10.02 instead of the older getter.
+ *
+ * @throws IllegalStateException if the method body or required getter, key flow, or result is absent.
+ */
 internal fun locateBackupInterval(method: MutableMethod, version261002: Boolean): Pair<Int, Int> {
     val instructions = method.implementation?.instructions?.toList()
         ?: error("Zalo backup interval: scheduler has no implementation")

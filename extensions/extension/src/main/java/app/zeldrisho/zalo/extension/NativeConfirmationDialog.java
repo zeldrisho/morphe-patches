@@ -11,6 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class NativeConfirmationDialog {
   private NativeConfirmationDialog() {}
 
+  /**
+   * Shows a confirmation dialog and runs {@code confirmed} at most once on acceptance.
+   * Uses a platform dialog on reflection or runtime failure in native setup. If native setup
+   * reaches a finishing or destroyed activity, it returns without showing a dialog. Failures
+   * creating the platform dialog propagate.
+   */
   public static void show(Context context, String title, String message, String positive,
       String negative, Runnable confirmed) {
     AtomicBoolean accepted = new AtomicBoolean();

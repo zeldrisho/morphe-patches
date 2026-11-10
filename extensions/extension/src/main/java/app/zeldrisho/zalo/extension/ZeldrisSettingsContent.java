@@ -23,6 +23,11 @@ public final class ZeldrisSettingsContent {
   public static boolean hasBackupIntervalSettings() { return false; }
   public static boolean hasRecallSettings() { return false; }
 
+  /**
+   * Appends the installed features' settings rows to {@code parent} and returns it.
+   * If host resources or reflective setup are unavailable, returns the parent with any rows
+   * already added. Preference and locale access before setup may still throw runtime exceptions.
+   */
   public static View build(LinearLayout parent) {
     Context context = parent.getContext();
     SharedPreferences preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);

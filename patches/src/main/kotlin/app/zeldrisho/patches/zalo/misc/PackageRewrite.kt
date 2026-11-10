@@ -30,6 +30,11 @@ private val CLONE_STRING_COUNTS_260801 = mapOf(
     "android.resource://$ORIGINAL_ZALO_PACKAGE/" to 1,
 )
 
+/**
+ * Returns the expected DEX identity literal counts for a supported Zalo version.
+ *
+ * @throws IllegalStateException if [version] is null or unsupported.
+ */
 internal fun expectedCloneStringCounts(version: String?): Map<String, Int> = when (version) {
     "26.08.01" -> CLONE_STRING_COUNTS_260801
     "26.10.02" -> CLONE_STRING_COUNTS_260801 + ("$ORIGINAL_ZALO_PACKAGE.provider" to 7)

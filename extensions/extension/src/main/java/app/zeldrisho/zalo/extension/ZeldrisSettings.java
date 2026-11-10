@@ -62,13 +62,20 @@ public final class ZeldrisSettings {
     return value;
   }
 
+  /**
+   * Returns the stranger-notification preference, defaulting to true when unset and false when
+   * the app context is unavailable. Preference access errors propagate.
+   */
   public static boolean strangerNotificationsEnabled() {
     Context context = appContext();
     return context != null && context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         .getBoolean("stranger_notifications", true);
   }
 
-  /** Leaves the account-specific native interval untouched unless the user chose an override. */
+  /**
+   * Returns the chosen backup interval in milliseconds, or the account-specific native interval
+   * when no supported override is set or preferences cannot be read.
+   */
   public static long backupIntervalMillis(long nativeInterval) {
     Context context = appContext();
     if (context == null) return nativeInterval;
@@ -81,6 +88,7 @@ public final class ZeldrisSettings {
     return nativeInterval;
   }
 
+  /** Preserves the native visibility unless the Discovery tab is hidden in preferences. */
   public static boolean showDiscovery(boolean original) {
     return visible(original, DISCOVERY, false);
   }
@@ -90,6 +98,7 @@ public final class ZeldrisSettings {
     if (visible(true, "hide_contacts", false)) tabs.add(contacts);
   }
 
+  /** Preserves the native visibility unless the Timeline tab is hidden in preferences. */
   public static boolean showTimeline(boolean original) {
     return visible(original, TIMELINE, false);
   }
