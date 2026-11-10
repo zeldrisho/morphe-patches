@@ -1,3 +1,9 @@
+## [1.11.0-dev.11](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.10...v1.11.0-dev.11) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **zalo:** apply AMOLED overlay to dark theme resources ([797d2ab](https://github.com/zeldrisho/morphe-patches/commit/797d2ab135a1fcf89d5a90e966b0200d7755280f))
+
 ## [1.11.0-dev.10](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.9...v1.11.0-dev.10) (2026-11-10)
 
 ### 🐛 Bug Fixes
