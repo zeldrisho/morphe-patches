@@ -1,3 +1,9 @@
+## [1.11.0-dev.14](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.13...v1.11.0-dev.14) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **zalo:** apply AMOLED to native header surfaces ([0e7dead](https://github.com/zeldrisho/morphe-patches/commit/0e7dead7399921782bd11db9e643980a8137a0ea))
+
 ## [1.11.0-dev.13](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.12...v1.11.0-dev.13) (2026-11-10)
 
 ### 🐛 Bug Fixes
