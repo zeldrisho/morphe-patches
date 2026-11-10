@@ -1,38 +1,69 @@
 package app.zeldrisho.patches.zalo.misc
 
-import java.nio.ByteBuffer
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.util.zip.CRC32
+import java.util.zip.DeflaterOutputStream
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class LauncherPngTest {
-    private fun header(width: Int = 512, height: Int = width): ByteArray = ByteArray(33).apply {
-        byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10).copyInto(this)
-        ByteBuffer.wrap(this, 8, 4).putInt(13)
-        "IHDR".toByteArray(Charsets.US_ASCII).copyInto(this, 12)
-        ByteBuffer.wrap(this, 16, 4).putInt(width)
-        ByteBuffer.wrap(this, 20, 4).putInt(height)
+    private fun png(width: Int = 48, height: Int = width, filter: Int = 0,
+        interlaced: Boolean = false, badImageData: Boolean = false): ByteArray {
+        val output = ByteArrayOutputStream()
+        val writer = DataOutputStream(output)
+        writer.write(byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10))
+        fun chunk(type: String, data: ByteArray) {
+            val name = type.toByteArray(Charsets.US_ASCII)
+            writer.writeInt(data.size)
+            writer.write(name)
+            writer.write(data)
+            val crc = CRC32().apply { update(name); update(data) }
+            writer.writeInt(crc.value.toInt())
+        }
+        val header = ByteArrayOutputStream()
+        DataOutputStream(header).apply {
+            writeInt(width); writeInt(height)
+            write(byteArrayOf(8, 6, 0, 0, if (interlaced) 1 else 0))
+        }
+        chunk("IHDR", header.toByteArray())
+        val compressed = ByteArrayOutputStream()
+        DeflaterOutputStream(compressed).use { data ->
+            val row = ByteArray(width * 4 + 1).apply { this[0] = filter.toByte() }
+            repeat(height) { data.write(row) }
+        }
+        chunk("IDAT", if (badImageData) byteArrayOf(1, 2, 3, 4) else compressed.toByteArray())
+        chunk("IEND", ByteArray(0))
+        return output.toByteArray()
     }
 
-    @Test fun acceptsSupportedSquareDimensions() {
-        for (size in listOf(48, 512, 2048)) validateLauncherPng(header(size))
+    @Test fun acceptsCompleteSupportedSquarePngs() {
+        for (size in listOf(48, 512, 2048)) validateLauncherPng(png(size))
     }
 
     @Test fun rejectsInvalidDimensions() {
-        for (size in listOf(-1, 0, 47, 2049, Int.MAX_VALUE)) {
-            assertFailsWith<IllegalArgumentException> { validateLauncherPng(header(size)) }
-        }
-        assertFailsWith<IllegalArgumentException> { validateLauncherPng(header(512, 256)) }
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png(47)) }
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png(48, 49)) }
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png(2049)) }
     }
 
-    @Test fun rejectsMissingAndOversizedHeaders() {
-        for (bytes in listOf(ByteArray(0), ByteArray(32), ByteArray(8 * 1024 * 1024 + 1))) {
+    @Test fun rejectsHeaderOnlyTruncationAndExcessBytes() {
+        val valid = png()
+        for (bytes in listOf(ByteArray(0), valid.copyOf(33), valid.copyOf(valid.size - 1),
+            valid + byteArrayOf(1), ByteArray(8 * 1024 * 1024 + 1))) {
             assertFailsWith<IllegalArgumentException> { validateLauncherPng(bytes) }
         }
     }
 
-    @Test fun rejectsWrongSignatureAndChunk() {
-        assertFailsWith<IllegalArgumentException> { validateLauncherPng(header().apply { this[0] = 0 }) }
-        assertFailsWith<IllegalArgumentException> { validateLauncherPng(header().apply { this[15] = 0 }) }
-        assertFailsWith<IllegalArgumentException> { validateLauncherPng(header().apply { this[11] = 12 }) }
+    @Test fun rejectsWrongSignatureAndCorruptChunk() {
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png().apply { this[0] = 0 }) }
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png().apply { this[16] = 0x7f }) }
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png().apply { this[15] = 0 }) }
+    }
+
+    @Test fun rejectsInvalidFilterAndInterlacedPngs() {
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png(filter = 5)) }
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png(interlaced = true)) }
+        assertFailsWith<IllegalArgumentException> { validateLauncherPng(png(badImageData = true)) }
     }
 }

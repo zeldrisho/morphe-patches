@@ -56,9 +56,10 @@ val hideZaloNavigationTabsPatch = bytecodePatch(
         ) { "Zalo navigation tabs: unexpected Timeline state flow" }
 
         val contactsLoad = find(Opcode.SGET_OBJECT, "Lkj1/t;->PHONEBOOK:Lkj1/t;")
-        val contactsAdd = instructions.getOrNull(contactsLoad + 1) as? FiveRegisterInstruction
-        check(instructions[contactsLoad + 1].opcode == Opcode.INVOKE_VIRTUAL &&
-            (instructions[contactsLoad + 1] as? ReferenceInstruction)?.reference?.toString() ==
+        val contactsInstruction = instructions.getOrNull(contactsLoad + 1)
+        val contactsAdd = contactsInstruction as? FiveRegisterInstruction
+        check(contactsInstruction?.opcode == Opcode.INVOKE_VIRTUAL &&
+            (contactsInstruction as? ReferenceInstruction)?.reference?.toString() ==
                 "Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z" &&
             contactsAdd?.registerCount == 2 && contactsAdd.registerC == 0 && contactsAdd.registerD == 4
         ) { "Zalo navigation tabs: Contacts insertion changed" }
