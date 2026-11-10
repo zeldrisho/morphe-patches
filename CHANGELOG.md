@@ -1,3 +1,9 @@
+## [1.11.0-dev.6](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.5...v1.11.0-dev.6) (2026-11-10)
+
+### ✨ New Features
+
+* **zalo:** add recall retention and customization controls ([b53e7af](https://github.com/zeldrisho/morphe-patches/commit/b53e7afee6e32454e1cd0cc5c3ccc7a016bfa9d9)), closes [#53](https://github.com/zeldrisho/morphe-patches/issues/53) [#54](https://github.com/zeldrisho/morphe-patches/issues/54) [#55](https://github.com/zeldrisho/morphe-patches/issues/55) [#56](https://github.com/zeldrisho/morphe-patches/issues/56) [#59](https://github.com/zeldrisho/morphe-patches/issues/59) [#60](https://github.com/zeldrisho/morphe-patches/issues/60) [#61](https://github.com/zeldrisho/morphe-patches/issues/61)
+
 ## [1.11.0-dev.5](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.4...v1.11.0-dev.5) (2026-11-10)
 
 ### 🐛 Bug Fixes

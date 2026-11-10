@@ -15,19 +15,21 @@ Click the button below, or manually add this repository to Morphe: https://githu
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.11.0-dev.5](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.5)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;31 patches total
-### 📦 Zalo • 25 patches
+> **[v1.11.0-dev.6](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.6)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
+### 📦 Zalo • 29 patches
 
 **🎯 Supported versions:**
 
-| 26.08.01 | 26.10.02 |
+| 26.10.02 | 26.08.01 |
 | :---: | :---: |
 | Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. | Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | 🎯&nbsp;Versions / file type | ⚙️&nbsp;Options |
 |----------|----------------|----------------|-----------|
+| AMOLED dark theme | Makes selected native dark-mode surfaces pure black. Enable Zalo's dark theme separately. | 26.10.02 (APKM) |  |
 | Bypass Zalo Drive Contacts permission gate | Allows Drive photo restore account selection without Contacts permission. | 26.08.01, 26.10.02 (APKM) |  |
 | Bypass native startup tamper check | Allows the re-signed app to start on the supported arm64 Zalo build. | 26.08.01, 26.10.02 (APKM) |  |
+| Change Zalo app icon | Uses a user-supplied square PNG for the launcher and adaptive app icons. | 26.10.02 (APKM) | • PNG icon path |
 | Change Zalo app name | Changes the app name shown in the launcher. | 26.08.01, 26.10.02 (APKM) | • App name |
 | Change Zalo package name | Allows a renamed clone alongside Zalo. Login, push, sharing and deep links may be affected. | 26.08.01, 26.10.02 (APKM) | • Package name |
 | Configurable native backup interval | Sets Zalo 26.08.01's automatic backup interval to 1, 3, 6 or 12 hours. Existing backup requirements still apply. For 26.10.02 use the in-app interval settings. | 26.08.01 (APKM) | • Backup interval (hours) |
@@ -41,9 +43,11 @@ Click the button below, or manually add this repository to Morphe: https://githu
 | Filter promo notifications | Filters Timeline, Stories and Zalo Video notifications. Message, call, friend-request and birthday notifications are unaffected. | 26.08.01, 26.10.02 (APKM) |  |
 | Hide Business Box | Hides Business Box from the chat list without hiding ordinary or user-initiated Official Account chats. | 26.08.01, 26.10.02 (APKM) |  |
 | Hide Media Box | Hides Media Box from the chat list without deleting its content. | 26.08.01, 26.10.02 (APKM) |  |
+| Hide Newsfeed promotions | Hides native Zinstant ad rows and suggested Zalo Video sections in Newsfeed automatically. Ordinary video posts remain visible. | 26.10.02 (APKM) |  |
 | Hide chat list ads | Removes ad cards from the chat list. Server-delivered promotions and other ads may remain. | 26.08.01, 26.10.02 (APKM) |  |
-| Hide navigation tabs | Adds settings to control the Discovery and Timeline tabs. | 26.10.02 (APKM) |  |
+| Hide navigation tabs | Adds settings to hide Discovery, Contacts and Timeline individually. Tabs stay visible until hidden in Zeldris Patches; restart to apply. | 26.10.02 (APKM) |  |
 | Keep expired media accessible | Keeps locally stored large chat media accessible after expiry. Missing files and server restrictions are unaffected. | 26.08.01, 26.10.02 (APKM) |  |
+| Keep recalled messages | Adds an initially off recall-retention switch in Zeldris Patches. Preserves locally received content with a recalled label; cannot recover missing content. Restart to apply. | 26.10.02 (APKM) |  |
 | Native backup interval settings | Adds a backup interval choice in Zeldris Patches. Native is the default; existing backup requirements apply. | 26.10.02 (APKM) |  |
 | Prefer original photo quality | Enables original photo quality by default. Upload limits and video are unaffected. | 26.08.01, 26.10.02 (APKM) |  |
 | Remove AD_ID permission | Removes Zalo's advertising ID permissions. Messaging is unaffected. | 26.08.01, 26.10.02 (APKM) |  |
