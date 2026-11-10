@@ -13,8 +13,9 @@ Add this repository to Morphe using the button or URL: https://github.com/zeldri
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.11.0](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
-### 📦 Zalo • 29 patches
+> **[v1.11.1-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.1-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
+<details>
+<summary>📦 Zalo • 29 patches</summary>
 
 **🎯 Supported versions:**
 
@@ -54,7 +55,10 @@ Add this repository to Morphe using the button or URL: https://github.com/zeldri
 | Suppress outbound typing status | Stops sending typing indicators. Incoming typing status is unaffected. | 26.08.01, 26.10.02 (APKM) |  |
 | microG Drive support | Uses microG-RE for Google Drive account selection and sign-in. Requires app.revanced.android.gms and the app.revanced account type. | 26.08.01, 26.10.02 (APKM) |  |
 
-### 📦 Threads • 6 patches
+</details>
+
+<details>
+<summary>📦 Threads • 6 patches</summary>
 
 **🎯 Supported versions:**
 
@@ -70,6 +74,8 @@ Add this repository to Morphe using the button or URL: https://github.com/zeldri
 | Hide suggested accounts | Removes suggested-account units from the Threads feed. Other suggestion surfaces are unchanged. | 453.0.0.56.79 (APKM) |  |
 | Open links externally | Opens web links externally when possible; otherwise Threads handles them normally. | 434.0.0.41.74, 445.0.0.46.83, 449.0.0.54.82, 453.0.0.56.79 (APKS) |  |
 | Remove AD_ID permission | Removes advertising ID permissions. Meta's own analytics are unaffected. | 434.0.0.41.74, 445.0.0.46.83, 449.0.0.54.82, 453.0.0.56.79 (APKS) |  |
+
+</details>
 
 <!-- PATCHES_END -->
 

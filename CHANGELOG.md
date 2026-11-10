@@ -1,3 +1,9 @@
+## [1.11.1-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0...v1.11.1-dev.1) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* collapse generated README patch sections ([5f71c3d](https://github.com/zeldrisho/morphe-patches/commit/5f71c3d59646779439f110db2e618833705e8dc1))
+
 ## [1.11.0](https://github.com/zeldrisho/morphe-patches/compare/v1.10.0...v1.11.0) (2026-11-10)
 
 ### 🐛 Bug Fixes
