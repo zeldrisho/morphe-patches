@@ -1,3 +1,9 @@
+## [1.11.0-dev.8](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.7...v1.11.0-dev.8) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **zalo:** retry unavailable recall preference reads ([6f87502](https://github.com/zeldrisho/morphe-patches/commit/6f87502c2ceda9b0bc15d245d49e47042e6bc758))
+
 ## [1.11.0-dev.7](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.6...v1.11.0-dev.7) (2026-11-10)
 
 ### 🐛 Bug Fixes
