@@ -1,3 +1,13 @@
+## [1.11.0-dev.7](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.6...v1.11.0-dev.7) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* distinguish file types in supported version headings ([af47245](https://github.com/zeldrisho/morphe-patches/commit/af4724599e3e472ecb984a580531ab1407ccd264))
+
+### ✨ New Features
+
+* **zalo:** add in-app appearance controls ([f80fa48](https://github.com/zeldrisho/morphe-patches/commit/f80fa487bcd0cd297c0844edb7e58aaad010e80f)), closes [#55](https://github.com/zeldrisho/morphe-patches/issues/55) [#56](https://github.com/zeldrisho/morphe-patches/issues/56)
+
 ## [1.11.0-dev.6](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.5...v1.11.0-dev.6) (2026-11-10)
 
 ### ✨ New Features

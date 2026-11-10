@@ -15,21 +15,21 @@ Click the button below, or manually add this repository to Morphe: https://githu
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.11.0-dev.6](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.6)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
+> **[v1.11.0-dev.7](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.0-dev.7)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
 ### 📦 Zalo • 29 patches
 
 **🎯 Supported versions:**
 
-| 26.10.02 | 26.08.01 |
+| 26.10.02 (APKM) | 26.08.01 (APKM) |
 | :---: | :---: |
 | Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. | Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | 🎯&nbsp;Versions / file type | ⚙️&nbsp;Options |
 |----------|----------------|----------------|-----------|
-| AMOLED dark theme | Makes selected native dark-mode surfaces pure black. Enable Zalo's dark theme separately. | 26.10.02 (APKM) |  |
+| AMOLED dark theme | Adds an initially off AMOLED switch in Zeldris Patches. Enable Zalo's dark theme separately; restart to apply. | 26.10.02 (APKM) |  |
 | Bypass Zalo Drive Contacts permission gate | Allows Drive photo restore account selection without Contacts permission. | 26.08.01, 26.10.02 (APKM) |  |
 | Bypass native startup tamper check | Allows the re-signed app to start on the supported arm64 Zalo build. | 26.08.01, 26.10.02 (APKM) |  |
-| Change Zalo app icon | Uses a user-supplied square PNG for the launcher and adaptive app icons. | 26.10.02 (APKM) | • PNG icon path |
+| Change Zalo app icon | Adds a user-supplied PNG icon and an in-app switch between the original and custom launcher icons. | 26.10.02 (APKM) | • PNG icon path |
 | Change Zalo app name | Changes the app name shown in the launcher. | 26.08.01, 26.10.02 (APKM) | • App name |
 | Change Zalo package name | Allows a renamed clone alongside Zalo. Login, push, sharing and deep links may be affected. | 26.08.01, 26.10.02 (APKM) | • Package name |
 | Configurable native backup interval | Sets Zalo 26.08.01's automatic backup interval to 1, 3, 6 or 12 hours. Existing backup requirements still apply. For 26.10.02 use the in-app interval settings. | 26.08.01 (APKM) | • Backup interval (hours) |
@@ -60,7 +60,7 @@ Click the button below, or manually add this repository to Morphe: https://githu
 
 **🎯 Supported versions:**
 
-| 434.0.0.41.74 | 445.0.0.46.83 | 449.0.0.54.82 | 453.0.0.56.79 | 453.0.0.56.79 |
+| 434.0.0.41.74 (APKS) | 445.0.0.46.83 (APKS) | 449.0.0.54.82 (APKS) | 453.0.0.56.79 (APKS) | 453.0.0.56.79 (APKM) |
 | :---: | :---: | :---: | :---: | :---: |
 |  |  |  |  | Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. |
 
