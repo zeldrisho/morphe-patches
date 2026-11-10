@@ -1,3 +1,9 @@
+## [1.11.0-dev.9](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.8...v1.11.0-dev.9) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **zalo:** validate launcher PNGs and navigation bounds ([1c158ee](https://github.com/zeldrisho/morphe-patches/commit/1c158eebd1ba5549d1ff1efeef896d280556151c))
+
 ## [1.11.0-dev.8](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.7...v1.11.0-dev.8) (2026-11-10)
 
 ### 🐛 Bug Fixes

@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-10T10:36:57",
-  "description": "## [1.11.0-dev.8](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.7...v1.11.0-dev.8) (2026-11-10)\n\n### 🐛 Bug Fixes\n\n* **zalo:** retry unavailable recall preference reads ([6f87502](https://github.com/zeldrisho/morphe-patches/commit/6f87502c2ceda9b0bc15d245d49e47042e6bc758))",
-  "download_url": "https://github.com/zeldrisho/morphe-patches/releases/download/v1.11.0-dev.8/patches-1.11.0-dev.8.mpp",
+  "created_at": "2026-11-10T10:58:18",
+  "description": "## [1.11.0-dev.9](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.8...v1.11.0-dev.9) (2026-11-10)\n\n### 🐛 Bug Fixes\n\n* **zalo:** validate launcher PNGs and navigation bounds ([1c158ee](https://github.com/zeldrisho/morphe-patches/commit/1c158eebd1ba5549d1ff1efeef896d280556151c))",
+  "download_url": "https://github.com/zeldrisho/morphe-patches/releases/download/v1.11.0-dev.9/patches-1.11.0-dev.9.mpp",
   "signature_download_url": "",
-  "version": "1.11.0-dev.8"
+  "version": "1.11.0-dev.9"
 }
