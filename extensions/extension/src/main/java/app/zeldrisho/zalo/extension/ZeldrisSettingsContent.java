@@ -179,7 +179,9 @@ public final class ZeldrisSettingsContent {
         return;
       }
       preferences.edit().putBoolean(key, checked).apply();
-      restartNotice(item, vi);
+      // The notification gate reads this preference on each event; it does not
+      // need the app restart required by navigation, theme and recall policy.
+      if (!"stranger_notifications".equals(key)) restartNotice(item, vi);
     };
     cls.getMethod("setCheckedChangeListener", CompoundButton.OnCheckedChangeListener.class).invoke(item, listener);
   }
