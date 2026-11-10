@@ -22,7 +22,6 @@ public final class ZeldrisSettingsContent {
   public static boolean hasStrangerNotificationSettings() { return false; }
   public static boolean hasBackupIntervalSettings() { return false; }
   public static boolean hasRecallSettings() { return false; }
-  public static boolean hasAmoledSettings() { return false; }
   public static boolean hasCustomIconSettings() { return false; }
 
   /**
@@ -85,10 +84,6 @@ public final class ZeldrisSettingsContent {
       }
       if (hasCustomIconSettings()) {
         addIconToggle(parent, layout, privacy, vi);
-      }
-      if (hasAmoledSettings()) {
-        addToggle(parent, layout, privacy, vi ? "Giao diện AMOLED (chế độ tối)" : "AMOLED theme (dark mode)",
-            "amoled_theme", "zds_ic_wallpaper_line_24", preferences, vi);
       }
       if (hasRecallSettings()) {
         addToggle(parent, layout, privacy, vi ? "Giữ tin nhắn đã thu hồi" : "Keep recalled messages",
