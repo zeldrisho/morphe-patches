@@ -34,7 +34,11 @@ private val amoledOverlayResources = resourcePatch {
             for (name in listOf("PrimaryBackgroundColor", "SecondaryBackgroundColor", "BottomNav",
                 "TabBackgroundColor", "ChatBarBackgroundColor", "FooterBackgroundColor",
                 "ProfilePrimaryBackgroundColor", "ProfileSecondaryBackgroundColor",
-                "TimelinePrimaryBackgroundColor", "TimelineSecondaryBackgroundColor", "PopupBackgroundColor")) {
+                "TimelinePrimaryBackgroundColor", "TimelineSecondaryBackgroundColor", "PopupBackgroundColor",
+                "list_item_background", "HeaderStartColor", "HeaderEndColor", "ProfileBackgroundColor",
+                "ProfileUserInfoBackgroundColor", "ProfileSectionPhotoPrimaryBackgroundColor",
+                "StoryPrimaryBackgroundColor", "SearchBackgroundColor", "GalleryPickerViewBackgroundColor",
+                "ChatFooterBackgroundNormal", "social_timeline_background_color_content_centric")) {
                 val item = document.createElement("item")
                 item.setAttribute("name", name)
                 item.textContent = "#ff000000"

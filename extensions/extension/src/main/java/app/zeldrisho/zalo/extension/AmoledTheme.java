@@ -12,7 +12,11 @@ public final class AmoledTheme {
       "PrimaryBackgroundColor", "SecondaryBackgroundColor", "BottomNav", "TabBackgroundColor",
       "ChatBarBackgroundColor", "FooterBackgroundColor", "ProfilePrimaryBackgroundColor",
       "ProfileSecondaryBackgroundColor", "TimelinePrimaryBackgroundColor",
-      "TimelineSecondaryBackgroundColor", "PopupBackgroundColor"));
+      "TimelineSecondaryBackgroundColor", "PopupBackgroundColor", "list_item_background",
+      "HeaderStartColor", "HeaderEndColor", "ProfileBackgroundColor", "ProfileUserInfoBackgroundColor",
+      "ProfileSectionPhotoPrimaryBackgroundColor", "StoryPrimaryBackgroundColor", "SearchBackgroundColor",
+      "GalleryPickerViewBackgroundColor", "ChatFooterBackgroundNormal",
+      "social_timeline_background_color_content_centric"));
   private static volatile Method darkMode;
 
   private AmoledTheme() {}
