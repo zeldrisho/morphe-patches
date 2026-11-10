@@ -33,11 +33,30 @@ class ReadmeGeneratorTest(unittest.TestCase):
             readme.write_text("Before\n<!-- PATCHES_START -->\nold\n<!-- PATCHES_END -->\nAfter\n", encoding="utf-8")
             subprocess.run(["python3", str(GENERATOR), "owner/repo", "dev", str(catalog), str(readme)], check=True, capture_output=True)
             result = readme.read_text(encoding="utf-8")
-            self.assertIn("| 1.0 | 2.0 |", result)
+            self.assertIn("| 1.0 (APKS) | 2.0 (APKM) |", result)
             self.assertIn("| First |  | 1.0 (APKS) |", result)
             self.assertIn("| Second |  | 2.0 (APKM) |", result)
             self.assertTrue(result.startswith("Before\n"))
             self.assertTrue(result.endswith("After\n"))
+
+    def test_same_version_keeps_file_types_and_descriptions_distinct(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            catalog = root / "catalog.json"
+            readme = root / "README.md"
+            patches = []
+            for file_type, description in [("APKS", "Split build"), ("APKM", "Mirror build")]:
+                patches.append({"name": file_type, "compatiblePackages": [{
+                    "packageName": "example.app", "name": "Example", "apkFileType": file_type,
+                    "targets": [{"version": "1.0", "description": description}],
+                }]})
+            catalog.write_text(json.dumps({"version": "1.0", "patches": patches}), encoding="utf-8")
+            readme.write_text("<!-- PATCHES_START -->\n<!-- PATCHES_END -->\n", encoding="utf-8")
+            subprocess.run(["python3", str(GENERATOR), "owner/repo", "dev", str(catalog), str(readme)],
+                           check=True, capture_output=True)
+            result = readme.read_text(encoding="utf-8")
+            self.assertIn("| 1.0 (APKS) | 1.0 (APKM) |", result)
+            self.assertIn("| Split build | Mirror build |", result)
 
 
 if __name__ == "__main__":

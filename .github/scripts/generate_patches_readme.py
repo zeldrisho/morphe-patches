@@ -78,8 +78,9 @@ for patch in data["patches"]:
                 "targets": [],
             }
         for target in pkg_entry.get("targets") or []:
-            if target not in by_pkg[key]["targets"]:
-                by_pkg[key]["targets"].append(target)
+            target_with_type = {**target, "apkFileType": pkg_entry.get("apkFileType")}
+            if target_with_type not in by_pkg[key]["targets"]:
+                by_pkg[key]["targets"].append(target_with_type)
         # Deduplicate patches that appear across multiple packages
         if patch["name"] not in by_pkg[key]["patches"]:
             by_pkg[key]["patches"][patch["name"]] = patch
@@ -130,6 +131,8 @@ def versions_table(targets):
         if ver is None:
             continue
         label = f"🧪&nbsp;{ver}" if t.get("isExperimental") else ver
+        if t.get("apkFileType"):
+            label += f" ({t['apkFileType']})"
         cells.append(label)
         descs.append((t.get("description") or "").replace("\n", "<br>"))
 
