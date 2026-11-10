@@ -88,7 +88,7 @@ public final class ZeldrisSettingsContent {
       }
       if (hasAmoledSettings()) {
         addToggle(parent, layout, privacy, vi ? "Giao diện AMOLED (chế độ tối)" : "AMOLED theme (dark mode)",
-            "amoled_theme", "zds_ic_setting_line_24", preferences, vi);
+            "amoled_theme", "zds_ic_wallpaper_line_24", preferences, vi);
       }
       if (hasRecallSettings()) {
         addToggle(parent, layout, privacy, vi ? "Giữ tin nhắn đã thu hồi" : "Keep recalled messages",
