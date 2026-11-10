@@ -1,3 +1,9 @@
+## [1.11.0-dev.5](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.4...v1.11.0-dev.5) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* clarify per-patch compatibility ([9cc5c22](https://github.com/zeldrisho/morphe-patches/commit/9cc5c222c18afe2e71f2c22d5c8a6eb36f669642))
+
 ## [1.11.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.3...v1.11.0-dev.4) (2026-11-01)
 
 ### 🐛 Bug Fixes

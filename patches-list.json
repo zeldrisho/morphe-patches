@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.11.0-dev.4",
+  "version": "1.11.0-dev.5",
   "patches": [
     {
       "name": "Bypass Zalo Drive Contacts permission gate",
@@ -20,20 +20,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -58,20 +64,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -96,20 +108,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -144,20 +162,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -308,11 +332,14 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -347,20 +374,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -385,20 +418,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -423,20 +462,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -461,20 +506,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -499,20 +550,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -537,20 +594,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -575,11 +638,14 @@
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -604,20 +670,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -642,20 +714,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -680,20 +758,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -766,20 +850,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -804,11 +894,14 @@
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -833,11 +926,14 @@
             {
               "version": "453.0.0.56.79",
               "versionCodes": {
-                "ARM64_V8A": 512308696
+                "ARM64_V8A": 512308696,
+                "ARMEABI_V7A": 512308696,
+                "X86_64": 512308696,
+                "X86": 512308696
               },
               "isExperimental": false,
               "minSdk": 28,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -862,20 +958,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -900,11 +1002,14 @@
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -977,20 +1082,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -1063,20 +1174,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -1101,20 +1218,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -1139,20 +1262,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -1177,20 +1306,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
@@ -1215,20 +1350,26 @@
             {
               "version": "26.08.01",
               "versionCodes": {
-                "ARM64_V8A": 260801903
+                "ARM64_V8A": 260801903,
+                "ARMEABI_V7A": 260801903,
+                "X86_64": 260801903,
+                "X86": 260801903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             },
             {
               "version": "26.10.02",
               "versionCodes": {
-                "ARM64_V8A": 261002903
+                "ARM64_V8A": 261002903,
+                "ARMEABI_V7A": 261002903,
+                "X86_64": 261002903,
+                "X86": 261002903
               },
               "isExperimental": false,
               "minSdk": 24,
-              "description": null
+              "description": "Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata."
             }
           ]
         }
