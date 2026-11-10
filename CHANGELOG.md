@@ -1,3 +1,9 @@
+## [1.11.0-dev.12](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.11...v1.11.0-dev.12) (2026-11-10)
+
+### 🐛 Bug Fixes
+
+* **zalo:** cover more AMOLED theme surfaces ([12c12a5](https://github.com/zeldrisho/morphe-patches/commit/12c12a5972a2fe4e717aa575612ba1835f562296))
+
 ## [1.11.0-dev.11](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0-dev.10...v1.11.0-dev.11) (2026-11-10)
 
 ### 🐛 Bug Fixes
