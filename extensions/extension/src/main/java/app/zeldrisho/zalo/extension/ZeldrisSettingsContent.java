@@ -22,6 +22,8 @@ public final class ZeldrisSettingsContent {
   public static boolean hasStrangerNotificationSettings() { return false; }
   public static boolean hasBackupIntervalSettings() { return false; }
   public static boolean hasRecallSettings() { return false; }
+  public static boolean hasAmoledSettings() { return false; }
+  public static boolean hasCustomIconSettings() { return false; }
 
   /**
    * Appends the installed features' settings rows to {@code parent} and returns it.
@@ -81,6 +83,13 @@ public final class ZeldrisSettingsContent {
         ((ViewGroup) backup.getParent()).removeView(backup);
         parent.addView(backup);
       }
+      if (hasCustomIconSettings()) {
+        addIconToggle(parent, layout, privacy, vi);
+      }
+      if (hasAmoledSettings()) {
+        addToggle(parent, layout, privacy, vi ? "Giao diện AMOLED (chế độ tối)" : "AMOLED theme (dark mode)",
+            "amoled_theme", "zds_ic_setting_line_24", preferences, vi);
+      }
       if (hasRecallSettings()) {
         addToggle(parent, layout, privacy, vi ? "Giữ tin nhắn đã thu hồi" : "Keep recalled messages",
             "keep_recalled_messages", "zds_ic_backup_message_line_24", preferences, vi);
@@ -102,6 +111,35 @@ public final class ZeldrisSettingsContent {
     // Reusing a template also reuses its ID; these rows are addressed by their preference key instead.
     row.setId(View.NO_ID);
     row.setTag(key);
+    ((ViewGroup) row.getParent()).removeView(row);
+    parent.addView(row);
+  }
+
+  private static void addIconToggle(LinearLayout parent, int layout, int rowId,
+      boolean vi) throws ReflectiveOperationException {
+    LinearLayout temporary = new LinearLayout(parent.getContext());
+    LayoutInflater.from(parent.getContext()).inflate(layout, temporary, true);
+    View row = temporary.findViewById(rowId);
+    if (row == null) return;
+    Class<?> cls = row.getClass();
+    cls.getMethod("setTitle", CharSequence.class).invoke(row, vi ? "Dùng biểu tượng tùy chỉnh" : "Use custom app icon");
+    configureIcon(row, "zds_ic_setting_line_24");
+    cls.getMethod("setShowChevronRight", boolean.class).invoke(row, false);
+    cls.getMethod("setSwitch", boolean.class).invoke(row, LauncherIcon.isCustom(parent.getContext()));
+    boolean[] updating = {false};
+    CompoundButton.OnCheckedChangeListener listener = (button, checked) -> {
+      if (updating[0]) return;
+      if (!LauncherIcon.select(parent.getContext(), checked)) {
+        updating[0] = true;
+        button.setChecked(!checked);
+        updating[0] = false;
+        Toast.makeText(parent.getContext(), vi ? "Không thể đổi biểu tượng" : "Could not change icon", Toast.LENGTH_SHORT).show();
+      } else {
+        Toast.makeText(parent.getContext(), vi ? "Trình khởi chạy có thể cập nhật sau" : "Launcher may take time to update", Toast.LENGTH_SHORT).show();
+      }
+    };
+    cls.getMethod("setCheckedChangeListener", CompoundButton.OnCheckedChangeListener.class).invoke(row, listener);
+    row.setId(View.NO_ID);
     ((ViewGroup) row.getParent()).removeView(row);
     parent.addView(row);
   }

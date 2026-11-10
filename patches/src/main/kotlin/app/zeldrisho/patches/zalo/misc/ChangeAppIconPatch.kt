@@ -1,6 +1,9 @@
 package app.zeldrisho.patches.zalo.misc
 
+import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourceFile
+import app.morphe.patcher.util.returnEarly
+import app.zeldrisho.patches.zalo.navigation.zeldrisSettingsPatch
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.patch.stringOption
 import app.zeldrisho.patches.shared.Constants.COMPATIBILITY_ZALO_261002
@@ -26,13 +29,24 @@ internal fun validateLauncherPng(bytes: ByteArray) {
     require(width == height && width in 48..2048) { "Icon must be square, 48–2048 pixels" }
 }
 
+private val customIconSettingsPatch = bytecodePatch {
+    compatibleWith(COMPATIBILITY_ZALO_261002)
+    dependsOn(zeldrisSettingsPatch)
+    execute {
+        mutableClassDefBy("Lapp/zeldrisho/zalo/extension/ZeldrisSettingsContent;")
+            .methods.single { it.name == "hasCustomIconSettings" && it.parameterTypes.isEmpty() && it.returnType == "Z" }
+            .returnEarly(true)
+    }
+}
+
 @Suppress("unused")
 val changeZaloAppIconPatch = resourcePatch(
     name = "Change Zalo app icon",
-    description = "Uses a user-supplied square PNG for the launcher and adaptive app icons.",
+    description = "Adds a user-supplied PNG icon and an in-app switch between the original and custom launcher icons.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZALO_261002)
+    dependsOn(customIconSettingsPatch)
     val iconPath by stringOption(
         key = "iconPath", title = "PNG icon path",
         description = "Path accessible to the patcher. Use a square 48–2048 px PNG, with padding for adaptive masking.",
@@ -62,31 +76,25 @@ val changeZaloAppIconPatch = resourcePatch(
         }
         document("AndroidManifest.xml").use { document ->
             val application = document.getElementsByTagName("application").item(0) as Element
-            application.setAttributeNS(ANDROID_NS, "android:icon", "@mipmap/zeldris_launcher")
-            application.setAttributeNS(ANDROID_NS, "android:roundIcon", "@mipmap/zeldris_launcher")
-            // Only launcher components: leave call, share and notification artwork alone.
-            for (tag in listOf("activity", "activity-alias")) {
-                val components = application.getElementsByTagName(tag)
-                for (i in 0 until components.length) {
-                    val component = components.item(i) as Element
-                    val filters = component.getElementsByTagName("intent-filter")
-                    val launcher = (0 until filters.length).any { index ->
-                        val filter = filters.item(index) as Element
-                        fun has(name: String, value: String): Boolean {
-                            val elements = filter.getElementsByTagName(name)
-                            return (0 until elements.length).any {
-                                (elements.item(it) as Element).getAttributeNS(ANDROID_NS, "name") == value
-                            }
-                        }
-                        has("action", "android.intent.action.MAIN") &&
-                            has("category", "android.intent.category.LAUNCHER")
-                    }
-                    if (launcher) {
-                        component.setAttributeNS(ANDROID_NS, "android:icon", "@mipmap/zeldris_launcher")
-                        component.setAttributeNS(ANDROID_NS, "android:roundIcon", "@mipmap/zeldris_launcher")
-                    }
-                }
+            val aliases = application.getElementsByTagName("activity-alias")
+            val original = (0 until aliases.length).map { aliases.item(it) as Element }.singleOrNull {
+                it.getAttributeNS(ANDROID_NS, "name") == "com.zing.zalo.ui.SplashActivity"
+            } ?: error("Zalo launcher alias changed")
+            check(original.getAttributeNS(ANDROID_NS, "targetActivity") == "com.zing.zalo.ui.ZaloLauncherActivity") {
+                "Zalo launcher target changed"
             }
+            val filters = original.getElementsByTagName("intent-filter")
+            check(filters.length == 1) { "Zalo launcher intent filters changed" }
+            val categories = (filters.item(0) as Element).getElementsByTagName("category")
+            check((0 until categories.length).any {
+                (categories.item(it) as Element).getAttributeNS(ANDROID_NS, "name") == "android.intent.category.LAUNCHER"
+            }) { "Zalo launcher category changed" }
+            val alternate = original.cloneNode(true) as Element
+            alternate.setAttributeNS(ANDROID_NS, "android:name", "com.zing.zalo.ui.ZeldrisCustomIcon")
+            alternate.setAttributeNS(ANDROID_NS, "android:enabled", "false")
+            alternate.setAttributeNS(ANDROID_NS, "android:icon", "@mipmap/zeldris_launcher")
+            alternate.setAttributeNS(ANDROID_NS, "android:roundIcon", "@mipmap/zeldris_launcher")
+            application.appendChild(alternate)
         }
     }
 }
