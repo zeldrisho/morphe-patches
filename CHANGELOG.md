@@ -1,3 +1,10 @@
+## [1.12.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.12.0-dev.2...v1.12.0-dev.3) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* **ci:** pin CodeQL actions to release commit ([db36aa6](https://github.com/zeldrisho/morphe-patches/commit/db36aa62d34783b862b629570aebf59c559c5d82))
+* **zalo:** preserve native library root during ABI filtering ([7610acc](https://github.com/zeldrisho/morphe-patches/commit/7610acc3faf2b9c2cfb601e1913a1990f2fa6c94))
+
 ## [1.12.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.12.0-dev.1...v1.12.0-dev.2) (2026-11-11)
 
 ### ✨ New Features
