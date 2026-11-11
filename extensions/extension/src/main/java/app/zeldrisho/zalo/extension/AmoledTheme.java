@@ -51,6 +51,11 @@ public final class AmoledTheme {
     }
   }
 
+  /**
+   * Returns whether an attribute resource ID names a supported surface in the selected dark theme.
+   * Returns false in light mode or if surface resource lookup fails. Errors reading the system
+   * configuration during theme-detection fallback can propagate.
+   */
   public static boolean blackSurface(Context context, int attribute) {
     if (!isDark(context)) return false;
     try {

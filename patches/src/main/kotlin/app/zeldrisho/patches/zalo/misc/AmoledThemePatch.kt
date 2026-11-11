@@ -37,6 +37,12 @@ private val amoledDarkColors = setOf(
     "Dark_CSCPrimaryBackground",
 )
 
+/**
+ * Sets `bgCSC_Background` and `layer_background` in `BaseThemeDefault.Dark` to opaque black.
+ *
+ * @throws IllegalStateException before mutation if the theme is not unique, either item is not
+ * unique, or either item's trimmed value is not `@color/ng95`.
+ */
 internal fun blackenDesignSystemDarkSurfaces(document: Document) {
     val styles = document.getElementsByTagName("style")
     val themes = (0 until styles.length).map { styles.item(it) as Element }

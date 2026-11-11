@@ -13,7 +13,12 @@ import org.w3c.dom.Element
 
 private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
 
-/** Validates a complete, non-interlaced PNG including CRCs and bounded decompressed scanlines. */
+/**
+ * Validates a complete, non-interlaced square PNG of 48–512 pixels per side, at most 1 MiB.
+ * Checks chunk CRCs, chunk order, and decompressed scanline lengths and filter bytes.
+ *
+ * @throws IllegalArgumentException if the PNG is malformed, unsupported, or exceeds these limits.
+ */
 internal fun validateLauncherPng(bytes: ByteArray) {
     require(bytes.size in 33..1024 * 1024) { "Icon must be a PNG at most 1 MiB" }
     require(bytes.copyOfRange(0, 8).contentEquals(byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10))) {

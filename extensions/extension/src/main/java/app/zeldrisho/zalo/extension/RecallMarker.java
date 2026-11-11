@@ -18,6 +18,11 @@ public final class RecallMarker {
   private static final Object LOCK = new Object();
   private static final RecallKeyCache KEY_CACHE = new RecallKeyCache();
   private static final ThreadLocal<MessageDigest> DIGESTS = new ThreadLocal<MessageDigest>() {
+    /**
+     * Creates this thread's SHA-256 digest.
+     *
+     * @throws IllegalStateException if SHA-256 is unavailable
+     */
     @Override protected MessageDigest initialValue() {
       try {
         return MessageDigest.getInstance("SHA-256");
@@ -38,6 +43,11 @@ public final class RecallMarker {
         .getMethod("getAppContext").invoke(null);
   }
 
+  /**
+   * Returns recall-marker preferences and observes changes to invalidate cached keys.
+   * Switching preference instances detaches the old listener and discards the snapshot.
+   * Preference access and listener registration errors propagate to the caller.
+   */
   private static SharedPreferences preferences(Context context) {
     SharedPreferences preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     synchronized (LOCK) {
@@ -65,6 +75,14 @@ public final class RecallMarker {
     return keys.toArray(new String[0]);
   }
 
+  /**
+   * Returns a 64-character lowercase SHA-256 key for the owner, ID kind, and ID.
+   * Each UTF-8 component is prefixed with its four-byte big-endian byte length.
+   *
+   * @param kind client ID field name ({@code a}) or server ID field name ({@code b})
+   * @throws IllegalStateException if SHA-256 is unavailable
+   * @throws NullPointerException if any component is null
+   */
   private static String digest(String owner, String kind, String id) {
     MessageDigest digest = DIGESTS.get();
     digest.reset();
@@ -93,7 +111,13 @@ public final class RecallMarker {
     return true;
   }
 
-  /** Called before the host queues or executes a remote recall, including not-yet-loaded messages. */
+  /**
+   * Called before the host queues or executes a remote recall, including not-yet-loaded messages.
+   * Stores hashed recall keys with the current time in milliseconds since the epoch, evicting
+   * the oldest other keys as needed to keep at most 4096 markers. Missing context or usable IDs
+   * cause no write; reflection and runtime failures are ignored. Preference writes invalidate
+   * cached keys and are applied asynchronously to disk.
+   */
   private static void record(Object id) {
     try {
       Context context = context();
