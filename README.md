@@ -1,10 +1,12 @@
 # 🧩 Zeldris Patches
 
+## ❓ About
+
 Patches for apps I like, built for [Morphe](https://morphe.software).
 
-## How to use
+### How to use these patches
 
-Add this repository to Morphe using the button or URL: https://github.com/zeldrisho/morphe-patches
+Click the button below to add these patches to Morphe.
 
 <a href="https://morphe.software/add-source?github=zeldrisho/morphe-patches">
   <img src="https://raw.githubusercontent.com/MorpheApp/morphe-patches-template/main/.github/assets/add-to-morphe.svg" alt="Add to Morphe" height="48">
@@ -81,12 +83,11 @@ Add this repository to Morphe using the button or URL: https://github.com/zeldri
 
 ### 🛠️ Building locally
 
-See [development](docs/development.md) for setup and [testing](docs/testing.md) for validation. Build with `./gradlew :patches:buildAndroid --no-daemon`; the bundle is in `patches/build/libs/`.
+- Set up the toolchain using the [development guide](docs/development.md).
+- Run `./gradlew :patches:buildAndroid --no-daemon`. The bundle is in `patches/build/libs/`.
+- Apply it with [Morphe Desktop](https://github.com/MorpheApp/morphe-desktop). See [testing](docs/testing.md) for validation.
 
-## Help
-
-- [Zalo Google Drive and microG-RE](docs/microg.md)
-- [Report a bug or request a feature](https://github.com/zeldrisho/morphe-patches/issues/new/choose)
+For Zalo Drive setup, see the [microG-RE guide](docs/microg.md). [Report a bug or request a feature](https://github.com/zeldrisho/morphe-patches/issues/new/choose).
 
 ## 📜 License
 
