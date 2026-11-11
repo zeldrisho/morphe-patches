@@ -2,6 +2,7 @@ package app.zeldrisho.patches.zalo.misc
 
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
+import java.io.File
 import java.util.zip.CRC32
 import java.util.zip.DeflaterOutputStream
 import kotlin.test.Test
@@ -39,6 +40,10 @@ class LauncherPngTest {
 
     @Test fun acceptsCompleteSupportedSquarePngs() {
         for (size in listOf(48, 512)) validateLauncherPng(png(size))
+    }
+
+    @Test fun acceptsDocumentedExampleIcon() {
+        validateLauncherPng(File("../docs/images/example-launcher-icon.png").readBytes())
     }
 
     @Test fun rejectsInvalidDimensions() {
