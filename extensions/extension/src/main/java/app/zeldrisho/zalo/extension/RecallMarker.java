@@ -9,18 +9,46 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Set;
 
 /** Recall metadata only: no message text, attachment copies, or account tokens. */
 public final class RecallMarker {
   private static final String PREFS = "zeldris_recall_markers";
   private static final int MAX_MARKERS = 4096;
   private static final Object LOCK = new Object();
+  private static final RecallKeyCache KEY_CACHE = new RecallKeyCache();
+  private static final ThreadLocal<MessageDigest> DIGESTS = new ThreadLocal<MessageDigest>() {
+    @Override protected MessageDigest initialValue() {
+      try {
+        return MessageDigest.getInstance("SHA-256");
+      } catch (NoSuchAlgorithmException exception) {
+        throw new IllegalStateException(exception);
+      }
+    }
+  };
+  // SharedPreferences holds listeners weakly, so retain this listener for the process lifetime.
+  private static final SharedPreferences.OnSharedPreferenceChangeListener KEY_LISTENER =
+      (preferences, key) -> KEY_CACHE.invalidate();
+  private static SharedPreferences observedPreferences;
 
   private RecallMarker() {}
 
   private static Context context() throws ReflectiveOperationException {
     return (Context) Class.forName("com.zing.zalo.MainApplication")
         .getMethod("getAppContext").invoke(null);
+  }
+
+  private static SharedPreferences preferences(Context context) {
+    SharedPreferences preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    synchronized (LOCK) {
+      if (observedPreferences != preferences) {
+        if (observedPreferences != null) observedPreferences.unregisterOnSharedPreferenceChangeListener(KEY_LISTENER);
+        KEY_CACHE.invalidate();
+        preferences.registerOnSharedPreferenceChangeListener(KEY_LISTENER);
+        observedPreferences = preferences;
+      }
+    }
+    return preferences;
   }
 
   /** Native MessageId equality accepts either client ID (a) or server ID (b), scoped to owner (c). */
@@ -38,24 +66,21 @@ public final class RecallMarker {
   }
 
   private static String digest(String owner, String kind, String id) {
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      // Length-prefix components so delimiter-like characters cannot collide.
-      for (String value : new String[] {owner, kind, id}) {
-        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        digest.update(new byte[] {(byte) (bytes.length >>> 24), (byte) (bytes.length >>> 16),
-            (byte) (bytes.length >>> 8), (byte) bytes.length});
-        digest.update(bytes);
-      }
-      StringBuilder result = new StringBuilder(64);
-      for (byte value : digest.digest()) {
-        result.append(Character.forDigit((value >>> 4) & 15, 16));
-        result.append(Character.forDigit(value & 15, 16));
-      }
-      return result.toString();
-    } catch (NoSuchAlgorithmException exception) {
-      throw new IllegalStateException(exception);
+    MessageDigest digest = DIGESTS.get();
+    digest.reset();
+    // Length-prefix components so delimiter-like characters cannot collide.
+    for (String value : new String[] {owner, kind, id}) {
+      byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+      digest.update(new byte[] {(byte) (bytes.length >>> 24), (byte) (bytes.length >>> 16),
+          (byte) (bytes.length >>> 8), (byte) bytes.length});
+      digest.update(bytes);
     }
+    StringBuilder result = new StringBuilder(64);
+    for (byte value : digest.digest()) {
+      result.append(Character.forDigit((value >>> 4) & 15, 16));
+      result.append(Character.forDigit(value & 15, 16));
+    }
+    return result.toString();
   }
 
   /**
@@ -75,7 +100,7 @@ public final class RecallMarker {
       String[] keys = keys(id);
       if (context == null || keys.length == 0) return;
       synchronized (LOCK) {
-        SharedPreferences preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        SharedPreferences preferences = preferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         Map<String, ?> snapshot = preferences.getAll();
         int additions = 0;
@@ -96,7 +121,10 @@ public final class RecallMarker {
         }
         long now = System.currentTimeMillis();
         for (String key : keys) editor.putLong(key, now);
+        // Invalidate synchronously: Android may dispatch preference listeners on the main thread.
+        KEY_CACHE.invalidate();
         editor.apply();
+        KEY_CACHE.invalidate();
       }
     } catch (ReflectiveOperationException | RuntimeException ignored) {
       // Metadata failures must not crash messaging or modify the original payload.
@@ -110,13 +138,15 @@ public final class RecallMarker {
    */
   public static String timeLabel(Object row, String original) {
     try {
+      Context context = ((View) row).getContext();
+      SharedPreferences preferences = preferences(context);
+      Set<String> storedKeys = KEY_CACHE.get(() -> preferences.getAll().keySet());
+      if (storedKeys.isEmpty()) return original;
       Object message = row.getClass().getField("i").get(row);
       if (message == null) return original;
       Object id = message.getClass().getField("b").get(message);
-      Context context = ((View) row).getContext();
-      SharedPreferences preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
       for (String key : keys(id)) {
-        if (preferences.contains(key)) {
+        if (storedKeys.contains(key)) {
           int label = context.getResources().getIdentifier("recalled_group_msg", "string", context.getPackageName());
           String marker = label == 0 ? "Recalled" : context.getString(label);
           return (original == null || original.isEmpty()) ? marker : original + " · " + marker;

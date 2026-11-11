@@ -29,9 +29,14 @@ public final class LauncherIcon {
     try {
       pm.getActivityInfo(enable, PackageManager.MATCH_DISABLED_COMPONENTS);
       pm.getActivityInfo(disable, PackageManager.MATCH_DISABLED_COMPONENTS);
-      pm.setComponentEnabledSetting(enable, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-      pm.setComponentEnabledSetting(disable, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-      return true;
+      return LauncherIconTransaction.select(new LauncherIconTransaction.Components() {
+        @Override public int get(boolean destination) {
+          return pm.getComponentEnabledSetting(destination ? enable : disable);
+        }
+        @Override public void set(boolean destination, int state) {
+          pm.setComponentEnabledSetting(destination ? enable : disable, state, PackageManager.DONT_KILL_APP);
+        }
+      }, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
     } catch (PackageManager.NameNotFoundException | RuntimeException ignored) {
       return false;
     }

@@ -66,7 +66,7 @@ public final class ZeldrisSettingsContent {
         View stranger = temporary.findViewById(notifications);
         if (stranger == null) return parent;
         configure(stranger, vi ? "Cho phép thông báo người lạ" : "Allow stranger notifications",
-            "stranger_notifications", "zds_ic_stranger_line_24", true, preferences, vi);
+            "stranger_notifications", "zds_ic_stranger_line_24", false, preferences, vi);
         ((ViewGroup) stranger.getParent()).removeView(stranger);
         parent.addView(stranger);
       }

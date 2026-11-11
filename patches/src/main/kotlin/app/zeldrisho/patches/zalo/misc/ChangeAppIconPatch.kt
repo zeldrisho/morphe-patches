@@ -18,7 +18,7 @@ private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
 
 /** Validates a complete, non-interlaced PNG including CRCs and bounded decompressed scanlines. */
 internal fun validateLauncherPng(bytes: ByteArray) {
-    require(bytes.size in 33..8 * 1024 * 1024) { "Icon must be a PNG at most 8 MiB" }
+    require(bytes.size in 33..1024 * 1024) { "Icon must be a PNG at most 1 MiB" }
     require(bytes.copyOfRange(0, 8).contentEquals(byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10))) {
         "Icon must be a PNG"
     }
@@ -51,7 +51,7 @@ internal fun validateLauncherPng(bytes: ByteArray) {
                 require(offset == 8 && length == 13) { "Invalid PNG IHDR" }
                 width = number(start)
                 height = number(start + 4)
-                require(width == height && width in 48..2048) { "Icon must be square, 48–2048 pixels" }
+                require(width == height && width in 48..512) { "Icon must be square, 48–512 pixels" }
                 val depth = bytes[start + 8].toInt() and 0xff
                 val color = bytes[start + 9].toInt() and 0xff
                 colorType = color
@@ -136,21 +136,23 @@ val changeZaloAppIconPatch = resourcePatch(
     dependsOn(customIconSettingsPatch)
     val iconPath by stringOption(
         key = "iconPath", title = "PNG icon path",
-        description = "Path accessible to the patcher. Use a square, non-interlaced 48–2048 px PNG, with padding for adaptive masking.",
+        description = "Path accessible to the patcher. Use a square, non-interlaced 48–512 px PNG, at most 1 MiB, with padding for adaptive masking.",
         required = true,
     )
     execute {
         val input = File(requireNotNull(iconPath) { "Choose a PNG icon path" })
-        require(input.isFile && input.length() <= 8 * 1024 * 1024) { "Icon is missing or exceeds 8 MiB" }
+        require(input.isFile && input.length() <= 1024 * 1024) { "Icon is missing or exceeds 1 MiB" }
         val bytes = input.readBytes()
         validateLauncherPng(bytes)
         resourceFile("res/drawable-nodpi/zeldris_launcher_image.png", false).apply {
             parentFile.mkdirs()
             writeBytes(bytes)
         }
-        resourceFile("res/mipmap-nodpi/zeldris_launcher.png", false).apply {
+        resourceFile("res/mipmap-nodpi/zeldris_launcher.xml", false).apply {
             parentFile.mkdirs()
-            writeBytes(bytes)
+            writeText("""
+                <bitmap xmlns:android="$ANDROID_NS" android:src="@drawable/zeldris_launcher_image" />
+            """.trimIndent())
         }
         resourceFile("res/mipmap-anydpi-v26/zeldris_launcher.xml", false).apply {
             parentFile.mkdirs()
