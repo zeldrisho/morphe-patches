@@ -21,7 +21,7 @@ private val NOP = byteArrayOf(0x1f, 0x20, 0x03, 0xd5.toByte())
 private const val HEX_RADIX = 16
 
 internal fun nonArm64NativeEntries(entries: Iterable<String>): List<String> =
-    entries.filter { it.startsWith("lib/") && !it.startsWith("lib/arm64-v8a/") }
+    entries.filter { it.startsWith("lib/") && it != "lib/" && !it.startsWith("lib/arm64-v8a/") }
 
 private val keepArm64NativeLibraries = resourcePatch {
     compatibleWith(COMPATIBILITY_ZALO)
