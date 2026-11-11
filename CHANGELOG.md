@@ -1,3 +1,9 @@
+## [1.12.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.12.0-dev.1...v1.12.0-dev.2) (2026-11-11)
+
+### ✨ New Features
+
+* **zalo:** apply custom icon without a settings toggle ([457dc69](https://github.com/zeldrisho/morphe-patches/commit/457dc6977dedfbe28abede9da6707d716b8421c5))
+
 ## [1.12.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.11.1-dev.1...v1.12.0-dev.1) (2026-11-11)
 
 ### 🐛 Bug Fixes

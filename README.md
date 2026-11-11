@@ -15,7 +15,7 @@ Click the button below to add these patches to Morphe.
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.12.0-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.12.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;36 patches total
+> **[v1.12.0-dev.2](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.12.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;36 patches total
 <details>
 <summary>📦 Zalo • 30 patches</summary>
 
@@ -30,7 +30,7 @@ Click the button below to add these patches to Morphe.
 | AMOLED dark theme | Forces pure black surfaces across Zalo's dark theme, including the Me tab root. Light mode is untouched. | 26.10.02 (APKM) |  |
 | Bypass Zalo Drive Contacts permission gate | Allows Drive photo restore account selection without Contacts permission. | 26.08.01, 26.10.02 (APKM) |  |
 | Bypass native startup tamper check | Allows the re-signed app to start on the supported arm64 Zalo build; removes other native ABIs. | 26.08.01, 26.10.02 (APKM) |  |
-| Change Zalo app icon | Adds a user-supplied PNG icon and an in-app switch between the original and custom launcher icons. | 26.10.02 (APKM) | • PNG icon path |
+| Change Zalo app icon | Replaces the launcher icon with a user-supplied PNG. | 26.10.02 (APKM) | • PNG icon path |
 | Change Zalo app name | Changes the app name shown in the launcher. | 26.08.01, 26.10.02 (APKM) | • App name |
 | Change Zalo package name | Allows a renamed clone alongside Zalo. Login, push, sharing and deep links may be affected. | 26.08.01, 26.10.02 (APKM) | • Package name |
 | Chat reaction picker | Allows the enabled reaction UI without a matching local subscription package. Server restrictions may still apply. | 26.10.02 (APKM) |  |
