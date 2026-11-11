@@ -88,7 +88,9 @@ Click the button below to add these patches to Morphe.
 - Run `./gradlew :patches:buildAndroid --no-daemon`. The bundle is in `patches/build/libs/`.
 - Apply it with [Morphe Desktop](https://github.com/MorpheApp/morphe-desktop). See [testing](docs/testing.md) for validation.
 
-For Zalo Drive setup, see the [microG-RE guide](docs/microg.md). [Report a bug or request a feature](https://github.com/zeldrisho/morphe-patches/issues/new/choose).
+For Zalo Drive setup, see the [microG-RE guide](docs/microg.md). For a custom launcher icon, see the [example and instructions](docs/custom-icon.md).
+
+[Report a bug or request a feature](https://github.com/zeldrisho/morphe-patches/issues/new/choose).
 
 ## 📜 License
 
