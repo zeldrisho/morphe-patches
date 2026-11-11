@@ -1,3 +1,13 @@
+## [1.12.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.11.1-dev.1...v1.12.0-dev.1) (2026-11-11)
+
+### 🐛 Bug Fixes
+
+* **zalo:** address patch review findings ([b077a70](https://github.com/zeldrisho/morphe-patches/commit/b077a70f2afd63036965a6fbc134d4b97fca673a))
+
+### ✨ New Features
+
+* **zalo:** add optional reaction picker gate bypass ([586899a](https://github.com/zeldrisho/morphe-patches/commit/586899a8096820b97e79a086917d29ffa3609a81))
+
 ## [1.11.1-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0...v1.11.1-dev.1) (2026-11-10)
 
 ### 🐛 Bug Fixes

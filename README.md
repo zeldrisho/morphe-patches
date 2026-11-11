@@ -15,24 +15,25 @@ Click the button below to add these patches to Morphe.
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.11.1-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.11.1-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;35 patches total
+> **[v1.12.0-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.12.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;36 patches total
 <details>
-<summary>📦 Zalo • 29 patches</summary>
+<summary>📦 Zalo • 30 patches</summary>
 
 **🎯 Supported versions:**
 
 | 26.10.02 (APKM) | 26.08.01 (APKM) |
 | :---: | :---: |
-| Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. | Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. |
+| Only arm64-v8a has been validated; patching may retain other ABIs. | Only arm64-v8a has been validated; patching may retain other ABIs. |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | 🎯&nbsp;Versions / file type | ⚙️&nbsp;Options |
 |----------|----------------|----------------|-----------|
 | AMOLED dark theme | Forces pure black surfaces across Zalo's dark theme, including the Me tab root. Light mode is untouched. | 26.10.02 (APKM) |  |
 | Bypass Zalo Drive Contacts permission gate | Allows Drive photo restore account selection without Contacts permission. | 26.08.01, 26.10.02 (APKM) |  |
-| Bypass native startup tamper check | Allows the re-signed app to start on the supported arm64 Zalo build. | 26.08.01, 26.10.02 (APKM) |  |
+| Bypass native startup tamper check | Allows the re-signed app to start on the supported arm64 Zalo build; removes other native ABIs. | 26.08.01, 26.10.02 (APKM) |  |
 | Change Zalo app icon | Adds a user-supplied PNG icon and an in-app switch between the original and custom launcher icons. | 26.10.02 (APKM) | • PNG icon path |
 | Change Zalo app name | Changes the app name shown in the launcher. | 26.08.01, 26.10.02 (APKM) | • App name |
 | Change Zalo package name | Allows a renamed clone alongside Zalo. Login, push, sharing and deep links may be affected. | 26.08.01, 26.10.02 (APKM) | • Package name |
+| Chat reaction picker | Allows the enabled reaction UI without a matching local subscription package. Server restrictions may still apply. | 26.10.02 (APKM) |  |
 | Configurable native backup interval | Sets Zalo 26.08.01's automatic backup interval to 1, 3, 6 or 12 hours. Existing backup requirements still apply. For 26.10.02 use the in-app interval settings. | 26.08.01 (APKM) | • Backup interval (hours) |
 | Disable ads | Blocks selected offline and Google-served ads. Story and community sponsored placements require a separate patch. | 26.08.01, 26.10.02 (APKM) |  |
 | Disable sponsored placements | Disables Story and community sponsored placements. Server-delivered and Official Account promotions may remain. | 26.08.01, 26.10.02 (APKM) |  |
@@ -40,7 +41,7 @@ Click the button below to add these patches to Morphe.
 | Enable Google Drive photo backup | Makes Zalo's Google Drive photo backup available to more accounts. Google authorization and Drive retention still apply. | 26.08.01, 26.10.02 (APKM) |  |
 | Enable avatar saving | Restores Save photo for avatars opened from a profile and allows screenshots. Other screenshot protections are unchanged. | 26.08.01, 26.10.02 (APKM) |  |
 | Enable profile cover saving | Restores Save photo for profile cover photos and allows screenshots. Other viewers are unchanged. | 26.08.01, 26.10.02 (APKM) |  |
-| Enable stranger notifications | Adds an in-app switch to allow Stranger Box notifications, enabled by default. Off uses Zalo's native gate; other settings and delivery restrictions still apply. | 26.10.02 (APKM) |  |
+| Enable stranger notifications | Adds an initially off in-app switch to allow Stranger Box notifications. Off uses Zalo's native gate; other settings and delivery restrictions still apply. | 26.10.02 (APKM) |  |
 | Filter promo notifications | Filters Timeline, Stories and Zalo Video notifications. Message, call, friend-request and birthday notifications are unaffected. | 26.08.01, 26.10.02 (APKM) |  |
 | Hide Business Box | Hides Business Box from the chat list without hiding ordinary or user-initiated Official Account chats. | 26.08.01, 26.10.02 (APKM) |  |
 | Hide Media Box | Hides Media Box from the chat list without deleting its content. | 26.08.01, 26.10.02 (APKM) |  |
