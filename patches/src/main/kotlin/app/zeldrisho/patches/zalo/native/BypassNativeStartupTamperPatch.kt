@@ -20,6 +20,7 @@ private val ORIGINAL_EXIT_CALL = byteArrayOf(0x00, 0x01, 0x3f, 0xd6.toByte())
 private val NOP = byteArrayOf(0x1f, 0x20, 0x03, 0xd5.toByte())
 private const val HEX_RADIX = 16
 
+/** Returns entries under `lib/` outside `lib/arm64-v8a/`, including directories but excluding `lib/` itself. */
 internal fun nonArm64NativeEntries(entries: Iterable<String>): List<String> =
     entries.filter { it.startsWith("lib/") && it != "lib/" && !it.startsWith("lib/arm64-v8a/") }
 

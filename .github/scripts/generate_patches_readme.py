@@ -151,7 +151,11 @@ def versions_table(targets):
 
 
 def app_section(label, count, targets, tbl, expanded):
-    """Render an app section, collapsed unless the marker requests expansion."""
+    """Return an app section with supported versions and the supplied patch table.
+
+    Use a Markdown heading when expanded is true; otherwise wrap the section in
+    a collapsed HTML details element. Omit supported versions when none render.
+    """
     noun = "patch" if count == 1 else "patches"
     heading = f"{label} • {count} {noun}"
     vtbl = versions_table(targets)
@@ -163,7 +167,11 @@ def app_section(label, count, targets, tbl, expanded):
 
 
 def build_content(expanded=False):
-    """Build the full generated patches section."""
+    """Return the release summary and app sections, followed by universal patches.
+
+    App sections are collapsed by default; expanded opens all sections as
+    Markdown headings.
+    """
     lines = [
         f"> **[v{ver}](https://github.com/{owner}/{repo}/releases/tag/v{ver})**"
         f"&nbsp;&nbsp;•&nbsp;&nbsp;`{branch}`&nbsp;&nbsp;•&nbsp;&nbsp;"
