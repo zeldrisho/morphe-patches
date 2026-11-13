@@ -80,16 +80,15 @@ for patch in data["patches"]:
                 "package": pkg,
                 "emoji":   pkg_emoji(form_factor),
                 "patches": {},
-                "targets": pkg_entry.get("targets", []),
+                "targets": [],
             }
+        for target in pkg_entry.get("targets") or []:
+            target_with_type = {**target, "apkFileType": pkg_entry.get("apkFileType")}
+            if target_with_type not in by_pkg[key]["targets"]:
+                by_pkg[key]["targets"].append(target_with_type)
         # Deduplicate patches that appear across multiple packages
         if patch["name"] not in by_pkg[key]["patches"]:
             by_pkg[key]["patches"][patch["name"]] = patch
-
-
-def anchor(name):
-    """Convert a patch name to a GitHub-compatible anchor slug."""
-    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", name.lower())).strip("-")
 
 
 def patches_table(patches):
@@ -99,7 +98,6 @@ def patches_table(patches):
         "|----------|----------------|-----------|",
     ]
     for p in sorted(patches, key=lambda x: x["name"]):
-        a = anchor(p["name"])
         options = p.get("options") or []
         if options:
             # Show only option titles as a bullet list
@@ -108,7 +106,7 @@ def patches_table(patches):
         else:
             opts_cell = ""
         desc = (p.get("description") or "").replace("\n", "<br>")
-        rows.append(f"| [{p['name']}](#{a}) | {desc} | {opts_cell} |")
+        rows.append(f"| {p['name']} | {desc} | {opts_cell} |")
     return "\n".join(rows)
 
 
@@ -121,12 +119,16 @@ def versions_table(targets):
         return ""
 
     cells = []
+    descs = []
     for t in targets:
         ver   = t["version"]
         if ver is None:
             continue
         label = f"🧪&nbsp;{ver}" if t.get("isExperimental") else ver
+        if t.get("apkFileType"):
+            label += f" ({t['apkFileType']})"
         cells.append(label)
+        descs.append((t.get("description") or "").replace("\n", "<br>"))
 
     if not cells:
         return ""
@@ -136,7 +138,6 @@ def versions_table(targets):
     rows = [header, sep]
 
     # Optional description row — only rendered if at least one target has one
-    descs = [(t.get("description") or "").replace("\n", "<br>") for t in targets]
     if any(descs):
         rows.append("| " + " | ".join(descs) + " |")
 

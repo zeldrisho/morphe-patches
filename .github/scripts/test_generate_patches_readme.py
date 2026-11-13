@@ -39,15 +39,31 @@ class ReadmeGeneratorTest(unittest.TestCase):
             }],
         }])
         self.assertIn("**Package name:** `example.app`", result)
-        self.assertIn("| 1.0 | 🧪&nbsp;2.0 |", result)
+        self.assertIn("| 1.0 (APKM) | 🧪&nbsp;2.0 (APKM) |", result)
         self.assertIn("| Validated build |  |", result)
         self.assertIn("| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |", result)
-        self.assertIn("| [Example patch](#example-patch) | First line<br>Second line | • App name |", result)
+        self.assertIn("| Example patch | First line<br>Second line | • App name |", result)
+        self.assertNotIn("](#", result)
         self.assertNotIn("Versions / file type", result)
-        self.assertNotIn("APKM", result)
         self.assertTrue(result.startswith("Before\n"))
         self.assertTrue(result.endswith("After\n"))
         self.assertNotIn("\nold\n", result)
+
+    def test_target_union_preserves_file_types_and_descriptions(self):
+        def patch(name, version, file_type, description):
+            return {"name": name, "compatiblePackages": [{
+                "packageName": "example.app", "name": "Example", "apkFileType": file_type,
+                "targets": [{"version": version, "description": description}],
+            }]}
+
+        result = self.render([
+            patch("First", "1.0", "APKS", "Split build"),
+            patch("Second", "1.0", "APKM", "Mirror build"),
+            patch("Third", "2.0", "APKM", "New build"),
+            patch("Fourth", "1.0", "APKS", "Split build"),
+        ])
+        self.assertIn("| 1.0 (APKS) | 1.0 (APKM) | 2.0 (APKM) |", result)
+        self.assertIn("| Split build | Mirror build | New build |", result)
 
     def test_small_catalog_stays_collapsed(self):
         result = self.render([

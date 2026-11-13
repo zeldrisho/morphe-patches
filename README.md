@@ -6,7 +6,7 @@ Patches for apps I like, built for [Morphe](https://morphe.software).
 
 ### How to use these patches
 
-Click the button below to add these patches to Morphe.
+Click the button below to add these patches to Morphe, or manually add `https://github.com/zeldrisho/morphe-patches` as a patch source.
 
 <a href="https://morphe.software/add-source?github=zeldrisho/morphe-patches">
   <img src="https://raw.githubusercontent.com/MorpheApp/morphe-patches-template/main/.github/assets/add-to-morphe.svg" alt="Add to Morphe" height="48">
