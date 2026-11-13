@@ -1,28 +1,50 @@
 package app.zeldrisho.zalo.extension;
 
 import android.content.Context;
-import android.content.res.Resources;
 
-/** Optional overrides for a small, explicitly identified set of themed accent attributes. */
+/**
+ * Applies a patch-generated theme overlay that overrides Zalo's brand theme attributes.
+ * Only the preset styles written by the patch are used; unknown values fall back to the native theme.
+ */
 public final class AccentColor {
   static final String PREFS = "zeldris_patch_settings";
   static final String KEY = "accent_color";
 
+  /** Preset colors, in the same order as the generated overlay styles. */
+  private static final String[] PRESETS = {"Blue", "Purple", "Green", "Red", "Orange"};
+  private static final int[] COLORS = {
+      0xff0068ff, 0xff6941c6, 0xff067647, 0xffb42318, 0xffb54708,
+  };
+
   private AccentColor() {}
 
-  /** Zero means use Zalo's unmodified color; selected colors are always opaque. */
-  public static int resolve(Context context, int attribute) {
-    if (context == null) return 0;
+  public static void applyLight(Context context) {
+    apply(context, "Light");
+  }
+
+  public static void applyDark(Context context) {
+    apply(context, "Dark");
+  }
+
+  private static void apply(Context context, String mode) {
+    if (context == null) return;
     try {
-      Resources resources = context.getResources();
-      if (!"attr".equals(resources.getResourceTypeName(attribute))) return 0;
-      String name = resources.getResourceEntryName(attribute);
-      if (!"AppPrimaryColor".equals(name) && !"AppAccentColor".equals(name)
-          && !"AppBrandingColor".equals(name)) return 0;
-      int color = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(KEY, 0);
-      return color == 0 ? 0 : color | 0xff000000;
+      int selected = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(KEY, 0);
+      String preset = null;
+      for (int i = 0; i < COLORS.length; i++) {
+        if (COLORS[i] == selected) {
+          preset = PRESETS[i];
+          break;
+        }
+      }
+      if (preset == null) return;
+      int style = context.getResources()
+          .getIdentifier("ZeldrisAccent" + preset + mode, "style", context.getPackageName());
+      if (style == 0) return;
+      // The native setTheme call already ran; the overlay only replaces brand attributes.
+      context.getTheme().applyStyle(style, true);
     } catch (RuntimeException ignored) {
-      return 0;
+      // A missing style or theme must leave Zalo's native colors untouched.
     }
   }
 }

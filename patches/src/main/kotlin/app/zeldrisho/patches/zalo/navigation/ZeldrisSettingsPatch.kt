@@ -26,6 +26,8 @@ internal val zeldrisSettingsPatch = bytecodePatch {
         for ((className, titleMethod) in listOf(
             "ZeldrisSettingsView" to "setTitle",
             "ZeldrisBackupSettingsView" to "setBackupTitle",
+            "ZeldrisAccentSettingsView" to "setAccentTitle",
+            "ZeldrisRingtoneSettingsView" to "setRingtoneTitle",
         )) {
             val screen = mutableClassDefBy("Lapp/zeldrisho/zalo/extension/$className;")
             check(screen.superclass == "Ljava/lang/Object;") { "Zeldris settings: unexpected placeholder superclass" }
