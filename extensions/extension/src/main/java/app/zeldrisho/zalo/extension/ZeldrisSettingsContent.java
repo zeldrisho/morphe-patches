@@ -2,6 +2,7 @@ package app.zeldrisho.zalo.extension;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ public final class ZeldrisSettingsContent {
   public static boolean hasRecallSettings() { return false; }
   public static boolean hasZStyleSettings() { return false; }
   public static boolean hasAccentColorSettings() { return false; }
+  public static boolean hasCustomRingtoneSettings() { return false; }
 
   /**
    * Appends the installed features' settings rows to {@code parent} and returns it.
@@ -84,6 +86,9 @@ public final class ZeldrisSettingsContent {
         ((ViewGroup) backup.getParent()).removeView(backup);
         parent.addView(backup);
       }
+      if (hasCustomRingtoneSettings()) {
+        addRingtoneChoice(parent, layout, notifications, preferences, vi);
+      }
       if (hasAccentColorSettings()) {
         addAccentColorChoice(parent, layout, privacy, preferences, vi);
       }
@@ -99,6 +104,43 @@ public final class ZeldrisSettingsContent {
       // A host ABI mismatch must not crash the app.
     }
     return parent;
+  }
+
+  private static void addRingtoneChoice(LinearLayout parent, int layout, int rowId,
+      SharedPreferences preferences, boolean vi) throws ReflectiveOperationException {
+    Context context = parent.getContext();
+    LinearLayout temporary = new LinearLayout(context);
+    LayoutInflater.from(context).inflate(layout, temporary, true);
+    View row = temporary.findViewById(rowId);
+    if (row == null) return;
+    Class<?> cls = row.getClass();
+    cls.getMethod("setTitle", CharSequence.class).invoke(row,
+        vi ? "Nhạc chuông cuộc gọi" : "Call ringtone");
+    configureIcon(row, "zds_ic_notif_line_24");
+    cls.getMethod("setShowChevronRight", boolean.class).invoke(row, true);
+    row.setId(View.NO_ID);
+    row.setTag(CustomRingtone.KEY);
+    row.setOnClickListener(view -> {
+      String[] options = vi ? new String[] {"Chọn tệp âm thanh", "Mặc định"}
+          : new String[] {"Choose audio file", "Use Zalo default"};
+      new AlertDialog.Builder(view.getContext()).setTitle(vi ? "Nhạc chuông cuộc gọi" : "Call ringtone")
+          .setItems(options, (dialog, which) -> {
+            if (which == 1) {
+              preferences.edit().remove(CustomRingtone.KEY).apply();
+              Toast.makeText(view.getContext(), vi ? "Đã khôi phục mặc định" : "Using Zalo default", Toast.LENGTH_SHORT).show();
+              return;
+            }
+            try {
+              Intent intent = new Intent(view.getContext(), RingtonePickerActivity.class);
+              if (!(view.getContext() instanceof android.app.Activity)) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+              view.getContext().startActivity(intent);
+            } catch (RuntimeException ignored) {
+              Toast.makeText(view.getContext(), "Audio picker unavailable", Toast.LENGTH_SHORT).show();
+            }
+          }).setNegativeButton(android.R.string.cancel, null).show();
+    });
+    ((ViewGroup) row.getParent()).removeView(row);
+    parent.addView(row);
   }
 
   private static void addAccentColorChoice(LinearLayout parent, int layout, int rowId,
