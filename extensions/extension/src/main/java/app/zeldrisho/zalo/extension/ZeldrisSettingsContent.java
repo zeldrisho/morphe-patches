@@ -1,5 +1,6 @@
 package app.zeldrisho.zalo.extension;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ public final class ZeldrisSettingsContent {
   public static boolean hasBackupIntervalSettings() { return false; }
   public static boolean hasRecallSettings() { return false; }
   public static boolean hasZStyleSettings() { return false; }
+  public static boolean hasAccentColorSettings() { return false; }
 
   /**
    * Appends the installed features' settings rows to {@code parent} and returns it.
@@ -82,6 +84,9 @@ public final class ZeldrisSettingsContent {
         ((ViewGroup) backup.getParent()).removeView(backup);
         parent.addView(backup);
       }
+      if (hasAccentColorSettings()) {
+        addAccentColorChoice(parent, layout, privacy, preferences, vi);
+      }
       if (hasZStyleSettings()) {
         addToggle(parent, layout, messages, vi ? "Ẩn hội thoại zStyle" : "Hide zStyle conversation",
             "hide_zstyle_conversation", "zds_ic_hide_line_24", true, preferences, vi);
@@ -94,6 +99,38 @@ public final class ZeldrisSettingsContent {
       // A host ABI mismatch must not crash the app.
     }
     return parent;
+  }
+
+  private static void addAccentColorChoice(LinearLayout parent, int layout, int rowId,
+      SharedPreferences preferences, boolean vi) throws ReflectiveOperationException {
+    Context context = parent.getContext();
+    LinearLayout temporary = new LinearLayout(context);
+    LayoutInflater.from(context).inflate(layout, temporary, true);
+    View row = temporary.findViewById(rowId);
+    if (row == null) return;
+    Class<?> cls = row.getClass();
+    cls.getMethod("setTitle", CharSequence.class).invoke(row,
+        vi ? "Màu nhấn (một phần)" : "Accent color (partial)");
+    configureIcon(row, "zds_ic_setting_line_24");
+    cls.getMethod("setShowChevronRight", boolean.class).invoke(row, true);
+    row.setId(View.NO_ID);
+    row.setTag(AccentColor.KEY);
+    row.setOnClickListener(view -> {
+      String[] labels = vi
+          ? new String[] {"Mặc định", "Xanh dương", "Tím", "Xanh lá", "Đỏ", "Cam"}
+          : new String[] {"Default", "Blue", "Purple", "Green", "Red", "Orange"};
+      int[] colors = {0, 0xff0068ff, 0xff6941c6, 0xff067647, 0xffb42318, 0xffb54708};
+      new AlertDialog.Builder(view.getContext())
+          .setTitle(vi ? "Màu nhấn (một phần)" : "Accent color (partial)")
+          .setItems(labels, (dialog, which) -> {
+            preferences.edit().putInt(AccentColor.KEY, colors[which]).apply();
+            restartNotice(view, vi);
+          })
+          .setNegativeButton(android.R.string.cancel, null)
+          .show();
+    });
+    ((ViewGroup) row.getParent()).removeView(row);
+    parent.addView(row);
   }
 
   /** Inflate independent template rows so feature selections never steal each other's widgets. */
