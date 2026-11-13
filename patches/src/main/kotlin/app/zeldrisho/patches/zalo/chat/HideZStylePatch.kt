@@ -4,7 +4,9 @@ import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.string
+import app.morphe.patcher.util.returnEarly
 import app.zeldrisho.patches.shared.Constants.COMPATIBILITY_ZALO_261002
+import app.zeldrisho.patches.zalo.navigation.zeldrisSettingsPatch
 import com.android.tools.smali.dexlib2.AccessFlags
 
 /** Hides the exact observed display name from the ordinary chat list, without deleting it. */
@@ -16,12 +18,19 @@ val hideZaloZStylePatch = bytecodePatch(
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_ZALO_261002)
+    dependsOn(zeldrisSettingsPatch)
     execute {
+        val capability = mutableClassDefBy("Lapp/zeldrisho/zalo/extension/ZeldrisSettingsContent;")
+            .methods.single { it.name == "hasZStyleSettings" && it.parameterTypes.isEmpty() && it.returnType == "Z" }
+        capability.returnEarly(true)
         val method = OrdinaryConversationInsertion.matchAll(1..1).single().method
         check(method.implementation?.registerCount == 15) { "Conversation list register layout changed" }
         // Conversation.c is the host's display-name field. Both scratch registers are
         // overwritten before their first use in the original method.
         method.addInstructionsWithLabels(0, """
+            invoke-static {}, Lapp/zeldrisho/zalo/extension/ZeldrisSettings;->hideZStyleConversation()Z
+            move-result v0
+            if-eqz v0, :show_conversation
             iget-object v0, p2, Lcom/zing/zalo/data/chat/model/tabmessage/Conversation;->c:Ljava/lang/String;
             const-string v1, "zStyle – Phong cách Zalo"
             invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z

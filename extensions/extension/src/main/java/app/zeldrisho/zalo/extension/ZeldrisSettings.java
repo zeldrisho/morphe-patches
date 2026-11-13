@@ -93,6 +93,18 @@ public final class ZeldrisSettings {
     return nativeInterval;
   }
 
+  /** Whether the optional exact-name zStyle conversation filter is enabled. */
+  public static boolean hideZStyleConversation() {
+    Context context = appContext();
+    if (context == null) return false;
+    try {
+      return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+          .getBoolean("hide_zstyle_conversation", true);
+    } catch (RuntimeException ignored) {
+      return false;
+    }
+  }
+
   /** Preserves the native visibility unless the Discovery tab is hidden in preferences. */
   public static boolean showDiscovery(boolean original) {
     return visible(original, DISCOVERY, false);

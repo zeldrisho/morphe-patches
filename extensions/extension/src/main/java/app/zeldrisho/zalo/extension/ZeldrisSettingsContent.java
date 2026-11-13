@@ -22,6 +22,7 @@ public final class ZeldrisSettingsContent {
   public static boolean hasStrangerNotificationSettings() { return false; }
   public static boolean hasBackupIntervalSettings() { return false; }
   public static boolean hasRecallSettings() { return false; }
+  public static boolean hasZStyleSettings() { return false; }
 
   /**
    * Appends the installed features' settings rows to {@code parent} and returns it.
@@ -81,9 +82,13 @@ public final class ZeldrisSettingsContent {
         ((ViewGroup) backup.getParent()).removeView(backup);
         parent.addView(backup);
       }
+      if (hasZStyleSettings()) {
+        addToggle(parent, layout, messages, vi ? "Ẩn hội thoại zStyle" : "Hide zStyle conversation",
+            "hide_zstyle_conversation", "zds_ic_hide_line_24", true, preferences, vi);
+      }
       if (hasRecallSettings()) {
         addToggle(parent, layout, privacy, vi ? "Giữ tin nhắn đã thu hồi" : "Keep recalled messages",
-            "keep_recalled_messages", "zds_ic_backup_message_line_24", preferences, vi);
+            "keep_recalled_messages", "zds_ic_backup_message_line_24", false, preferences, vi);
       }
     } catch (ReflectiveOperationException | RuntimeException ignored) {
       // A host ABI mismatch must not crash the app.
@@ -93,12 +98,12 @@ public final class ZeldrisSettingsContent {
 
   /** Inflate independent template rows so feature selections never steal each other's widgets. */
   private static void addToggle(LinearLayout parent, int layout, int rowId, String title, String key,
-      String iconName, SharedPreferences preferences, boolean vi) throws ReflectiveOperationException {
+      String iconName, boolean defaultValue, SharedPreferences preferences, boolean vi) throws ReflectiveOperationException {
     LinearLayout temporary = new LinearLayout(parent.getContext());
     LayoutInflater.from(parent.getContext()).inflate(layout, temporary, true);
     View row = temporary.findViewById(rowId);
     if (row == null) return;
-    configure(row, title, key, iconName, false, preferences, vi);
+    configure(row, title, key, iconName, defaultValue, preferences, vi);
     // Reusing a template also reuses its ID; these rows are addressed by their preference key instead.
     row.setId(View.NO_ID);
     row.setTag(key);
