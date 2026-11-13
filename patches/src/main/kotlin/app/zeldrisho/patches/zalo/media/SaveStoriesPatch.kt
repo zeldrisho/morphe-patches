@@ -39,6 +39,7 @@ val saveZaloStoriesPatch = bytecodePatch(
         // The branch is reached only for ordinary (not advertised or Zalo Video) non-owner stories.
         // Keep Zalo's native status checks and limit the action to types 1 and 2, which its saver handles.
         method.addInstructionsAtControlFlowLabel(index, """
+            if-nez v10, :continue_story_menu
             if-eqz v4, :continue_story_menu
             iget v0, v4, Lda1/b;->p:I
             const/4 v2, 0x1
