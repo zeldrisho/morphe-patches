@@ -1,3 +1,17 @@
+## [1.13.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.12.0...v1.13.0-dev.1) (2026-11-13)
+
+### 🐛 Bug Fixes
+
+* align README generator with Morphe template while keeping sections collapsed ([e6f2105](https://github.com/zeldrisho/morphe-patches/commit/e6f2105303ce935850b86506a74f8425d45a777a))
+* apply custom Zalo icon to application and launcher ([0e6834e](https://github.com/zeldrisho/morphe-patches/commit/0e6834effd9bcd017d254d8942304a68fbd56cf2))
+* exclude emoji status from story saving ([295da7e](https://github.com/zeldrisho/morphe-patches/commit/295da7e0667e893c7180b2c3634ad8926ade4168))
+* preserve README compatibility summaries and release versioning ([e6e8b83](https://github.com/zeldrisho/morphe-patches/commit/e6e8b835579b431f54e481342db1554889f67f01))
+
+### ✨ New Features
+
+* add Zalo notification mark-read action ([b987a9d](https://github.com/zeldrisho/morphe-patches/commit/b987a9d14ba267217ca0a2dad550275b18edb303))
+* expose native saving for Zalo stories ([4b52f39](https://github.com/zeldrisho/morphe-patches/commit/4b52f39b05b1d3c5fb2362517dec2095dcb8c64c))
+
 ## [1.12.0](https://github.com/zeldrisho/morphe-patches/compare/v1.11.0...v1.12.0) (2026-11-11)
 
 ### 🐛 Bug Fixes
