@@ -15,9 +15,9 @@ Click the button below to add these patches to Morphe, or manually add `https://
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.13.0-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.13.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;38 patches total
+> **[v1.13.0-dev.2](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.13.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;41 patches total
 <details>
-<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;32 patches</summary>
+<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;35 patches</summary>
 <br>
 
 **Package name:** `com.zing.zalo`
@@ -38,6 +38,8 @@ Click the button below to add these patches to Morphe, or manually add `https://
 | Change Zalo package name | Allows a renamed clone alongside Zalo. Login, push, sharing and deep links may be affected. | • Package name |
 | Chat reaction picker | Allows the enabled reaction UI without a matching local subscription package. Server restrictions may still apply. |  |
 | Configurable native backup interval | Sets Zalo 26.08.01's automatic backup interval to 1, 3, 6 or 12 hours. Existing backup requirements still apply. For 26.10.02 use the in-app interval settings. | • Backup interval (hours) |
+| Custom Zalo call ringtone | Adds a global incoming-call audio file choice in Zeldris Patches; notification and per-friend sounds are unchanged. |  |
+| Customize Zalo accent color | Recolors Zalo's brand theme attributes from preset colors. Hardcoded colors, images and third-party branding keep their native values. |  |
 | Disable ads | Blocks selected offline and Google-served ads. Story and community sponsored placements require a separate patch. |  |
 | Disable sponsored placements | Disables Story and community sponsored placements. Server-delivered and Official Account promotions may remain. |  |
 | Disable telemetry and crash reporting | Stops selected Zalo analytics and crash reporting. Messaging is unaffected. |  |
@@ -51,6 +53,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 | Hide Newsfeed promotions | Hides native Zinstant ad rows and suggested Zalo Video sections in Newsfeed automatically. Ordinary video posts remain visible. |  |
 | Hide chat list ads | Removes ad cards from the chat list. Server-delivered promotions and other ads may remain. |  |
 | Hide navigation tabs | Adds settings to hide Discovery, Contacts and Timeline individually. Tabs stay visible until hidden in Zeldris Patches; restart to apply. |  |
+| Hide zStyle conversation | Hides the exact name zStyle – Phong cách Zalo from the chat list. Another conversation with the same name is also hidden. |  |
 | Keep expired media accessible | Keeps locally stored large chat media accessible after expiry. Missing files and server restrictions are unaffected. |  |
 | Keep recalled messages | Adds an initially off recall-retention switch in Zeldris Patches. Preserves locally received content with a recalled label; cannot recover missing content. Restart to apply. |  |
 | Mark Zalo conversation read from notifications | Adds a mark-as-read action to eligible message notifications using Zalo's native handler. |  |

@@ -1,3 +1,16 @@
+## [1.13.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.13.0-dev.1...v1.13.0-dev.2) (2026-11-15)
+
+### 🐛 Bug Fixes
+
+* apply accent color as theme overlay and use native settings screens ([e05ce27](https://github.com/zeldrisho/morphe-patches/commit/e05ce271999419eb5043fb1dea62d11c20844efd))
+
+### ✨ New Features
+
+* add global custom Zalo call ringtone ([e058b7c](https://github.com/zeldrisho/morphe-patches/commit/e058b7c961da7fe121ff2e527f7cd7243ae2c8bd))
+* add partial Zalo accent color setting ([eee4847](https://github.com/zeldrisho/morphe-patches/commit/eee484712c5abf1744486ed875953a5eed625da4))
+* add zStyle visibility setting ([8820328](https://github.com/zeldrisho/morphe-patches/commit/88203289cb94b8f0b1ba17f37dadc66e7a551299))
+* hide named Zalo zStyle conversation ([e4daea2](https://github.com/zeldrisho/morphe-patches/commit/e4daea2e6af159fb66c1c7fc6cd7e447280b98b6))
+
 ## [1.13.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.12.0...v1.13.0-dev.1) (2026-11-13)
 
 ### 🐛 Bug Fixes
