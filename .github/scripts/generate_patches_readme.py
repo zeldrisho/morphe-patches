@@ -3,8 +3,9 @@
 Generates the patches section of README.md from patches-list.json
 and injects it between <!-- PATCHES_START --> / <!-- PATCHES_END --> markers.
 
-Spoilers are collapsed by default, unless the README marker explicitly says:
-<!-- PATCHES_START EXPANDED -->
+Spoilers are expanded (open by default) if:
+  1. Total patch count <= AUTO_EXPAND_THRESHOLD.
+  2. The README marker explicitly says: <!-- PATCHES_START EXPANDED -->
 
 python3 generate_patches_readme.py <owner/repo> <branch> [patches-list.json] [README.md]
 """
@@ -83,9 +84,8 @@ for patch in data["patches"]:
                 "targets": [],
             }
         for target in pkg_entry.get("targets") or []:
-            target_with_type = {**target, "apkFileType": pkg_entry.get("apkFileType")}
-            if target_with_type not in by_pkg[key]["targets"]:
-                by_pkg[key]["targets"].append(target_with_type)
+            if target not in by_pkg[key]["targets"]:
+                by_pkg[key]["targets"].append(target)
         # Deduplicate patches that appear across multiple packages
         if patch["name"] not in by_pkg[key]["patches"]:
             by_pkg[key]["patches"][patch["name"]] = patch
@@ -103,6 +103,7 @@ def patches_table(patches):
         "|----------|----------------|-----------|",
     ]
     for p in sorted(patches, key=lambda x: x["name"]):
+        a = anchor(p["name"])
         options = p.get("options") or []
         if options:
             # Show only option titles as a bullet list
@@ -111,30 +112,38 @@ def patches_table(patches):
         else:
             opts_cell = ""
         desc = (p.get("description") or "").replace("\n", "<br>")
-        rows.append(f"| [{p['name']}](#{anchor(p['name'])}) | {desc} | {opts_cell} |")
+        rows.append(f"| [{p['name']}](#{a}) | {desc} | {opts_cell} |")
     return "\n".join(rows)
 
 
 def versions_table(targets):
-    """Render supported versions as a centered markdown table."""
+    """Render a markdown table of supported versions.
+    Experimental versions get a 🧪 prefix.
+    Versions with a description get it shown in a second row below.
+    """
     if not targets:
         return ""
+
     cells = []
-    descriptions = []
-    for target in targets:
-        version = target.get("version")
-        if version is None:
+    for t in targets:
+        ver   = t["version"]
+        if ver is None:
             continue
-        cells.append(f"🧪&nbsp;{version}" if target.get("isExperimental") else version)
-        descriptions.append((target.get("description") or "").replace("\n", "<br>"))
+        label = f"🧪&nbsp;{ver}" if t.get("isExperimental") else ver
+        cells.append(label)
+
     if not cells:
         return ""
-    rows = [
-        "| " + " | ".join(cells) + " |",
-        "| " + " | ".join(":---:" for _ in cells) + " |",
-    ]
-    if any(descriptions):
-        rows.append("| " + " | ".join(descriptions) + " |")
+
+    header = "| " + " | ".join(cells) + " |"
+    sep = "| " + " | ".join(":---:" for _ in cells) + " |"
+    rows = [header, sep]
+
+    # Optional description row — only rendered if at least one target has one
+    descs = [(t.get("description") or "").replace("\n", "<br>") for t in targets]
+    if any(descs):
+        rows.append("| " + " | ".join(descs) + " |")
+
     return "\n".join(rows)
 
 
@@ -213,8 +222,17 @@ if not marker_match or END_MARKER not in readme:
 
 actual_start = marker_match.group(0)
 
-# Keep spoilers collapsed unless the README marker explicitly requests expansion.
-expanded = "EXPANDED" in actual_start
+# Auto-expand threshold
+AUTO_EXPAND_THRESHOLD = 20
+
+# Spoilers are expanded if:
+# 1. Total patch count is small (≤ AUTO_EXPAND_THRESHOLD)
+#    with only a few patches where collapsing adds no benefit.
+# 2. The README marker explicitly requests it: <!-- PATCHES_START EXPANDED -->
+expanded = (
+    total <= AUTO_EXPAND_THRESHOLD or
+    "EXPANDED" in actual_start
+)
 
 generated  = build_content(expanded=expanded)
 
