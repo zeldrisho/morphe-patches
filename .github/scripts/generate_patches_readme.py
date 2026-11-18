@@ -78,7 +78,6 @@ for patch in data["patches"]:
             by_pkg[key] = {
                 "name":    pkg_label(name, form_factor),
                 "package": pkg,
-                "form_factor": form_factor,
                 "emoji":   pkg_emoji(form_factor),
                 "patches": {},
                 "targets": [],
@@ -92,26 +91,16 @@ for patch in data["patches"]:
             by_pkg[key]["patches"][patch["name"]] = patch
 
 
-def patch_versions(patch, package=None, form_factor=None):
-    """Return the target versions declared for a patch in this package."""
-    versions = {}
-    for compatibility in patch.get("compatiblePackages") or []:
-        if package is not None and compatibility.get("packageName") != package:
-            continue
-        if form_factor is not None and compatibility.get("formFactor") != form_factor:
-            continue
-        for target in compatibility.get("targets") or []:
-            version = target.get("version")
-            if version is not None:
-                versions[version] = versions.get(version, False) or bool(target.get("isExperimental"))
-    return versions
+def anchor(name):
+    """Convert a patch name to a GitHub-compatible anchor slug."""
+    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", name.lower())).strip("-")
 
 
-def patches_table(patches, package=None, form_factor=None):
-    """Render a sorted markdown table of patches with compatibility and options."""
+def patches_table(patches):
+    """Render a sorted markdown table of patches with name, description, and options."""
     rows = [
-        "| 💊&nbsp;Patch | 📜&nbsp;Description | 🧩&nbsp;Supported versions | ⚙️&nbsp;Options |",
-        "|----------|----------------|------------------------|-----------|",
+        "| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |",
+        "|----------|----------------|-----------|",
     ]
     for p in sorted(patches, key=lambda x: x["name"]):
         options = p.get("options") or []
@@ -122,26 +111,31 @@ def patches_table(patches, package=None, form_factor=None):
         else:
             opts_cell = ""
         desc = (p.get("description") or "").replace("\n", "<br>")
-        versions = patch_versions(p, package, form_factor)
-        versions_cell = ", ".join(
-            f"🧪&nbsp;{version}" if experimental else version
-            for version, experimental in sorted(versions.items())
-        )
-        rows.append(f"| {p['name']} | {desc} | {versions_cell} | {opts_cell} |")
+        rows.append(f"| [{p['name']}](#{anchor(p['name'])}) | {desc} | {opts_cell} |")
     return "\n".join(rows)
 
 
 def versions_table(targets):
-    """Render supported versions once each, without a file-type table."""
-    labels = []
+    """Render supported versions as a centered markdown table."""
+    if not targets:
+        return ""
+    cells = []
+    descriptions = []
     for target in targets:
         version = target.get("version")
         if version is None:
             continue
-        label = f"🧪&nbsp;{version}" if target.get("isExperimental") else version
-        if label not in labels:
-            labels.append(label)
-    return ", ".join(labels)
+        cells.append(f"🧪&nbsp;{version}" if target.get("isExperimental") else version)
+        descriptions.append((target.get("description") or "").replace("\n", "<br>"))
+    if not cells:
+        return ""
+    rows = [
+        "| " + " | ".join(cells) + " |",
+        "| " + " | ".join(":---:" for _ in cells) + " |",
+    ]
+    if any(descriptions):
+        rows.append("| " + " | ".join(descriptions) + " |")
+    return "\n".join(rows)
 
 
 def spoiler(label, package, count, targets, tbl, expanded=False):
@@ -151,7 +145,7 @@ def spoiler(label, package, count, targets, tbl, expanded=False):
     noun = "patch" if count == 1 else "patches"
     vtbl = versions_table(targets)
     package_line = f"**Package name:** `{package}`\n\n"
-    versions_section = f"**Supported versions:** {vtbl}\n\n" if vtbl else ""
+    versions_section = f"**🎯 Supported versions:**\n\n{vtbl}\n\n" if vtbl else ""
     tag = "<details open>" if expanded else "<details>"
     return f"""{tag}
 <summary>{label}&nbsp;&nbsp;•&nbsp;&nbsp;{count} {noun}</summary>
@@ -174,7 +168,7 @@ def build_content(expanded=False):
     for entry in by_pkg.values():
         patches = list(entry["patches"].values())
         label   = f"{entry['emoji']} {entry['name']}"
-        lines.append(spoiler(label, entry["package"], len(patches), entry["targets"], patches_table(patches, entry["package"], entry["form_factor"]), expanded))
+        lines.append(spoiler(label, entry["package"], len(patches), entry["targets"], patches_table(patches), expanded))
         lines.append("")
 
     # Universal patches (no specific app)
