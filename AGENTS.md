@@ -37,7 +37,7 @@
 - Do not manually edit or commit generated `patches-list.json`, `patches-bundle.json`, or `CHANGELOG.md`.
 - Do not hand-edit the generated patch-list section between `PATCHES_START` and `PATCHES_END` in `README.md`.
 - Fetch before implementation; fast-forward `dev` when possible and inspect divergence before integrating. Do not rewrite published commits.
-- Make development changes on `dev` with semantic commits; merge `dev` into `main` without squashing for stable releases. See `docs/releasing.md`.
+- Make development changes on `dev` with scoped semantic commits: `<type>(<scope>): <imperative summary>` (for example, `fix(zalo): preserve native ABI filtering`). Use release-recognized types (`feat`, `fix`, `bump`, `perf`, `build`) for changelog entries; use `docs`, `chore`, or `refactor` only for non-release changes. Merge `dev` into `main` without squashing for stable releases. See `docs/releasing.md`.
 - Use `.github/workflows/release.yml` and `.releaserc` for releases; do not create replacement release scripts or manually upload releases.
 - Keep CI to the existing workflows; issue automation workflows are separate and must remain narrowly permissioned.
 - Do not force-push semantic-release commits.
