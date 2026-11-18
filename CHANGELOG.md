@@ -1,3 +1,11 @@
+## [1.13.1-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.13.0...v1.13.1-dev.1) (2026-11-18)
+
+### 🐛 Bug Fixes
+
+* align README generation with Morphe template ([23b736d](https://github.com/zeldrisho/morphe-patches/commit/23b736dc2698dbe1aeeaf46259509995bb670eeb))
+* **patches:** enforce patch names and descriptions ([8c62cc4](https://github.com/zeldrisho/morphe-patches/commit/8c62cc4a57a9fd6eebe237903b4e9e85206bbb23))
+* **readme:** match Morphe template layout ([8b7cc43](https://github.com/zeldrisho/morphe-patches/commit/8b7cc43d258e3ebff508ca6642999142083eb779))
+
 ## [1.13.0](https://github.com/zeldrisho/morphe-patches/compare/v1.12.0...v1.13.0) (2026-11-18)
 
 ### 🐛 Bug Fixes
