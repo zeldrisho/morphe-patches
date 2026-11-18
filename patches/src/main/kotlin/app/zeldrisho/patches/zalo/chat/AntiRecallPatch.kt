@@ -149,7 +149,7 @@ val antiRecallPatch = bytecodePatch(
     }
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object IncomingRecall261101 : Fingerprint(
     definingClass = "Lw6r;", name = "e", accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     parameters = listOf("Lvv3;"), returnType = "V",

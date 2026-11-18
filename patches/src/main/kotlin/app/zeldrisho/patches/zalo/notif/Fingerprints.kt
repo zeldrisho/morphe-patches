@@ -17,7 +17,7 @@ import com.android.tools.smali.dexlib2.Opcode
  * pinned to this exact version via COMPATIBILITY_ZALO — re-verify per update.
  */
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object StoryChannelArm261101 : Fingerprint(
     definingClass = "Lkbu;", name = "k0", accessFlags = listOf(AccessFlags.PUBLIC),
     returnType = "V", parameters = emptyList(),

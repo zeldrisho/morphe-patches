@@ -18,7 +18,7 @@ val hideZaloZStylePatch = bytecodePatch(
 ) {
     compatibleWith(COMPATIBILITY_ZALO_261002_AND_EXPERIMENTAL)
     execute {
-        // The newer target is diagnostic-only until its complete patch set is qualified.
+        // The newer target is experimental until its complete patch set is qualified.
         val version261101 = when (val version = packageMetadata.versionName) {
             "26.10.02" -> false
             "26.11.01" -> true

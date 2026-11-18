@@ -222,7 +222,7 @@ val zaloDriveContactsPermissionBypassPatch = bytecodePatch(
 
     execute {
         if (packageMetadata.versionName == "26.11.01") {
-            // Diagnostic only: this version is intentionally absent from compatibility metadata.
+            // Experimental target: 26.11.01 is advertised but not fully device-qualified.
             val targets = listOf(
                 Triple("Lgmp;", "run", emptyList()),
                 Triple(MEDIA_RESTORE_VIEW, "y5", CONTACT_RESULT_PARAMETERS),
@@ -231,15 +231,19 @@ val zaloDriveContactsPermissionBypassPatch = bytecodePatch(
                 Triple(MANAGE_GOOGLE_ACCOUNT_VIEW, "e5", listOf("Landroid/os/Bundle;")),
                 Triple(MANAGE_GOOGLE_ACCOUNT_VIEW, "z5", emptyList()),
             )
-            targets.forEach { (classType, name, parameters) ->
+            // Resolve every method before mutating any of them. A late mismatch must be atomic.
+            val originals = targets.map { (classType, name, parameters) ->
                 val classDef = classDefBy(classType)
-                val original = classDef.methods.singleOrNull { method ->
+                classDef.methods.singleOrNull { method ->
                     method.name == name && method.parameterTypes == parameters &&
                         method.returnType == "V" && method.implementation != null
                 } ?: error("Zalo Drive Contacts bypass: expected one $classType->$name$parameters")
+                classDef
+            }
+            originals.forEachIndexed { index, classDef ->
+                val (_, name, parameters) = targets[index]
                 val mutableMethod = mutableClassDefBy(classDef).methods.single { method ->
-                    method.name == original.name && method.parameterTypes == original.parameterTypes &&
-                        method.returnType == original.returnType
+                    method.name == name && method.parameterTypes == parameters && method.returnType == "V"
                 }
                 bypassDrivePermissionCheck261101(mutableMethod)
             }

@@ -94,7 +94,7 @@ private fun suppressMediaBoxBranch261002(
     method.replaceInstruction(start + 1, "nop")
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object MediaBoxListInsertion261101 : Fingerprint(
     definingClass = "Lp8g;", name = "D",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL), returnType = "V",

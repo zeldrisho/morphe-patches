@@ -73,7 +73,7 @@ val enableZaloProfileCoverSavingPatch = bytecodePatch(
 private fun isBranchOn(instruction: com.android.tools.smali.dexlib2.iface.instruction.Instruction, opcode: Opcode, register: Int): Boolean = instruction.opcode == opcode &&
     (instruction as? OneRegisterInstruction)?.registerA == register
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object ProfileCoverScreenshotPolicy261101 : Fingerprint(
     definingClass = "Lsb20;", name = "J", accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
     returnType = "V", parameters = listOf("Ldoc;", "Lcom/zing/zalo/control/ItemAlbumMobile;", "Lfl8;", "Lrxj;", "I"),

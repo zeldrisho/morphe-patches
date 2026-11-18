@@ -14,7 +14,7 @@ fd --hidden --no-ignore -t f -e apk -e apkm -e apks -e xapk . analysis/
 python3 scripts/apk_recon.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/notes/recon.md
 
 # Disassemble all DEX files in the APK or split bundle.
-python3 scripts/extract_smali.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/smali
+python3 scripts/extract_smali.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/smali-<run-id>
 
 # Summarize candidate signals; use --files to show matching paths.
 python3 scripts/hunt_signals.py analysis/<package>/<version>/smali --files
@@ -22,7 +22,7 @@ python3 scripts/hunt_signals.py analysis/<package>/<version>/smali --files
 
 Do not treat a partial move as success: confirm the source and destination, preserve the original filename, and never replace existing evidence. Keep captured signer APKs distinct from original downloads. Never move app files from a device without approval.
 
-`extract_smali.py` replaces an existing output directory **after** successful extraction. Choose the output path carefully and preserve notes separately. If omitted, it infers `analysis/<package>/<version>/smali` only for recognizable APKMirror filenames.
+`extract_smali.py` replaces an existing output directory **after** successful extraction. Always choose an unused output directory when the target may contain evidence; never point it at an annotated or previously preserved `smali/` tree. Choose the output path carefully and preserve notes separately. If omitted, it infers `analysis/<package>/<version>/smali` only for recognizable APKMirror filenames.
 
 For decoded text manifests, compare security-relevant components, permissions and queries:
 

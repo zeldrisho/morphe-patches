@@ -32,7 +32,7 @@ internal fun suppressTypingStatus(method: app.morphe.patcher.util.proxy.mutableT
     method.addInstructions(0, "return-void")
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object TypingStatusSend261101 : Fingerprint(
     definingClass = "Lg9g;", name = "T",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),

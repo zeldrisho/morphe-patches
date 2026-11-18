@@ -310,12 +310,15 @@ public final class ZeldrisSettingsContent {
           if (!(view.getContext() instanceof android.app.Activity)) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
           view.getContext().startActivity(intent);
         } catch (RuntimeException ignored) {
-          Toast.makeText(view.getContext(), "Audio picker unavailable", Toast.LENGTH_SHORT).show();
+          Toast.makeText(view.getContext(), vi ? "Không thể mở trình chọn âm thanh" : "Audio picker unavailable", Toast.LENGTH_SHORT).show();
         }
       });
       reset.setOnClickListener(view -> {
-        preferences.edit().remove(CustomRingtone.KEY).apply();
-        Toast.makeText(view.getContext(), vi ? "Đã khôi phục mặc định" : "Using Zalo default", Toast.LENGTH_SHORT).show();
+        if (CustomRingtone.reset(view.getContext())) {
+          Toast.makeText(view.getContext(), vi ? "Đã khôi phục mặc định" : "Using Zalo default", Toast.LENGTH_SHORT).show();
+        } else {
+          Toast.makeText(view.getContext(), vi ? "Không thể khôi phục mặc định" : "Could not reset ringtone", Toast.LENGTH_SHORT).show();
+        }
       });
       parent.addView(choose);
       parent.addView(reset);

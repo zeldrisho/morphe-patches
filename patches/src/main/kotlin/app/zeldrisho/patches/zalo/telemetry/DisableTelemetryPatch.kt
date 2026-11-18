@@ -89,7 +89,7 @@ private object EventBatchInsert261002 : Fingerprint(
     returnType = "I", parameters = listOf("Ljava/util/ArrayList;"), filters = listOf(methodCall(definingClass = "Lf7/d;", name = "g")),
 )
 
-// Diagnostic targets only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object SessionInsertCall261101 : Fingerprint(
     definingClass = "Ldfj;", name = "run", returnType = "V", parameters = emptyList(),
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),

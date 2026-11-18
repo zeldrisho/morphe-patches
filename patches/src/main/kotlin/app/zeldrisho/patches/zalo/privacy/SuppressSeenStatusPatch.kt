@@ -64,7 +64,7 @@ internal fun suppressSeenStatus(method: app.morphe.patcher.util.proxy.mutableTyp
     )
 }
 
-// Diagnostic targets only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object SeenReceiptSend261101 : Fingerprint(
     definingClass = "Ltgv;", name = "e", accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
     returnType = "V", parameters = listOf("Ljava/util/List;", "Z", "I", "I", "Lv4n;"),

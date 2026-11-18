@@ -42,7 +42,7 @@ internal object OfflineAdsGate : Fingerprint(
     ),
 )
 
-// Diagnostic targets only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object OfflineAdsWindow261101 : Fingerprint(
     definingClass = "Lrdg;", name = "v",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC), returnType = "Z", parameters = emptyList(),
@@ -130,7 +130,7 @@ internal object StoryAdsConfig : Fingerprint(
     ),
 )
 
-// Diagnostic targets only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object StoryAdsConfig261101 : Fingerprint(
     filters = listOf(
         string("social@story@story_ads@enable"),

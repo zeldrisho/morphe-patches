@@ -165,11 +165,11 @@ internal val zeldrisSettingsPatch = bytecodePatch {
         meList.replaceInstruction(listReturn, "invoke-static {v$expectedListRegister}, Lapp/zeldrisho/zalo/extension/ZeldrisSettings;->insertAfterProfile(Ljava/util/ArrayList;)V")
         meList.addInstructions(listReturn + 1, "return-object v$expectedListRegister")
         adapter.addInstructions(binding + 1, "invoke-static {p1, v3}, Lapp/zeldrisho/zalo/extension/ZeldrisSettings;->bindSettingsRow(Landroid/view/View;Ljava/lang/Object;)V")
-        zinstant.addInstructions(headers.single() + 1, "invoke-static {p0, p1}, Lapp/zeldrisho/zalo/extension/ZeldrisSettings;->attachAfterProfile(Ljava/lang/Object;Landroid/view/View;)V")
+        zinstant.addInstructions(headers.single() + 1, "invoke-static {p0, v6}, Lapp/zeldrisho/zalo/extension/ZeldrisSettings;->attachAfterProfile(Ljava/lang/Object;Landroid/view/View;)V")
     }
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object ZaloNativeSettingsRoute261101 : Fingerprint(
     definingClass = "Lcom/zing/zalo/ui/maintab/MainTabView;", name = "w5",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL), returnType = "Z", parameters = listOf("I"),

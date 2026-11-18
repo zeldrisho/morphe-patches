@@ -106,7 +106,7 @@ val hideZaloNavigationTabsPatch = bytecodePatch(
     }
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object NavigationTabBuilder261101 : Fingerprint(
     definingClass = "Ly5f;",
     name = "p",

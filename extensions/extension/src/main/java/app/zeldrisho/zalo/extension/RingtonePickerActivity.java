@@ -43,10 +43,21 @@ public final class RingtonePickerActivity extends Activity {
             (data.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION) == 0) {
           throw new IllegalArgumentException("Missing readable document");
         }
+        android.content.SharedPreferences preferences =
+            getSharedPreferences(CustomRingtone.PREFS, MODE_PRIVATE);
+        boolean hadGrant = CustomRingtone.hasPersistedReadGrant(this, uri);
+        String previous = preferences.getString(CustomRingtone.KEY, null);
         getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        boolean saved = getSharedPreferences(CustomRingtone.PREFS, MODE_PRIVATE).edit()
-            .putString(CustomRingtone.KEY, uri.toString()).commit();
-        if (!saved) throw new IllegalStateException("Could not save selection");
+        boolean saved = preferences.edit().putString(CustomRingtone.KEY, uri.toString()).commit();
+        if (!saved) {
+          if (previous == null) preferences.edit().remove(CustomRingtone.KEY).commit();
+          else preferences.edit().putString(CustomRingtone.KEY, previous).commit();
+          if (!hadGrant) CustomRingtone.releaseReadGrant(this, uri);
+          throw new IllegalStateException("Could not save selection");
+        }
+        if (previous != null && !Uri.parse(previous).equals(uri)) {
+          CustomRingtone.releaseReadGrant(this, Uri.parse(previous));
+        }
         Toast.makeText(this, "Call ringtone selected", Toast.LENGTH_SHORT).show();
       } catch (RuntimeException ignored) {
         Toast.makeText(this, "Could not access selected audio", Toast.LENGTH_SHORT).show();

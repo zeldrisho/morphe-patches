@@ -44,6 +44,17 @@ public final class ZeldrisSettings {
     return null;
   }
 
+  private static boolean isSeparator(Object item) {
+    for (String name : SEPARATOR_CLASSES) {
+      try {
+        if (Class.forName(name).isInstance(item)) return true;
+      } catch (ClassNotFoundException ignored) {
+        // Try the next known separator layout.
+      }
+    }
+    return false;
+  }
+
   private static boolean visible(boolean original, String key, boolean defaultHidden) {
     Context context = appContext();
     if (context == null) return original;
@@ -179,7 +190,7 @@ public final class ZeldrisSettings {
       int insertion = profileIndex + 1;
       Class<?> separatorClass = findClass(SEPARATOR_CLASSES);
       if (separatorClass == null) return;
-      if (insertion >= items.size() || !separatorClass.isInstance(items.get(insertion))) {
+      if (insertion >= items.size() || !isSeparator(items.get(insertion))) {
         ((ArrayList) items).add(insertion, separatorClass.getConstructor().newInstance());
       }
       ((ArrayList) items).add(insertion + 1, item);
@@ -220,26 +231,25 @@ public final class ZeldrisSettings {
   }
 
   public static void openBackupSettings() {
-    openScreen("app.zeldrisho.zalo.extension.ZeldrisBackupSettingsView");
+    openScreen(ZeldrisBackupSettingsView.class);
   }
 
   public static void openAccentSettings() {
-    openScreen("app.zeldrisho.zalo.extension.ZeldrisAccentSettingsView");
+    openScreen(ZeldrisAccentSettingsView.class);
   }
 
   public static void openRingtoneSettings() {
-    openScreen("app.zeldrisho.zalo.extension.ZeldrisRingtoneSettingsView");
+    openScreen(ZeldrisRingtoneSettingsView.class);
   }
 
   private static void show(Context context) {
-    openScreen("app.zeldrisho.zalo.extension.ZeldrisSettingsView");
+    openScreen(ZeldrisSettingsView.class);
   }
 
-  private static void openScreen(String className) {
+  private static void openScreen(Class<?> screen) {
     try {
       Object host = mainView.get();
       if (host == null) return;
-      Class<?> screen = Class.forName(className);
       for (String name : new String[] {"T4", "V4"}) {
         try {
           Object navigator = host.getClass().getMethod(name).invoke(host);

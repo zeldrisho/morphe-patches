@@ -23,14 +23,19 @@ Promote a row only from a recorded run, and keep the raw evidence in the ignored
 
 ## Build and patch
 
+Before patching, identify and confirm the intended package from the exact input artifact. If it is unknown, stop and get operator confirmation; never infer approval from the output filename.
+
 ```bash
+INPUT=analysis/<package>/<version>/apk/<input.apk-or-apkm>
+aapt dump badging "$INPUT" | rg "^(package:|sdkVersion:)"
+# Confirm the reported package ID matches the intended app before continuing.
 ./gradlew :patches:buildAndroid --no-daemon
 morphe --help
 morphe patch --help
 morphe list-patches --patches patches/build/libs/patches-<version>.mpp --with-packages --with-versions
 ```
 
-Use the original APK or split bundle with Morphe Desktop. Record the output package ID before installation. Normal validation uses the default-enabled patches; exclusive single-patch runs are diagnostic only. For unsupported versions `--force` skips compatibility checks; it does not establish support. Use `--validate` to check fingerprint uniqueness for `match()`; it does not validate `matchAll()`. Use `--verify-with-sdk` for optional SDK verification. Consult the installed CLI help and the [Morphe Desktop CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md) for current options.
+Use the original APK or split bundle with Morphe Desktop only after confirming its package ID. Record the output package ID before installation. Normal validation uses the default-enabled patches; exclusive single-patch runs are diagnostic only. For unsupported versions `--force` skips compatibility checks; it does not establish support. Use `--validate` to check fingerprint uniqueness for `match()`; it does not validate `matchAll()`. Use `--verify-with-sdk` for optional SDK verification. Consult the installed CLI help and the [Morphe Desktop CLI reference](https://github.com/MorpheApp/morphe-desktop/blob/main/docs/documentation.md) for current options.
 
 Zalo's default native startup bypass removes non-arm64 native libraries because its binary edits are arm64-only. If the bypass is deselected for a diagnostic run, compatibility metadata does not remove other ABIs: pass `--striplibs arm64-v8a` to the Desktop CLI and inspect the output APK's `lib/` entries. This does not apply the bypass or establish that a re-signed app can launch. An arm64-only output cannot be installed on a 32-bit-only device.
 

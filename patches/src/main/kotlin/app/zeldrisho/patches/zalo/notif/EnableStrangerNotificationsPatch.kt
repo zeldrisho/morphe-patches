@@ -40,7 +40,7 @@ val enableZaloStrangerNotificationsPatch = bytecodePatch(
     }
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object StrangerBoxNotificationGate261101 : Fingerprint(
     definingClass = "Lz710;", name = "d",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC), returnType = "Z", parameters = emptyList(),

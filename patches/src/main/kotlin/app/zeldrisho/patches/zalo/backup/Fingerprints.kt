@@ -26,7 +26,7 @@ internal object MediaBackupEligibility : Fingerprint(
 /** Getter descriptors for the account-specific message-backup interval. */
 internal const val BACKUP_INTERVAL_GETTER_261002 = "Lp60/p0;->m(JZLjava/lang/String;)J"
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal const val BACKUP_INTERVAL_GETTER_261101 = "Lcfj;->u(JZLjava/lang/String;)J"
 
 internal object BackupScheduler261101 : Fingerprint(

@@ -63,7 +63,7 @@ internal fun suppressZinstantAdInsertion(method: app.morphe.patcher.util.proxy.m
     method.replaceInstruction(index, "nop")
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object ZinstantAdListInsertion261101 : Fingerprint(
     definingClass = "Lp8g;", name = "e",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL), returnType = "V",

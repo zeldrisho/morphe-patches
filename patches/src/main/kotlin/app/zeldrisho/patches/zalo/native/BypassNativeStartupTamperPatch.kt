@@ -19,7 +19,7 @@ private val ORIGINAL_CONFIG_CALL = byteArrayOf(0xa9.toByte(), 0x10, 0x00, 0x94.t
 private const val EXIT_CALL_OFFSET = 0x2c4ecL
 private val ORIGINAL_EXIT_CALL = byteArrayOf(0x00, 0x01, 0x3f, 0xd6.toByte())
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private const val INIT_BRANCH_OFFSET_261101 = 0x26964L
 private const val CONFIG_CALL_OFFSET_261101 = 0x26998L
 private val ORIGINAL_CONFIG_CALL_261101 = byteArrayOf(0x72, 0x10, 0x00, 0x94.toByte())

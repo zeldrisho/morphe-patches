@@ -109,7 +109,7 @@ internal fun suppressBusinessBoxPeriodicBranch(
     method.replaceInstruction(instructionIndex, "return-void")
 }
 
-// Diagnostic targets only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object BusinessBoxListInsertion261101 : Fingerprint(
     definingClass = "Lp8g;", name = "D",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL), returnType = "V",

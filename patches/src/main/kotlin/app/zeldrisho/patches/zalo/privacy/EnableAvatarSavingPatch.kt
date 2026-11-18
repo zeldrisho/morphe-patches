@@ -45,7 +45,7 @@ internal fun allowAvatarScreenshots(
     method.replaceInstruction(index, "const/4 v$register, 0x0")
 }
 
-/** Diagnostic profile-avatar entry point in Zalo 26.11.01; not yet advertised as supported. */
+/** Experimental profile-avatar entry point in Zalo 26.11.01; not fully device-qualified. */
 private object AvatarScreenshotPolicy261101 : Fingerprint(
     definingClass = "Lcom/zing/zalo/social/presentation/profile/friend_profile/UserProfileView;",
     name = "P8",

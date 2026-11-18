@@ -87,6 +87,7 @@ object Constants {
         version = "26.08.01",
         versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE),
         minSdk = 24,
+        description = "Only arm64-v8a has been validated; patching may retain other ABIs.",
     )
 
     /** Zalo 26.10.02 target, shared by the version-pinned and aggregate compatibility entries. */
@@ -94,6 +95,7 @@ object Constants {
         version = "26.10.02",
         versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE_261002),
         minSdk = 24,
+        description = "Only arm64-v8a has been validated; patching may retain other ABIs.",
     )
 
     /** User-requested experimental target; default patch behavior is not fully qualified. */

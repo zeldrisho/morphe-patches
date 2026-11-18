@@ -49,7 +49,7 @@ val hideZaloNewsfeedPromotionsPatch = bytecodePatch(
     }
 }
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 private object NewsfeedBind261101 : Fingerprint(
     definingClass = "Lfaq;", name = "a0",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),

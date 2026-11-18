@@ -7,7 +7,7 @@ import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.AccessFlags
 
-// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object MediaExpiryStatus261101 : Fingerprint(
     definingClass = "Lm34;", name = "m",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL),
@@ -61,7 +61,7 @@ internal object MediaRestoreAgeCutoff : Fingerprint(
     filters = listOf(string("BACKUP_MEDIA_LIMIT_TIME_DAY")),
 )
 
-/** Diagnostic 26.11.01 media age readers; this version is not yet advertised as supported. */
+/** Experimental 26.11.01 media age readers; this version is not fully device-qualified. */
 internal object MediaBackupAgeFilter261101 : Fingerprint(
     definingClass = "Leud;", name = "k",
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
@@ -245,7 +245,7 @@ internal object SelectedPhotoOriginalFlag : Fingerprint(
     ),
 )
 
-// Diagnostic targets only; 26.11.01 is not yet advertised as supported.
+// Experimental target: 26.11.01 is advertised but not fully device-qualified.
 internal object SelectedMediaQuality261101 : Fingerprint(
     definingClass = "Lgkf;", name = "c", accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
     returnType = "I", parameters = emptyList(), filters = listOf(string("LAST_SELECTION_MEDIA_QUALITY_")),
