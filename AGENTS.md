@@ -41,7 +41,7 @@
 - Make development changes on `dev` with scoped semantic commits: `<type>(<scope>): <imperative summary>`. Use app scopes such as `zalo` for patch behavior and repository scopes such as `readme`, `ci`, or `repo` for project behavior (for example, `fix(readme): correct generated compatibility output`). Use release-recognized types (`feat`, `fix`, `bump`, `perf`, `build`) for changelog entries; use `docs`, `chore`, or `refactor` only for non-release changes. Merge `dev` into `main` without squashing for stable releases. See `docs/releasing.md`.
 - Use `.github/workflows/release.yml` and `.releaserc` for releases; do not create replacement release scripts or manually upload releases.
 - Keep CI to the existing workflows; issue automation workflows are separate and must remain narrowly permissioned.
-- Do not force-push semantic-release commits.
+- Do not push commits unless the user explicitly asks; never force-push semantic-release commits.
 
 ## References
 
