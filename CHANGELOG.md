@@ -1,3 +1,9 @@
+## [1.13.0-dev.4](https://github.com/zeldrisho/morphe-patches/compare/v1.13.0-dev.3...v1.13.0-dev.4) (2026-11-18)
+
+### 🐛 Bug Fixes
+
+* resolve review findings for Zalo 26.11.01 ([10b47cb](https://github.com/zeldrisho/morphe-patches/commit/10b47cb293233ba5d35f212956af0abd21839a10))
+
 ## [1.13.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.13.0-dev.2...v1.13.0-dev.3) (2026-11-18)
 
 ### ✨ New Features
