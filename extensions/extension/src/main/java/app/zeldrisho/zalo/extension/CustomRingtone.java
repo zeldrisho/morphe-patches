@@ -11,6 +11,11 @@ public final class CustomRingtone {
 
   private CustomRingtone() {}
 
+  /** Resolve a ringtone when an obfuscated host field contains a Context. */
+  public static String resolveObject(Object context, String nativeRingtone) {
+    return context instanceof Context ? resolve((Context) context, nativeRingtone) : nativeRingtone;
+  }
+
   /** Retain the host ringtone if no readable persisted grant is available. */
   public static String resolve(Context context, String nativeRingtone) {
     if (context == null || nativeRingtone == null || nativeRingtone.isEmpty()) return nativeRingtone;

@@ -87,7 +87,6 @@ object Constants {
         version = "26.08.01",
         versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE),
         minSdk = 24,
-        description = "Only arm64-v8a has been validated; patching may retain other ABIs.",
     )
 
     /** Zalo 26.10.02 target, shared by the version-pinned and aggregate compatibility entries. */
@@ -95,7 +94,14 @@ object Constants {
         version = "26.10.02",
         versionCodes = mapOf(SupportedAbi.ARM64_V8A to TESTED_ZALO_VERSION_CODE_261002),
         minSdk = 24,
-        description = "Only arm64-v8a has been validated; patching may retain other ABIs.",
+    )
+
+    /** User-requested experimental target; default patch behavior is not fully qualified. */
+    private val ZALO_261101_EXPERIMENTAL_TARGET = AppTarget(
+        version = "26.11.01",
+        versionCodes = mapOf(SupportedAbi.ARM64_V8A to 261101901),
+        isExperimental = true,
+        minSdk = 29,
     )
 
     val COMPATIBILITY_ZALO_260801 = Compatibility(
@@ -114,11 +120,35 @@ object Constants {
         targets = listOf(ZALO_261002_TARGET),
     )
 
-    val COMPATIBILITY_ZALO = Compatibility(
+    val COMPATIBILITY_ZALO_261101_EXPERIMENTAL = Compatibility(
+        name = "Zalo",
+        packageName = "com.zing.zalo",
+        apkFileType = ApkFileType.APKM,
+        appIconColor = 0x0068FF,
+        targets = listOf(ZALO_261101_EXPERIMENTAL_TARGET),
+    )
+
+    val COMPATIBILITY_ZALO_261002_AND_EXPERIMENTAL = Compatibility(
+        name = "Zalo",
+        packageName = "com.zing.zalo",
+        apkFileType = ApkFileType.APKM,
+        appIconColor = 0x0068FF,
+        targets = listOf(ZALO_261002_TARGET, ZALO_261101_EXPERIMENTAL_TARGET),
+    )
+
+    val COMPATIBILITY_ZALO_STABLE = Compatibility(
         name = "Zalo",
         packageName = "com.zing.zalo",
         apkFileType = ApkFileType.APKM,
         appIconColor = 0x0068FF,
         targets = listOf(ZALO_260801_TARGET, ZALO_261002_TARGET),
+    )
+
+    val COMPATIBILITY_ZALO = Compatibility(
+        name = "Zalo",
+        packageName = "com.zing.zalo",
+        apkFileType = ApkFileType.APKM,
+        appIconColor = 0x0068FF,
+        targets = listOf(ZALO_260801_TARGET, ZALO_261002_TARGET, ZALO_261101_EXPERIMENTAL_TARGET),
     )
 }

@@ -3,6 +3,9 @@ package app.zeldrisho.zalo.extension;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +28,7 @@ public final class ZeldrisSettingsContent {
   public static boolean hasRecallSettings() { return false; }
   public static boolean hasAccentColorSettings() { return false; }
   public static boolean hasCustomRingtoneSettings() { return false; }
+  public static boolean hasNotificationSoundSettings() { return false; }
 
   /**
    * Appends the installed features' settings rows to {@code parent} and returns it.
@@ -87,6 +91,9 @@ public final class ZeldrisSettingsContent {
       if (hasCustomRingtoneSettings()) {
         addRingtoneChoice(parent, layout, notifications, preferences, vi);
       }
+      if (hasNotificationSoundSettings()) {
+        addNotificationSoundChoice(parent, layout, notifications, vi);
+      }
       if (hasAccentColorSettings()) {
         addAccentColorChoice(parent, layout, privacy, preferences, vi);
       }
@@ -98,6 +105,41 @@ public final class ZeldrisSettingsContent {
       // A host ABI mismatch must not crash the app.
     }
     return parent;
+  }
+
+  /** Opens Android's notification settings without changing or recreating user-owned channels. */
+  private static void addNotificationSoundChoice(LinearLayout parent, int layout, int rowId,
+      boolean vi) throws ReflectiveOperationException {
+    Context context = parent.getContext();
+    LinearLayout temporary = new LinearLayout(context);
+    LayoutInflater.from(context).inflate(layout, temporary, true);
+    View row = temporary.findViewById(rowId);
+    if (row == null) return;
+    Class<?> cls = row.getClass();
+    cls.getMethod("setTitle", CharSequence.class).invoke(row,
+        vi ? "Âm thanh thông báo" : "Notification sounds");
+    configureIcon(row, "zds_ic_notif_line_24");
+    cls.getMethod("setShowChevronRight", boolean.class).invoke(row, true);
+    row.setId(View.NO_ID);
+    row.setOnClickListener(view -> {
+      try {
+        Intent intent;
+        if (Build.VERSION.SDK_INT >= 26) {
+          intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+              .putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+        } else {
+          intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+              Uri.parse("package:" + context.getPackageName()));
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+      } catch (RuntimeException ignored) {
+        Toast.makeText(context, vi ? "Không thể mở cài đặt thông báo" : "Notification settings unavailable",
+            Toast.LENGTH_SHORT).show();
+      }
+    });
+    ((ViewGroup) row.getParent()).removeView(row);
+    parent.addView(row);
   }
 
   private static void addRingtoneChoice(LinearLayout parent, int layout, int rowId,
@@ -348,6 +390,18 @@ public final class ZeldrisSettingsContent {
     return parent;
   }
 
+  /** Called from the host base class; native settings screens must remain unchanged. */
+  public static void setTitleForPatchedScreen(Object screen) {
+    if (screen == null) return;
+    switch (screen.getClass().getName()) {
+      case "app.zeldrisho.zalo.extension.ZeldrisSettingsView": setTitle(screen); break;
+      case "app.zeldrisho.zalo.extension.ZeldrisBackupSettingsView": setBackupTitle(screen); break;
+      case "app.zeldrisho.zalo.extension.ZeldrisAccentSettingsView": setAccentTitle(screen); break;
+      case "app.zeldrisho.zalo.extension.ZeldrisRingtoneSettingsView": setRingtoneTitle(screen); break;
+      default: break;
+    }
+  }
+
   public static void setTitle(Object screen) {
     setNativeTitle(screen, "Zeldris Patches");
   }
@@ -374,7 +428,12 @@ public final class ZeldrisSettingsContent {
 
   private static void setNativeTitle(Object screen, String title) {
     try {
-      Object actionBar = screen.getClass().getField("y1").get(screen);
+      Object actionBar;
+      try {
+        actionBar = screen.getClass().getField("y1").get(screen);
+      } catch (NoSuchFieldException ignored) {
+        actionBar = screen.getClass().getField("p1").get(screen);
+      }
       if (actionBar != null) actionBar.getClass().getMethod("setMiddleTitle", String.class).invoke(actionBar, title);
     } catch (ReflectiveOperationException | RuntimeException ignored) {
       // Host action bar unavailable.

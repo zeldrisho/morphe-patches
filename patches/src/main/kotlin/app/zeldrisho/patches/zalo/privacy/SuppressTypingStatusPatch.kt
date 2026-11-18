@@ -20,7 +20,8 @@ val suppressZaloTypingStatusPatch = bytecodePatch(
 ) {
     compatibleWith(COMPATIBILITY_ZALO)
     execute {
-        val matches = TypingStatusSend.matchAll(0..1) + TypingStatusSend261002.matchAll(0..1)
+        val matches = TypingStatusSend.matchAll(0..1) + TypingStatusSend261002.matchAll(0..1) +
+            TypingStatusSend261101.matchAll(0..1)
         check(matches.size == 1) { "Expected exactly one outbound typing-status sender" }
         suppressTypingStatus(matches.single().method)
     }
@@ -30,6 +31,17 @@ internal fun suppressTypingStatus(method: app.morphe.patcher.util.proxy.mutableT
     method.clearBody()
     method.addInstructions(0, "return-void")
 }
+
+// Diagnostic target only; 26.11.01 is not yet advertised as supported.
+private object TypingStatusSend261101 : Fingerprint(
+    definingClass = "Lg9g;", name = "T",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    returnType = "V", parameters = listOf("Ljava/lang/String;", "I", "Z", "Z"),
+    filters = listOf(methodCall(
+        opcode = Opcode.INVOKE_VIRTUAL, definingClass = "Ltgv;", name = "f",
+        parameters = listOf("Ljava/lang/String;", "I", "Z", "Z"), returnType = "V",
+    )),
+)
 
 private object TypingStatusSend261002 : Fingerprint(
     definingClass = "Lf20/s;", name = "S",
