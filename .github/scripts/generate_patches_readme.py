@@ -111,37 +111,16 @@ def patches_table(patches):
 
 
 def versions_table(targets):
-    """Render a markdown table of supported versions.
-    Experimental versions get a 🧪 prefix.
-    Versions with a description get it shown in a second row below.
-    """
-    if not targets:
-        return ""
-
-    cells = []
-    descs = []
-    for t in targets:
-        ver   = t["version"]
-        if ver is None:
+    """Render supported versions once each, without a file-type table."""
+    labels = []
+    for target in targets:
+        version = target.get("version")
+        if version is None:
             continue
-        label = f"🧪&nbsp;{ver}" if t.get("isExperimental") else ver
-        if t.get("apkFileType"):
-            label += f" ({t['apkFileType']})"
-        cells.append(label)
-        descs.append((t.get("description") or "").replace("\n", "<br>"))
-
-    if not cells:
-        return ""
-
-    header = "| " + " | ".join(cells) + " |"
-    sep = "| " + " | ".join(":---:" for _ in cells) + " |"
-    rows = [header, sep]
-
-    # Optional description row — only rendered if at least one target has one
-    if any(descs):
-        rows.append("| " + " | ".join(descs) + " |")
-
-    return "\n".join(rows)
+        label = f"🧪&nbsp;{version}" if target.get("isExperimental") else version
+        if label not in labels:
+            labels.append(label)
+    return ", ".join(labels)
 
 
 def spoiler(label, package, count, targets, tbl, expanded=False):
@@ -151,7 +130,7 @@ def spoiler(label, package, count, targets, tbl, expanded=False):
     noun = "patch" if count == 1 else "patches"
     vtbl = versions_table(targets)
     package_line = f"**Package name:** `{package}`\n\n"
-    versions_section = f"**🎯 Supported versions:**\n\n{vtbl}\n\n" if vtbl else ""
+    versions_section = f"**Supported versions:** {vtbl}\n\n" if vtbl else ""
     tag = "<details open>" if expanded else "<details>"
     return f"""{tag}
 <summary>{label}&nbsp;&nbsp;•&nbsp;&nbsp;{count} {noun}</summary>

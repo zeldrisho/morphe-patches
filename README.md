@@ -2,7 +2,7 @@
 
 ## ❓ About
 
-Patches for apps I like, built for [Morphe](https://morphe.software).
+Personal patches for [Morphe](https://morphe.software).
 
 ### How to use these patches
 
@@ -22,11 +22,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 
 **Package name:** `com.zing.zalo`
 
-**🎯 Supported versions:**
-
-| 26.10.02 (APKM) | 26.08.01 (APKM) |
-| :---: | :---: |
-| Only arm64-v8a has been validated; patching may retain other ABIs. | Only arm64-v8a has been validated; patching may retain other ABIs. |
+**Supported versions:** 26.10.02, 26.08.01
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
@@ -74,11 +70,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 
 **Package name:** `com.instagram.barcelona`
 
-**🎯 Supported versions:**
-
-| 434.0.0.41.74 (APKS) | 445.0.0.46.83 (APKS) | 449.0.0.54.82 (APKS) | 453.0.0.56.79 (APKS) | 453.0.0.56.79 (APKM) |
-| :---: | :---: | :---: | :---: | :---: |
-|  |  |  |  | Only arm64-v8a has been validated; ABI is not restricted by compatibility metadata. |
+**Supported versions:** 434.0.0.41.74, 445.0.0.46.83, 449.0.0.54.82, 453.0.0.56.79
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
@@ -99,7 +91,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 - Run `./gradlew :patches:buildAndroid --no-daemon`. The bundle is in `patches/build/libs/`.
 - Apply it with [Morphe Desktop](https://github.com/MorpheApp/morphe-desktop). See [testing](docs/testing.md) for validation.
 
-For Zalo Drive setup, see the [microG-RE guide](docs/microg.md). For a custom launcher icon, see the [example and instructions](docs/custom-icon.md).
+For Zalo Drive and custom icon setup, see the [Zalo guide](docs/zalo.md).
 
 [Report a bug or request a feature](https://github.com/zeldrisho/morphe-patches/issues/new/choose).
 
