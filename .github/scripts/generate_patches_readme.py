@@ -78,6 +78,7 @@ for patch in data["patches"]:
             by_pkg[key] = {
                 "name":    pkg_label(name, form_factor),
                 "package": pkg,
+                "form_factor": form_factor,
                 "emoji":   pkg_emoji(form_factor),
                 "patches": {},
                 "targets": [],
@@ -91,11 +92,26 @@ for patch in data["patches"]:
             by_pkg[key]["patches"][patch["name"]] = patch
 
 
-def patches_table(patches):
-    """Render a sorted markdown table of patches with name, description, and options."""
+def patch_versions(patch, package=None, form_factor=None):
+    """Return the target versions declared for a patch in this package."""
+    versions = {}
+    for compatibility in patch.get("compatiblePackages") or []:
+        if package is not None and compatibility.get("packageName") != package:
+            continue
+        if form_factor is not None and compatibility.get("formFactor") != form_factor:
+            continue
+        for target in compatibility.get("targets") or []:
+            version = target.get("version")
+            if version is not None:
+                versions[version] = versions.get(version, False) or bool(target.get("isExperimental"))
+    return versions
+
+
+def patches_table(patches, package=None, form_factor=None):
+    """Render a sorted markdown table of patches with compatibility and options."""
     rows = [
-        "| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |",
-        "|----------|----------------|-----------|",
+        "| 💊&nbsp;Patch | 📜&nbsp;Description | 🧩&nbsp;Supported versions | ⚙️&nbsp;Options |",
+        "|----------|----------------|------------------------|-----------|",
     ]
     for p in sorted(patches, key=lambda x: x["name"]):
         options = p.get("options") or []
@@ -106,7 +122,12 @@ def patches_table(patches):
         else:
             opts_cell = ""
         desc = (p.get("description") or "").replace("\n", "<br>")
-        rows.append(f"| {p['name']} | {desc} | {opts_cell} |")
+        versions = patch_versions(p, package, form_factor)
+        versions_cell = ", ".join(
+            f"🧪&nbsp;{version}" if experimental else version
+            for version, experimental in sorted(versions.items())
+        )
+        rows.append(f"| {p['name']} | {desc} | {versions_cell} | {opts_cell} |")
     return "\n".join(rows)
 
 
@@ -153,7 +174,7 @@ def build_content(expanded=False):
     for entry in by_pkg.values():
         patches = list(entry["patches"].values())
         label   = f"{entry['emoji']} {entry['name']}"
-        lines.append(spoiler(label, entry["package"], len(patches), entry["targets"], patches_table(patches), expanded))
+        lines.append(spoiler(label, entry["package"], len(patches), entry["targets"], patches_table(patches, entry["package"], entry["form_factor"]), expanded))
         lines.append("")
 
     # Universal patches (no specific app)
