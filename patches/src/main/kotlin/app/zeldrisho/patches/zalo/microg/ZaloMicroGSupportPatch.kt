@@ -192,8 +192,7 @@ val zaloMicroGSupportPatch = bytecodePatch(
     execute {
         val classes = mutableListOf<ClassDef>()
         classDefForEach(classes::add)
-        // New-version owner names cross-checked against the supplied APK and Nezumi Patches
-        // (GPL-3.0), revision 0dee7cf8d2f17b9c61d5960c87fd276269c53f69.
+        // New-version owner names independently cross-checked against the supplied APK.
         rewriteMicroGClasses(
             classes, { classDef -> mutableClassDefBy(classDef) },
             version261002 = packageMetadata.versionName == "26.10.02",
