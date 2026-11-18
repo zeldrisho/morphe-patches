@@ -1,3 +1,9 @@
+## [1.13.0-dev.3](https://github.com/zeldrisho/morphe-patches/compare/v1.13.0-dev.2...v1.13.0-dev.3) (2026-11-18)
+
+### ✨ New Features
+
+* add experimental Zalo 26.11.01 support ([6d8b9b3](https://github.com/zeldrisho/morphe-patches/commit/6d8b9b33ac921052847d3767ebc9a7c161bb9cd4))
+
 ## [1.13.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.13.0-dev.1...v1.13.0-dev.2) (2026-11-15)
 
 ### 🐛 Bug Fixes

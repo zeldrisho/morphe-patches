@@ -15,14 +15,14 @@ Click the button below to add these patches to Morphe, or manually add `https://
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.13.0-dev.2](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.13.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;41 patches total
+> **[v1.13.0-dev.3](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.13.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;42 patches total
 <details>
-<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;35 patches</summary>
+<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;36 patches</summary>
 <br>
 
 **Package name:** `com.zing.zalo`
 
-**Supported versions:** 26.10.02, 26.08.01
+**Supported versions:** 26.10.02, 26.08.01, 🧪&nbsp;26.11.01
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
@@ -54,6 +54,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 | Keep recalled messages | Adds an initially off recall-retention switch in Zeldris Patches. Preserves locally received content with a recalled label; cannot recover missing content. Restart to apply. |  |
 | Mark Zalo conversation read from notifications | Adds a mark-as-read action to eligible message notifications using Zalo's native handler. |  |
 | Native backup interval settings | Adds a backup interval choice in Zeldris Patches. Native is the default; existing backup requirements apply. |  |
+| Notification sound settings | Adds a shortcut to Android notification settings, where available channels and sounds can be configured. |  |
 | Prefer original photo quality | Enables original photo quality by default. Upload limits and video are unaffected. |  |
 | Remove AD_ID permission | Removes Zalo's advertising ID permissions. Messaging is unaffected. |  |
 | Remove media backup age limit | Includes media of any age in Drive backup and restore. Drive retention and excluded media still apply. |  |
