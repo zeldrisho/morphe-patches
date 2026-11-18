@@ -29,6 +29,7 @@
 - Before building when the intended package ID is unknown, confirm it with the operator. Before installation, verify the output package ID; check signing identity before updates. See `docs/testing.md`.
 - Never log or commit credentials, tokens, account data, signing keys or private artifacts.
 - Put Kotlin patch definitions and fingerprints under `patches/src/main/kotlin/app/zeldrisho/patches/`.
+- Give every patch a concise, user-facing sentence-case action name and a non-blank one-sentence description explaining its behavior, scope and important limitations; do not expose implementation details or version fingerprints in the name.
 - Put app-specific runtime Java extension code under `extensions/extension/src/main/java/`; preserve injected class descriptors.
 - Keep injected Dalvik class descriptors and method signatures consistent with the actual extension classes.
 - Keep `extendWith(...)` paths aligned with the extension artifact name in `extensions/extension/build.gradle.kts`.
