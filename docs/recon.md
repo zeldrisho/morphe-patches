@@ -13,16 +13,17 @@ fd --hidden --no-ignore -t f -e apk -e apkm -e apks -e xapk . analysis/
 # Inspect package identity, splits, DEX files and native libraries.
 python3 scripts/apk_recon.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/notes/recon.md
 
-# Disassemble all DEX files in the APK or split bundle.
-python3 scripts/extract_smali.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/smali-<run-id>
+# Decompile the relevant base APK for Java-oriented navigation.
+jadx -d analysis/<package>/<version>/java --show-bad-code analysis/<package>/<version>/apk/base.apk
+rg -n -i '<feature-or-symbol>' analysis/<package>/<version>/java
 
-# Summarize candidate signals; use --files to show matching paths.
-python3 scripts/hunt_signals.py analysis/<package>/<version>/smali --files
+# Disassemble all DEX files in the APK or split bundle for verification.
+python3 scripts/disassemble_apk.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/smali-<run-id>
 ```
 
 Do not treat a partial move as success: confirm the source and destination, preserve the original filename, and never replace existing evidence. Keep captured signer APKs distinct from original downloads. Never move app files from a device without approval.
 
-`extract_smali.py` replaces an existing output directory **after** successful extraction. Always choose an unused output directory when the target may contain evidence; never point it at an annotated or previously preserved `smali/` tree. Choose the output path carefully and preserve notes separately. If omitted, it infers `analysis/<package>/<version>/smali` only for recognizable APKMirror filenames.
+`disassemble_apk.py` replaces an existing output directory **after** successful extraction. Always choose an unused output directory when the target may contain evidence; never point it at an annotated or previously preserved `smali/` tree. Choose the output path carefully and preserve notes separately.
 
 For decoded text manifests, compare security-relevant components, permissions and queries:
 
@@ -36,7 +37,7 @@ Follow the Android-specific parts of [leanrea](https://github.com/aicodeking/lea
 
 For APKM and other bundles, identify the relevant APK members and record both bundle and selected APK hashes. When Java orientation is useful, `jadx -d <new-output-dir> --show-bad-code <base.apk>` can provide decompiled sources; `apktool d --no-src -o <new-output-dir> <base.apk>` can inspect resources. These tools are optional until a task needs them. If a required tool is missing or requires a PATH change, stop and tell the user; do not install it or bypass PATH with an absolute executable path.
 
-Use `jadx --single-class <full-class-name> --single-class-output <new-output-file> <base.apk>` for a focused Java view. For native libraries, inspect architecture and use `llvm-objdump` on a preserved extracted copy. These direct CLI workflows do not require REA or an MCP server. Preserve artifact hashes, source locations, coverage, and limitations; see [testing](testing.md) for signature verification before updates.
+Use `jadx --single-class <full-class-name> --single-class-output <new-output-file> <base.apk>` for a focused Java view. Treat JADX output as navigation evidence only: confirm the exact method descriptor and instructions in smali before writing a fingerprint or mutation. For native libraries, inspect architecture and use `llvm-objdump` on a preserved extracted copy. These direct CLI workflows do not require REA or an MCP server. Preserve artifact hashes, source locations, coverage, and limitations; see [testing](testing.md) for signature verification before updates.
 
 Distinguish observed evidence, inference, and unknowns. Static declarations, decompilation, and references do not establish runtime behavior or complete reflection, dynamic loading, or JNI dispatch. Triage and decompiled output identify candidates, not verified patch targets: verify exact method signatures and instructions in smali, use the [target evidence template](template.md), and follow [testing](testing.md) before claiming compatibility.
 

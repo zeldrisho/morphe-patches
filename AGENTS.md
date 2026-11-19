@@ -14,7 +14,7 @@
 | Build patch bundle | `./gradlew :patches:buildAndroid --no-daemon` |
 | Find local APK and bundle inputs | `fd --hidden --no-ignore -t f -e apk -e apkm -e apks -e xapk . analysis/` |
 | Inspect an APK or APKM | `python3 scripts/apk_recon.py <input> <report>` |
-| Disassemble an APK or APKM | `python3 scripts/extract_smali.py <input> <output>` |
+| Disassemble an APK or APKM | `python3 scripts/disassemble_apk.py <input> <output>` |
 | List bundle patches and targets | `morphe list-patches --patches patches/build/libs/patches-<version>.mpp --with-packages --with-versions` |
 
 ## Rules

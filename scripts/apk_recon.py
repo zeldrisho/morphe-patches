@@ -9,7 +9,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from extract_smali import extract_apks
+from disassemble_apk import extract_apks
 
 
 def run_apkid(apk):
@@ -118,7 +118,12 @@ def main():
 - Permissions: {" ".join(re.findall(r"uses-permission: name='([^']+)", badging)) or "none listed"}
 
 ## Recommended next step
-Run scripts/extract_smali.py, then scripts/hunt_signals.py against the extracted smali.
+Decompile the relevant APK with JADX for Java-oriented navigation, then verify candidate methods with scripts/disassemble_apk.py and exact smali instructions. For example:
+```bash
+jadx -d analysis/<package>/<version>/java --show-bad-code <base.apk>
+rg -n -i '<feature-or-symbol>' analysis/<package>/<version>/java
+python3 scripts/disassemble_apk.py <input> analysis/<package>/<version>/smali-<run-id>
+```
 """
         a.output.parent.mkdir(parents=True, exist_ok=True)
         a.output.write_text(report, encoding="utf-8")
