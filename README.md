@@ -15,16 +15,16 @@ Click the button below to add these patches to Morphe, or manually add `https://
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.13.1-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.13.1-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;42 patches total
+> **[v1.14.0-dev.1](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.14.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;43 patches total
 <details>
-<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;36 patches</summary>
+<summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;37 patches</summary>
 <br>
 
 **Package name:** `com.zing.zalo`
 
 **🎯 Supported versions:**
 
-| 26.10.02 | 26.08.01 | 🧪&nbsp;26.11.01 |
+| 26.08.01 | 26.10.02 | 26.11.01 |
 | :---: | :---: | :---: |
 | Only arm64-v8a has been validated; patching may retain other ABIs. | Only arm64-v8a has been validated; patching may retain other ABIs. |  |
 
@@ -45,6 +45,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 | [Disable telemetry and crash reporting](#disable-telemetry-and-crash-reporting) | Stops selected Zalo analytics and crash reporting. Messaging is unaffected. |  |
 | [Enable Google Drive photo backup](#enable-google-drive-photo-backup) | Makes Zalo's Google Drive photo backup available to more accounts. Google authorization and Drive retention still apply. |  |
 | [Enable avatar saving](#enable-avatar-saving) | Restores Save photo for avatars opened from a profile and allows screenshots. Other screenshot protections are unchanged. |  |
+| [Enable bubble chat](#enable-bubble-chat) | Keeps Zalo's bubble-chat entry point available when supported by Android and notification settings. |  |
 | [Enable profile cover saving](#enable-profile-cover-saving) | Restores Save photo for profile cover photos and allows screenshots. Other viewers are unchanged. |  |
 | [Enable stranger notifications](#enable-stranger-notifications) | Adds an initially off in-app switch to allow Stranger Box notifications. Off uses Zalo's native gate; other settings and delivery restrictions still apply. |  |
 | [Filter promo notifications](#filter-promo-notifications) | Filters Timeline, Stories and Zalo Video notifications. Message, call, friend-request and birthday notifications are unaffected. |  |
