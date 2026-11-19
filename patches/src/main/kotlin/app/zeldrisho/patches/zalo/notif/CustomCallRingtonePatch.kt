@@ -39,7 +39,7 @@ private val ringtonePickerManifest = resourcePatch {
 val customZaloCallRingtonePatch = bytecodePatch(
     name = "Custom Zalo call ringtone",
     description = "Adds a global incoming-call audio file choice in Zeldris Patches; notification and per-friend sounds are unchanged.",
-    default = false,
+    default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO_261002_AND_EXPERIMENTAL)
     dependsOn(zeldrisSettingsPatch, ringtonePickerManifest)

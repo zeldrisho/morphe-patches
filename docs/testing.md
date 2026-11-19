@@ -16,7 +16,7 @@ Compatibility entries in `shared/Constants.kt` describe which builds the patches
 | --- | --- | --- |
 | Zalo 26.08.01 (`260801903`) | PASS | Drive/microG flow validated through initial OAuth, photo restore, and a full backup/restore cycle; see [microG](zalo.md#google-drive-and-microg-re). Re-run after the account-refresh fix. |
 | Zalo 26.10.02 (`261002903`) | PASS for the default set and both Drive patches | Several settings and navigation behaviors user-confirmed; Drive/microG account refresh and restore UNEXECUTED. |
-| Zalo 26.11.01 (`261101901`) | PASS for all 24 default patches in an unforced Morphe CLI diagnostic run. Listed as experimental; not fully qualified. | Installation PASS with matching signer and user approval. After hotfixes, the user confirmed settings, image picker and group muting work normally and reported the Drive Contacts regression worked. Exact Drive steps and other patch behavior remain UNEXECUTED or unrecorded. |
+| Zalo 26.11.01 (`261101901`) | PASS for all 24 default patches in an unforced Morphe CLI diagnostic run. Stable target. The optional bubble-chat patch is not part of the default qualification set. | Installation PASS with matching signer and user approval. Settings, image picker, group muting, and the Drive Contacts regression were user-confirmed. End-to-end Drive backup/restore and several individual patch behaviors remain UNEXECUTED or unrecorded. |
 | Threads 453.0.0.56.79 (`512308696`) | PASS for the default set | Signed build installed as an update and the app works normally; individual patch behavior UNEXECUTED. |
 
 Promote a row only from a recorded run, and keep the raw evidence in the ignored analysis workspace.
