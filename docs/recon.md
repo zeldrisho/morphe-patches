@@ -1,6 +1,21 @@
 # APK inspection and bytecode
 
-These optional local tools support patch development; Gradle and Morphe remain the build and patching tools. Keep each target in the ignored `analysis/<package>/<version>/` workspace: original APKs in `apk/`, disassembly in `smali/`, evidence in `notes/`, and diagnostic outputs in `runs/`. Preserve existing evidence, and keep signing keys private. Do not put account information or tokens in evidence.
+These optional local tools support patch development; Gradle and Morphe remain the build and patching tools. Keep each target in the ignored `analysis/<package>/<version>/` workspace: original APKs in `apk/`, reusable extracted and decompiled inspection data in `recon/`, disassembly in `smali/`, evidence in `notes/`, and diagnostic outputs in `runs/`. Preserve existing evidence, and keep signing keys private. Do not put account information or tokens in evidence.
+
+Use this shared per-version layout:
+
+```text
+analysis/<package>/<version>/
+├── apk/          # Original APK, APKM, APKS, or XAPK inputs
+├── recon/
+│   ├── base.apk  # Reusable base extracted from the exact original bundle
+│   └── java/     # Reusable JADX output for that base
+├── smali/        # Reusable full-bundle disassembly
+├── notes/        # Task-specific evidence records
+└── runs/         # Patch outputs and diagnostic logs
+```
+
+Reuse `recon/base.apk`, `recon/java/`, and `smali/` only while their source artifact and inspection options remain unchanged. Record task-specific conclusions in `notes/` rather than creating another decompilation at the version root.
 
 Look for the requested original APK, APKM, APKS or XAPK under `analysis/<package>/<version>/apk/` first. If it is missing, ask the user for its path; move the supplied file there without overwriting an existing file, and verify its SHA-256 before and after the move. Inspect package and version to confirm the destination before use. Perform subsequent inspection and patching from the workspace. Installed base APKs saved for signer inspection are evidence, not substitutes for the original split bundle.
 
@@ -13,13 +28,15 @@ fd --hidden --no-ignore -t f -e apk -e apkm -e apks -e xapk . analysis/
 # Inspect package identity, splits, DEX files and native libraries.
 python3 scripts/apk_recon.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/notes/recon.md
 
-# Decompile the relevant base APK for Java-oriented navigation.
-jadx -d analysis/<package>/<version>/java --show-bad-code analysis/<package>/<version>/apk/base.apk
-rg -n -i '<feature-or-symbol>' analysis/<package>/<version>/java
+# Decompile the reusable extracted base APK for Java-oriented navigation.
+jadx -d analysis/<package>/<version>/recon/java --show-bad-code analysis/<package>/<version>/recon/base.apk
+rg -n -i '<feature-or-symbol>' analysis/<package>/<version>/recon/java
 
-# Disassemble all DEX files in the APK or split bundle for verification.
-python3 scripts/disassemble_apk.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/smali-<run-id>
+# Disassemble the original bundle once into the shared canonical tree.
+python3 scripts/disassemble_apk.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/smali
 ```
+
+Do not create a full disassembly for every patch attempt. For patched-output verification, prefer focused `baksmali` extraction or a temporary directory outside `analysis/`; retain a full patched disassembly only when it is referenced by an evidence note. Keep patch outputs and result JSON under `runs/<topic>/`, and remove redundant failed APKs or derived trees after recording the relevant evidence.
 
 Do not treat a partial move as success: confirm the source and destination, preserve the original filename, and never replace existing evidence. Keep captured signer APKs distinct from original downloads. Never move app files from a device without approval.
 
