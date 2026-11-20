@@ -15,7 +15,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.14.0-dev.3](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.14.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;44 patches total
+> **[v1.14.0](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.14.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;44 patches total
 <details>
 <summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;38 patches</summary>
 <br>
