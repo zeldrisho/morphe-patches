@@ -9,7 +9,7 @@ import app.zeldrisho.patches.zalo.navigation.zeldrisSettingsPatch
 @Suppress("unused")
 val notificationSoundSettingsPatch = bytecodePatch(
     name = "Notification sound settings",
-    description = "Adds a shortcut to Android notification settings, where available channels and sounds can be configured.",
+    description = "Kept for compatibility with existing patch selections; the notification settings shortcut is hidden.",
     default = true,
 ) {
     compatibleWith(COMPATIBILITY_ZALO_261101_EXPERIMENTAL)

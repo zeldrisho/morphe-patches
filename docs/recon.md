@@ -28,7 +28,9 @@ fd --hidden --no-ignore -t f -e apk -e apkm -e apks -e xapk . analysis/
 # Inspect package identity, splits, DEX files and native libraries.
 python3 scripts/apk_recon.py analysis/<package>/<version>/apk/app.apkm analysis/<package>/<version>/notes/recon.md
 
-# Decompile the reusable extracted base APK for Java-oriented navigation.
+# apk_recon.py preserves the selected bundle base at recon/base.apk when it is absent.
+# It reuses an existing matching file and never overwrites it.
+# Decompile the preserved base APK for Java-oriented navigation.
 jadx -d analysis/<package>/<version>/recon/java --show-bad-code analysis/<package>/<version>/recon/base.apk
 rg -n -i '<feature-or-symbol>' analysis/<package>/<version>/recon/java
 
@@ -52,7 +54,7 @@ python3 scripts/manifest_security_diff.py /private/original/AndroidManifest.xml 
 
 Follow the Android-specific parts of [leanrea](https://github.com/aicodeking/leanrea/blob/main/leanrea/SKILL.md): identify the exact artifact and its contents first, then use focused searches and code inspection. Keep all artifacts and outputs under the ignored analysis workspace rather than temporary directories. Use `rg -uu` for ignored smali trees and limit output to relevant matches. Never delete or overwrite existing evidence.
 
-For APKM and other bundles, identify the relevant APK members and record both bundle and selected APK hashes. When Java orientation is useful, `jadx -d <new-output-dir> --show-bad-code <base.apk>` can provide decompiled sources; `apktool d --no-src -o <new-output-dir> <base.apk>` can inspect resources. These tools are optional until a task needs them. If a required tool is missing or requires a PATH change, stop and tell the user; do not install it or bypass PATH with an absolute executable path.
+For APKM and other bundles, identify the relevant APK members and record both bundle and selected APK hashes. `apk_recon.py` preserves the selected base member as `recon/base.apk` only when that reusable evidence is absent, and refuses to overwrite a mismatched existing file; it does not create another copy when the preserved base already matches. When Java orientation is useful, `jadx -d <new-output-dir>/recon/java --show-bad-code <base.apk>` can provide decompiled sources; `apktool d --no-src -o <new-output-dir> <base.apk>` can inspect resources. These tools are optional until a task needs them. If a required tool is missing or requires a PATH change, stop and tell the user; do not install it or bypass PATH with an absolute executable path.
 
 Use `jadx --single-class <full-class-name> --single-class-output <new-output-file> <base.apk>` for a focused Java view. Treat JADX output as navigation evidence only: confirm the exact method descriptor and instructions in smali before writing a fingerprint or mutation. For native libraries, inspect architecture and use `llvm-objdump` on a preserved extracted copy. These direct CLI workflows do not require REA or an MCP server. Preserve artifact hashes, source locations, coverage, and limitations; see [testing](testing.md) for signature verification before updates.
 
