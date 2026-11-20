@@ -1,3 +1,14 @@
+## [1.14.0-dev.2](https://github.com/zeldrisho/morphe-patches/compare/v1.14.0-dev.1...v1.14.0-dev.2) (2026-11-20)
+
+### 🐛 Bug Fixes
+
+* **zalo:** hide audio settings rows ([bf34c17](https://github.com/zeldrisho/morphe-patches/commit/bf34c17bc026819bdb5672aa0e8070fc7005dfbf))
+
+### ✨ New Features
+
+* **ci:** enable issue triage features ([1600bed](https://github.com/zeldrisho/morphe-patches/commit/1600bed38cf501c9f7a9e88064cd65e7dcc8d68d))
+* **zalo:** default links to external browser ([fb3d2a2](https://github.com/zeldrisho/morphe-patches/commit/fb3d2a2e580ec678ea3bc376adc6816ae26e8724))
+
 ## [1.14.0-dev.1](https://github.com/zeldrisho/morphe-patches/compare/v1.13.1-dev.1...v1.14.0-dev.1) (2026-11-19)
 
 ### ✨ New Features
