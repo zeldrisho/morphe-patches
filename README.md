@@ -15,7 +15,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 ## 🩹 Patches list
 
 <!-- PATCHES_START -->
-> **[v1.14.0-dev.2](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.14.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;44 patches total
+> **[v1.14.0-dev.3](https://github.com/zeldrisho/morphe-patches/releases/tag/v1.14.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;44 patches total
 <details>
 <summary>📦 Zalo&nbsp;&nbsp;•&nbsp;&nbsp;38 patches</summary>
 <br>
@@ -38,7 +38,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 | [Change Zalo package name](#change-zalo-package-name) | Allows a renamed clone alongside Zalo. Login, push, sharing and deep links may be affected. | • Package name |
 | [Chat reaction picker](#chat-reaction-picker) | Allows the enabled reaction UI without a matching local subscription package. Server restrictions may still apply. |  |
 | [Configurable native backup interval](#configurable-native-backup-interval) | Sets Zalo 26.08.01's automatic backup interval to 1, 3, 6 or 12 hours. Existing backup requirements still apply. For 26.10.02 use the in-app interval settings. | • Backup interval (hours) |
-| [Custom Zalo call ringtone](#custom-zalo-call-ringtone) | Adds a global incoming-call audio file choice in Zeldris Patches; notification and per-friend sounds are unchanged. |  |
+| [Custom Zalo call ringtone](#custom-zalo-call-ringtone) | Adds a global incoming-call audio file choice; the setting is unavailable in the current Zeldris settings screen, so the native ringtone is used by default. |  |
 | [Customize Zalo accent color](#customize-zalo-accent-color) | Recolors Zalo's brand theme attributes from preset colors. Hardcoded colors, images and third-party branding keep their native values. |  |
 | [Disable ads](#disable-ads) | Blocks selected offline and Google-served ads. Story and community sponsored placements require a separate patch. |  |
 | [Disable sponsored placements](#disable-sponsored-placements) | Disables Story and community sponsored placements. Server-delivered and Official Account promotions may remain. |  |
@@ -59,7 +59,7 @@ Click the button below to add these patches to Morphe, or manually add `https://
 | [Keep recalled messages](#keep-recalled-messages) | Adds an initially off recall-retention switch in Zeldris Patches. Preserves locally received content with a recalled label; cannot recover missing content. Restart to apply. |  |
 | [Mark Zalo conversation read from notifications](#mark-zalo-conversation-read-from-notifications) | Adds a mark-as-read action to eligible message notifications using Zalo's native handler. |  |
 | [Native backup interval settings](#native-backup-interval-settings) | Adds a backup interval choice in Zeldris Patches. Native is the default; existing backup requirements apply. |  |
-| [Notification sound settings](#notification-sound-settings) | Adds a shortcut to Android notification settings, where available channels and sounds can be configured. |  |
+| [Notification sound settings](#notification-sound-settings) | Kept for compatibility with existing patch selections; the notification settings shortcut is hidden. |  |
 | [Open links externally by default](#open-links-externally-by-default) | Sets Zalo's existing link preference to the external browser by default while preserving the in-app browser option. |  |
 | [Prefer original photo quality](#prefer-original-photo-quality) | Enables original photo quality by default. Upload limits and video are unaffected. |  |
 | [Remove AD_ID permission](#remove-ad-id-permission) | Removes Zalo's advertising ID permissions. Messaging is unaffected. |  |
