@@ -89,12 +89,6 @@ public final class ZeldrisSettingsContent {
         ((ViewGroup) backup.getParent()).removeView(backup);
         parent.addView(backup);
       }
-      if (hasCustomRingtoneSettings()) {
-        addRingtoneChoice(parent, layout, notifications, preferences, vi);
-      }
-      if (hasNotificationSoundSettings()) {
-        addNotificationSoundChoice(parent, layout, notifications, vi);
-      }
       if (hasAccentColorSettings()) {
         addAccentColorChoice(parent, layout, privacy, preferences, vi);
       }

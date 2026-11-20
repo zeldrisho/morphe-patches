@@ -15,10 +15,5 @@ val notificationSoundSettingsPatch = bytecodePatch(
     compatibleWith(COMPATIBILITY_ZALO_261101_EXPERIMENTAL)
     dependsOn(zeldrisSettingsPatch)
 
-    execute {
-        mutableClassDefBy("Lapp/zeldrisho/zalo/extension/ZeldrisSettingsContent;")
-            .methods.single {
-                it.name == "hasNotificationSoundSettings" && it.parameterTypes.isEmpty() && it.returnType == "Z"
-            }.returnEarly(true)
-    }
+    // Kept for compatibility with existing patch selections; the settings shortcut is hidden.
 }

@@ -47,9 +47,6 @@ val customZaloCallRingtonePatch = bytecodePatch(
         val version261101 = packageMetadata.versionName == "26.11.01"
         val method = (if (version261101) IncomingRingtone261101 else IncomingRingtone).matchAll(1..1).single().method
         check(method.implementation?.registerCount == 9) { "Incoming ringtone registers changed" }
-        val capability = mutableClassDefBy("Lapp/zeldrisho/zalo/extension/ZeldrisSettingsContent;")
-            .methods.single { it.name == "hasCustomRingtoneSettings" && it.parameterTypes.isEmpty() && it.returnType == "Z" }
-        capability.returnEarly(true)
         // v0 is immediately overwritten by the original entry; p1 is the ringtone URI.
         val injection = if (version261101) """
             iget-object v0, p0, Ljyl;->d:Ljava/lang/Object;
